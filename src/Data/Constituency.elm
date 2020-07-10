@@ -8,12 +8,13 @@ type alias Model =
     { id : String
     , name : String
     , regionId : String
+    , year : String
     }
 
 
 initConstituency : Model
 initConstituency =
-    { id = "", name = "", regionId = "" }
+    { id = "", name = "", regionId = "", year = "" }
 
 
 encode : Model -> Encode.Value
@@ -21,12 +22,14 @@ encode constituency =
     Encode.object
         [ ( "name", Encode.string constituency.name )
         , ( "region_id", Encode.string constituency.regionId )
+        , ( "year", Encode.string constituency.year )
         ]
 
 
 decode : Decode.Decoder Model
 decode =
-    Decode.map3 Model
+    Decode.map4 Model
         (Decode.field "id" Decode.string)
         (Decode.field "name" Decode.string)
         (Decode.field "region_id" Decode.string)
+        (Decode.field "year" Decode.string)

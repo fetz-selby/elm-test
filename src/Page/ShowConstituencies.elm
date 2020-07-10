@@ -15,7 +15,22 @@ type alias Model =
     }
 
 
-view =
+view : List Constituency.Model -> Html.Html Msg
+view constituencies =
     div
         []
-        []
+        [ renderConstituencyList constituencies ]
+
+
+renderConstituencyList : List Constituency.Model -> Html.Html Msg
+renderConstituencyList constituencies =
+    div []
+        (List.map renderConstituencyItem constituencies)
+
+
+renderConstituencyItem : Constituency.Model -> Html.Html Msg
+renderConstituencyItem constituency =
+    div []
+        [ div [] [ Html.text constituency.name ]
+        , div [] [ Html.text constituency.year ]
+        ]
