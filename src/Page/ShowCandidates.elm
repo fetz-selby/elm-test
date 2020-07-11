@@ -1,4 +1,4 @@
-module Page.ShowCandidates exposing (Msg(..), decode, initShowCandidateModel, view)
+module Page.ShowCandidates exposing (Model, Msg(..), decode, initShowCandidateModel, update, view)
 
 import Data.Candidate as Candidate
 import Html exposing (div)
@@ -21,6 +21,16 @@ type alias Model =
 initShowCandidateModel : Model
 initShowCandidateModel =
     { candidates = [], constituencyName = "", year = "" }
+
+
+update : Model -> Msg -> ( Model, Cmd Msg )
+update model msg =
+    case msg of
+        FetchCandidates constituencyId ->
+            ( model, Cmd.none )
+
+        CandidatesReceived candidates ->
+            ( model, Cmd.none )
 
 
 view : Model -> Html.Html Msg

@@ -1,4 +1,4 @@
-module Page.ShowConstituencies exposing (Model, Msg(..), decode, view)
+module Page.ShowConstituencies exposing (Model, Msg(..), decode, update, view)
 
 import Data.Constituency as Constituency
 import Html exposing (div)
@@ -15,6 +15,16 @@ type alias Model =
     { constituencies : List Constituency.Model
     , region : String
     }
+
+
+update : Model -> Msg -> ( Model, Cmd Msg )
+update model msg =
+    case msg of
+        FetchConstituencies constituencyId ->
+            ( model, Cmd.none )
+
+        ConstituenciesReceived candidates ->
+            ( model, Cmd.none )
 
 
 view : List Constituency.Model -> Html.Html Msg
