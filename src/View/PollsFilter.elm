@@ -1,10 +1,11 @@
-module View.PollsFilter exposing (update, view)
+module View.PollsFilter exposing (Model, encode, update, view)
 
 import Data.Constituency as Constituency
 import Html exposing (div)
 import Html.Attributes exposing (value)
 import Html.Events exposing (onClick)
 import Html.Events.Extra exposing (onChange)
+import Json.Encode as Encode
 
 
 type Msg
@@ -51,3 +52,11 @@ constituencyItem item =
 submitButton : Html.Html Msg
 submitButton =
     Html.button [ onClick Submit ] [ Html.text "Load" ]
+
+
+encode : Model -> Encode.Value
+encode model =
+    Encode.object
+        [ ( "constituency_id", Encode.string model.constituencyId )
+        , ( "year", Encode.string model.year )
+        ]

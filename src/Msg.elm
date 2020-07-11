@@ -1,7 +1,68 @@
-module Msg exposing (..)
+module Msg exposing (Msg(..), decode)
 
+import Json.Decode as Decode
+import Model as Model
+import Page.ShowCandidates as ShowCandidates
 import Page.ShowConstituencies as ShowConstituencies
+import Page.ShowParties as ShowParties
+import Page.ShowPolls as ShowPolls
 
 
 type Msg
     = ShowConstituencies ShowConstituencies.Msg
+    | ShowCandidates ShowCandidates.Msg
+    | ShowParties ShowParties.Msg
+    | ShowPolls ShowPolls.Msg
+    | IncomingMsgError IncomingAppError
+
+
+type IncomingAppError
+    = FailedToLoadConstituencies
+    | FailedToLoadCandidates
+    | FailedToLoadParties
+    | FailedToLoadPolls
+    | NoDecoderMatchFound
+
+
+decode : Model.Model -> Decode.Value -> Msg
+decode model json =
+    case Decode.decodeValue (Decode.field "type" Decode.string) json of
+        Ok "CandidatesLoaded" ->
+            case decodePayload ShowCandidates.decode json of
+                Ok candidates ->
+                    ShowCandidates (ShowCandidates.CandidatesReceived candidates)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadCandidates
+
+        Ok "ConstituenciesLoaded" ->
+            case decodePayload ShowConstituencies.decode json of
+                Ok constituencies ->
+                    ShowConstituencies (ShowConstituencies.ConstituenciesReceived constituencies)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadConstituencies
+
+        Ok "PollsLoaded" ->
+            case decodePayload ShowPolls.decode json of
+                Ok polls ->
+                    ShowPolls (ShowPolls.PollsReceived polls)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadPolls
+
+        Ok "PartiesLoaded" ->
+            case decodePayload ShowParties.decode json of
+                Ok parties ->
+                    ShowParties (ShowParties.PartiesReceived parties)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadParties
+
+        _ ->
+            IncomingMsgError NoDecoderMatchFound
+
+
+decodePayload : Decode.Decoder a -> Decode.Value -> Result Decode.Error a
+decodePayload decoder =
+    Decode.decodeValue (Decode.field "payload" decoder)

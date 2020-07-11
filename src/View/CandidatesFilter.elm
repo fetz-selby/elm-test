@@ -1,10 +1,11 @@
-module View.CandidatesFilter exposing (update, view)
+module View.CandidatesFilter exposing (Model, encode, update, view)
 
 import Data.Constituency as Constituency
 import Html exposing (div)
 import Html.Attributes exposing (value)
 import Html.Events exposing (onClick)
 import Html.Events.Extra exposing (onChange)
+import Json.Encode as Encode
 
 
 type Msg
@@ -14,6 +15,7 @@ type Msg
 
 type alias Model =
     { constituencyId : String
+    , candidateType : String
     , year : String
     }
 
@@ -51,3 +53,12 @@ constituencyItem item =
 submitButton : Html.Html Msg
 submitButton =
     Html.button [ onClick Submit ] [ Html.text "Load" ]
+
+
+encode : Model -> Encode.Value
+encode model =
+    Encode.object
+        [ ( "constituency_id", Encode.string model.constituencyId )
+        , ( "type", Encode.string model.candidateType )
+        , ( "year", Encode.string model.year )
+        ]

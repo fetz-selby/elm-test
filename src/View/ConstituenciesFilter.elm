@@ -1,9 +1,10 @@
-module View.ConstituenciesFilter exposing (update, view)
+module View.ConstituenciesFilter exposing (Model, encode, update, view)
 
 import Html exposing (div)
 import Html.Attributes exposing (value)
 import Html.Events exposing (onClick)
 import Html.Events.Extra exposing (onChange)
+import Json.Encode as Encode
 
 
 type alias ConstituencyFilter =
@@ -13,8 +14,8 @@ type alias ConstituencyFilter =
 
 
 type alias Model =
-    { regions : List ConstituencyFilter
-    , selectedRegionId : String
+    { regionId : String
+    , year : String
     }
 
 
@@ -23,10 +24,10 @@ type Msg
     | OnRegionChange String
 
 
-view : Model -> Html.Html Msg
-view model =
+view : List ConstituencyFilter -> Html.Html Msg
+view regions =
     div []
-        [ loadRegions model.regions
+        [ loadRegions regions
         , submitButton
         ]
 
@@ -56,3 +57,11 @@ regionItem item =
 submitButton : Html.Html Msg
 submitButton =
     Html.button [ onClick Submit ] [ Html.text "Load" ]
+
+
+encode : Model -> Encode.Value
+encode model =
+    Encode.object
+        [ ( "region_id", Encode.string model.regionId )
+        , ( "year", Encode.string model.year )
+        ]

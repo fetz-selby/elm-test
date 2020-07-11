@@ -1,12 +1,14 @@
-module Page.ShowConstituencies exposing (Model, Msg(..), view)
+module Page.ShowConstituencies exposing (Model, Msg(..), decode, view)
 
 import Data.Constituency as Constituency
 import Html exposing (div)
 import Html.Attributes exposing (..)
+import Json.Decode as Decode
 
 
 type Msg
     = FetchConstituencies String
+    | ConstituenciesReceived (List Constituency.Model)
 
 
 type alias Model =
@@ -34,3 +36,8 @@ renderConstituencyItem constituency =
         [ div [] [ Html.text constituency.name ]
         , div [] [ Html.text constituency.year ]
         ]
+
+
+decode : Decode.Decoder (List Constituency.Model)
+decode =
+    Decode.field "constituencies" (Decode.list Constituency.decode)
