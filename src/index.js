@@ -1,4 +1,8 @@
 import Elm from "./Main.elm";
+import { getConstituencies, addConstituency } from "./api/constituencies";
+import { getCandidates, addCandidate } from "./api/candidates";
+import { getParties, addParty } from "./api/parties";
+import { getPolls, addPoll } from "./api/polls";
 
 // init the elm app
 function create() {
@@ -13,18 +17,24 @@ function create() {
     switch (action) {
       case "FetchCandidates": {
         console.log("Fetching candidates");
+        getCandidates({ app, payload });
         break;
       }
       case "FetchConstituencies": {
         console.log("Fetching constituencies");
+        getConstituencies({ app, payload });
         break;
       }
       case "FetchPolls": {
         console.log("Fetching polls");
+        getPolls({ app, payload });
         break;
       }
-      case "SelectedLocation":
+      case "FetchParties": {
+        console.log("Fetching parties");
+        getParties({ app, payload });
         break;
+      }
       case "InitApp": {
         console.log("Init App");
         break;
