@@ -1,4 +1,4 @@
-module Page exposing (Msg(..))
+module Page exposing (Msg(..), default)
 
 import Page.ShowCandidates as ShowCandidates
 import Page.ShowConstituencies as ShowConstituencies
@@ -11,3 +11,8 @@ type Msg
     | ShowCandidates ShowCandidates.Model
     | ShowPolls ShowPolls.Model
     | ShowParties ShowParties.Model
+
+
+default : Msg
+default =
+    ShowConstituencies ShowConstituencies.default

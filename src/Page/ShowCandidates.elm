@@ -1,6 +1,7 @@
-module Page.ShowCandidates exposing (Model, Msg(..), decode, initShowCandidateModel, update, view)
+module Page.ShowCandidates exposing (Model, Msg(..), decode, default, initShowCandidateModel, update, view)
 
 import Data.Candidate as Candidate
+import Data.Constituency as Constituency
 import Html exposing (div)
 import Html.Attributes exposing (..)
 import Json.Decode as Decode
@@ -13,14 +14,14 @@ type Msg
 
 type alias Model =
     { candidates : List Candidate.Model
-    , constituencyName : String
+    , constituency : Constituency.Model
     , year : String
     }
 
 
 initShowCandidateModel : Model
 initShowCandidateModel =
-    { candidates = [], constituencyName = "", year = "" }
+    { candidates = [], constituency = Constituency.default, year = "" }
 
 
 update : Model -> Msg -> ( Model, Cmd Msg )
@@ -60,3 +61,8 @@ renderCandidateItem candidate =
 decode : Decode.Decoder (List Candidate.Model)
 decode =
     Decode.field "candidates" (Decode.list Candidate.decode)
+
+
+default : Model
+default =
+    { candidates = [], constituency = Constituency.default, year = "" }

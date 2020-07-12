@@ -1,4 +1,4 @@
-module Model exposing (Model)
+module Model exposing (Model, default)
 
 import Page as Page
 
@@ -8,3 +8,8 @@ type alias Model =
     , userName : String
     , regionId : String
     }
+
+
+default : Model
+default =
+    { pages = Page.default, userName = "", regionId = "" }

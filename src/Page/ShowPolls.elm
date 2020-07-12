@@ -1,4 +1,4 @@
-module Page.ShowPolls exposing (Model, Msg(..), decode, update, view)
+module Page.ShowPolls exposing (Model, Msg(..), decode, default, update, view)
 
 import Data.Constituency as Constituency
 import Data.Poll as Poll
@@ -15,6 +15,7 @@ type Msg
 type alias Model =
     { polls : List Poll.Model
     , constituency : Constituency.Model
+    , year : String
     }
 
 
@@ -37,3 +38,8 @@ update model msg =
 decode : Decode.Decoder (List Poll.Model)
 decode =
     Decode.field "polls" (Decode.list Poll.decode)
+
+
+default : Model
+default =
+    { polls = [], constituency = Constituency.default, year = "" }

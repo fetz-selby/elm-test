@@ -1,4 +1,4 @@
-module Page.ShowConstituencies exposing (Model, Msg(..), decode, update, view)
+module Page.ShowConstituencies exposing (Model, Msg(..), decode, default, update, view)
 
 import Data.Constituency as Constituency
 import Html exposing (div)
@@ -14,6 +14,7 @@ type Msg
 type alias Model =
     { constituencies : List Constituency.Model
     , region : String
+    , year : String
     }
 
 
@@ -51,3 +52,8 @@ renderConstituencyItem constituency =
 decode : Decode.Decoder (List Constituency.Model)
 decode =
     Decode.field "constituencies" (Decode.list Constituency.decode)
+
+
+default : Model
+default =
+    { constituencies = [], region = "", year = "" }

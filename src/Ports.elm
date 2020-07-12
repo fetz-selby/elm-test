@@ -10,6 +10,7 @@ type OutgoingMsg
     = FetchCandidates CandidateFilter.Model
     | FetchConstituencies ConstituencyFilter.Model
     | FetchPolls PollFilter.Model
+    | InitApp
 
 
 port msgForJs : PortData -> Cmd msg
@@ -24,6 +25,11 @@ type alias PortData =
     }
 
 
+sendToJs : OutgoingMsg -> Cmd msg
+sendToJs =
+    toPortData >> msgForJs
+
+
 toPortData : OutgoingMsg -> PortData
 toPortData msg =
     case msg of
@@ -35,3 +41,6 @@ toPortData msg =
 
         FetchPolls model ->
             { action = "FetchPolls", payload = PollFilter.encode model }
+
+        InitApp ->
+            { action = "InitApp", payload = Encode.null }

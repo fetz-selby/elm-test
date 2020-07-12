@@ -1,4 +1,4 @@
-module Data.Constituency exposing (Model, decode, encode, initConstituency)
+module Data.Constituency exposing (Model, decode, default, encode, initConstituency)
 
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -33,3 +33,8 @@ decode =
         (Decode.field "name" Decode.string)
         (Decode.field "region_id" Decode.string)
         (Decode.field "year" Decode.string)
+
+
+default : Model
+default =
+    { id = "", name = "", regionId = "", year = "" }

@@ -1,4 +1,4 @@
-module Page.ShowParties exposing (Model, Msg(..), decode, update, view)
+module Page.ShowParties exposing (Model, Msg(..), decode, default, update, view)
 
 import Data.Party as Party
 import Html exposing (div)
@@ -52,3 +52,8 @@ renderPartyItem party =
 decode : Decode.Decoder (List Party.Model)
 decode =
     Decode.field "parties" (Decode.list Party.decode)
+
+
+default : Model
+default =
+    { parties = [], year = "" }
