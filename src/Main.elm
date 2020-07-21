@@ -56,13 +56,13 @@ update msg model =
             case model.page of
                 App appModel ->
                     let
-                        ( _, upCmd ) =
+                        ( m, upCmd ) =
                             AppUpdate.update appMsg appModel
 
                         cmd =
                             Cmd.map AppMsg upCmd
                     in
-                    ( { model | page = App appModel }, cmd )
+                    ( { model | page = App m }, cmd )
 
                 Err ->
                     let

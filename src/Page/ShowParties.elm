@@ -17,11 +17,11 @@ type alias Model =
     }
 
 
-view : List Party.Model -> Html.Html Msg
-view parties =
+view : Model -> Html.Html Msg
+view model =
     div
         []
-        [ renderPartyList parties ]
+        [ renderPartyList model.parties ]
 
 
 update : Model -> Msg -> ( Model, Cmd Msg )
@@ -44,8 +44,8 @@ renderPartyItem : Party.Model -> Html.Html Msg
 renderPartyItem party =
     div []
         [ div [] [ Html.text party.name ]
-        , div [] [ Html.text party.path ]
-        , div [] [ Html.text party.logo ]
+        , div [] [ Html.text party.color ]
+        , div [] [ Html.text party.logoPath ]
         ]
 
 

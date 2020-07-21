@@ -3,6 +3,7 @@ module Data.Candidate exposing (Model, decode, encode, initCandidate)
 import Data.Constituency as Constituency
 import Data.Party as Party
 import Json.Decode as Decode
+import Json.Decode.Pipeline as JDP
 import Json.Encode as Encode
 
 
@@ -14,6 +15,10 @@ type alias Model =
     , year : String
     , votes : Int
     , candidateType : String
+    , avatarPath : String
+    , angle : Float
+    , percentage : Float
+    , barRatio : Float
     }
 
 
@@ -26,6 +31,10 @@ initCandidate =
     , year = ""
     , votes = 0
     , candidateType = ""
+    , avatarPath = ""
+    , angle = 0.0
+    , percentage = 0.0
+    , barRatio = 0.0
     }
 
 
@@ -43,11 +52,15 @@ encode candidate =
 
 decode : Decode.Decoder Model
 decode =
-    Decode.map7 Model
-        (Decode.field "id" Decode.string)
-        (Decode.field "name" Decode.string)
-        (Decode.field "constituency" Constituency.decode)
-        (Decode.field "party" Party.decode)
-        (Decode.field "year" Decode.string)
-        (Decode.field "votes" Decode.int)
-        (Decode.field "type" Decode.string)
+    Decode.succeed Model
+        |> JDP.required "id" Decode.string
+        |> JDP.required "name" Decode.string
+        |> JDP.required "constituency" Constituency.decode
+        |> JDP.required "party" Party.decode
+        |> JDP.required "year" Decode.string
+        |> JDP.required "votes" Decode.int
+        |> JDP.required "group_type" Decode.string
+        |> JDP.required "avatar_path" Decode.string
+        |> JDP.required "angle" Decode.float
+        |> JDP.required "percentage" Decode.float
+        |> JDP.required "bar_ratio" Decode.float

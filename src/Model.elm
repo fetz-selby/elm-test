@@ -4,7 +4,7 @@ import Page as Page
 
 
 type alias Model =
-    { pages : Page.Msg
+    { pages : Page.Page
     , userName : String
     , regionId : String
     }

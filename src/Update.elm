@@ -7,11 +7,23 @@ import Page.ShowCandidates as ShowCandidatesPage
 import Page.ShowConstituencies as ShowConstituenciesPage
 import Page.ShowParties as ShowPartiesPage
 import Page.ShowPolls as ShowPollsPage
+import Page.ShowRegions as ShowRegionsPage
 
 
 update : Msg.Msg -> Model -> ( Model, Cmd Msg.Msg )
 update msg model =
     case msg of
+        Msg.ShowRegions regMsg ->
+            case model.pages of
+                Page.ShowRegions submodel ->
+                    regMsg
+                        |> ShowRegionsPage.update submodel
+                        |> Tuple.mapFirst (updateWithRegionsPage model)
+                        |> Tuple.first
+
+                _ ->
+                    ( model, Cmd.none )
+
         Msg.ShowCandidates canMsg ->
             case model.pages of
                 Page.ShowCandidates submodel ->
@@ -63,6 +75,11 @@ update msg model =
 updateWithCandidatesPage : Model -> ShowCandidatesPage.Model -> ( Model, Cmd Msg.Msg )
 updateWithCandidatesPage model pageModel =
     ( { model | pages = Page.ShowCandidates pageModel }, Cmd.none )
+
+
+updateWithRegionsPage : Model -> ShowRegionsPage.Model -> ( Model, Cmd Msg.Msg )
+updateWithRegionsPage model pageModel =
+    ( { model | pages = Page.ShowRegions pageModel }, Cmd.none )
 
 
 updateWithConstituenciesPage : Model -> ShowConstituenciesPage.Model -> ( Model, Cmd Msg.Msg )

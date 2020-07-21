@@ -6,6 +6,7 @@ import Page.ShowCandidates as ShowCandidates
 import Page.ShowConstituencies as ShowConstituencies
 import Page.ShowParties as ShowParties
 import Page.ShowPolls as ShowPolls
+import Page.ShowRegions as ShowRegions
 
 
 type Msg
@@ -13,6 +14,7 @@ type Msg
     | ShowCandidates ShowCandidates.Msg
     | ShowParties ShowParties.Msg
     | ShowPolls ShowPolls.Msg
+    | ShowRegions ShowRegions.Msg
     | IncomingMsgError IncomingAppError
 
 
@@ -21,6 +23,7 @@ type IncomingAppError
     | FailedToLoadCandidates
     | FailedToLoadParties
     | FailedToLoadPolls
+    | FailedToLoadRegions
     | NoDecoderMatchFound
 
 
@@ -58,6 +61,14 @@ decode model json =
 
                 Err _ ->
                     IncomingMsgError FailedToLoadParties
+
+        Ok "RegionsLoaded" ->
+            case decodePayload ShowRegions.decode json of
+                Ok regions ->
+                    ShowRegions (ShowRegions.RegionsReceived regions)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadRegions
 
         _ ->
             IncomingMsgError NoDecoderMatchFound

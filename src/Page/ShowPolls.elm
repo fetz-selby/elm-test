@@ -19,7 +19,8 @@ type alias Model =
     }
 
 
-view =
+view : Model -> Html.Html Msg
+view model =
     div
         []
         []

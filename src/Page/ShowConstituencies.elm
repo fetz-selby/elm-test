@@ -28,11 +28,11 @@ update model msg =
             ( model, Cmd.none )
 
 
-view : List Constituency.Model -> Html.Html Msg
-view constituencies =
+view : Model -> Html.Html Msg
+view model =
     div
         []
-        [ renderConstituencyList constituencies ]
+        [ renderConstituencyList model.constituencies ]
 
 
 renderConstituencyList : List Constituency.Model -> Html.Html Msg
