@@ -16,6 +16,8 @@ async function create() {
 
   // init and show the app
   let [regions, parentConstituencies] = [[], []];
+  let setup = { constituencyId: "", regionId: "", year: "2016" };
+
   const node = document.getElementById("app");
   const app = Elm.Elm.Main.init({ node, flags: "" + Date.now() });
 
@@ -23,6 +25,7 @@ async function create() {
     const socket = io("http://localhost:5002");
     // @feathersjs/client is exposed as the `feathers` global.
     const service = feathers();
+    const { constituencyId, regionId, year } = setup;
 
     service.configure(feathers.socketio(socket));
     service.configure(feathers.authentication());
@@ -30,7 +33,7 @@ async function create() {
       case "FetchCandidates": {
         const candidates = getCandidates({
           service,
-          payload: { year: "2016", constituencyId: "2585" },
+          payload: { year, constituencyId },
         });
         app.main.ports.msgForElm.send({
           type: "CandidatesLoaded",
@@ -40,6 +43,7 @@ async function create() {
         });
         break;
       }
+
       case "FetchConstituencies": {
         const constituencies = await getConstituencies({ app, payload });
 
@@ -55,11 +59,13 @@ async function create() {
 
         break;
       }
+
       case "FetchPolls": {
         console.log("Fetching polls");
         getPolls({ app, payload });
         break;
       }
+
       case "FetchParties": {
         console.log("Fetching parties");
         const parties = await getParties({ service });
@@ -71,14 +77,9 @@ async function create() {
         });
         break;
       }
+
       case "InitApp": {
         regions = await getRegions({ service, app });
-        parentConstituencies = await getParentConstituencies({ service });
-        const constituencies = await getConstituencies({
-          service,
-          app,
-          payload: { year: "2016" },
-        });
 
         app.ports.msgForElm.send({
           type: "RegionsLoaded",
@@ -88,6 +89,72 @@ async function create() {
         });
         break;
       }
+
+      case "InitRegions": {
+        regions = await getRegions({ service, app });
+
+        app.ports.msgForElm.send({
+          type: "RegionsLoaded",
+          payload: { regions },
+        });
+
+        break;
+      }
+
+      case "InitConstituencies": {
+        app.ports.msgForElm.send({
+          type: "ConstituenciesLoaded",
+          payload: null,
+        });
+
+        break;
+      }
+
+      case "InitCandidates": {
+        app.ports.msgForElm.send({
+          type: "CandidatesLoaded",
+          payload: null,
+        });
+
+        break;
+      }
+
+      case "InitParties": {
+        app.ports.msgForElm.send({
+          type: "PartiesLoaded",
+          payload: null,
+        });
+
+        break;
+      }
+
+      case "InitPolls": {
+        app.ports.msgForElm.send({
+          type: "PollsLoaded",
+          payload: null,
+        });
+
+        break;
+      }
+
+      case "InitApprove": {
+        app.ports.msgForElm.send({
+          type: "ApprovesLoaded",
+          payload: null,
+        });
+
+        break;
+      }
+
+      case "InitSummary": {
+        app.ports.msgForElm.send({
+          type: "SummarysLoaded",
+          payload: null,
+        });
+
+        break;
+      }
+
       default:
         throw new Error(`Received unknown message ${action} from Elm.`);
     }

@@ -1,4 +1,4 @@
-port module Ports exposing (..)
+port module Ports exposing (OutgoingMsg(..), PortData, msgForElm, msgForJs, sendToJs, toPortData)
 
 import Json.Encode as Encode
 import View.CandidatesFilter as CandidateFilter
@@ -11,6 +11,13 @@ type OutgoingMsg
     | FetchConstituencies ConstituencyFilter.Model
     | FetchPolls PollFilter.Model
     | InitApp
+    | InitSidebarApprove
+    | InitSidebarSummary
+    | InitSidebarRegion
+    | InitSidebarParty
+    | InitSidebarPoll
+    | InitSidebarCandidate
+    | InitSidebarConstituency
 
 
 port msgForJs : PortData -> Cmd msg
@@ -44,3 +51,24 @@ toPortData msg =
 
         InitApp ->
             { action = "InitApp", payload = Encode.null }
+
+        InitSidebarRegion ->
+            { action = "InitRegions", payload = Encode.null }
+
+        InitSidebarConstituency ->
+            { action = "InitConstituencies", payload = Encode.null }
+
+        InitSidebarCandidate ->
+            { action = "InitCandidates", payload = Encode.null }
+
+        InitSidebarParty ->
+            { action = "InitParties", payload = Encode.null }
+
+        InitSidebarPoll ->
+            { action = "InitPolls", payload = Encode.null }
+
+        InitSidebarApprove ->
+            { action = "InitApprove", payload = Encode.null }
+
+        InitSidebarSummary ->
+            { action = "InitSummary", payload = Encode.null }

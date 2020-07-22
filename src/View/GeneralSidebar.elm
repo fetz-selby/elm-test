@@ -16,7 +16,7 @@ type Msg
 
 
 type alias Model =
-    { name : String
+    { current : Msg
     , title : String
     }
 
@@ -38,19 +38,19 @@ update : Model -> Msg -> ( Model, Cmd Msg )
 update model msg =
     case msg of
         Regions ->
-            ( model, Cmd.none )
+            ( { model | current = Regions }, Cmd.none )
 
         Constituencies ->
-            ( model, Cmd.none )
+            ( { model | current = Constituencies }, Cmd.none )
 
         Candidates ->
-            ( model, Cmd.none )
+            ( { model | current = Candidates }, Cmd.none )
 
         Parties ->
-            ( model, Cmd.none )
+            ( { model | current = Parties }, Cmd.none )
 
         Polls ->
-            ( model, Cmd.none )
+            ( { model | current = Polls }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
@@ -66,4 +66,4 @@ menu label event =
 
 default : Model
 default =
-    { name = "", title = "" }
+    { current = Regions, title = "" }

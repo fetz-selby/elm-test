@@ -8,6 +8,7 @@ import Page.ShowConstituencies as ShowConstituenciesPage
 import Page.ShowParties as ShowPartiesPage
 import Page.ShowPolls as ShowPollsPage
 import Page.ShowRegions as ShowRegionsPage
+import Ports
 import Sidebar as Sidebar
 import View.GeneralSidebar as GeneralSidebar
 
@@ -112,4 +113,53 @@ updateWithPollsPage model pageModel =
 
 updateWithSidebarView : Model -> GeneralSidebar.Model -> ( Model, Cmd Msg.Msg )
 updateWithSidebarView model viewModel =
-    ( { model | sidebar = Sidebar.GeneralSidebar viewModel }, Cmd.none )
+    case viewModel.current of
+        GeneralSidebar.Constituencies ->
+            ( { model
+                | sidebar = Sidebar.GeneralSidebar viewModel
+                , pages = Page.ShowConstituencies ShowConstituenciesPage.default
+              }
+            , Ports.sendToJs Ports.InitSidebarConstituency
+            )
+
+        GeneralSidebar.Regions ->
+            ( { model
+                | sidebar = Sidebar.GeneralSidebar viewModel
+                , pages = Page.ShowRegions ShowRegionsPage.default
+              }
+            , Ports.sendToJs Ports.InitSidebarRegion
+            )
+
+        GeneralSidebar.Candidates ->
+            ( { model
+                | sidebar = Sidebar.GeneralSidebar viewModel
+                , pages = Page.ShowCandidates ShowCandidatesPage.default
+              }
+            , Ports.sendToJs Ports.InitSidebarCandidate
+            )
+
+        GeneralSidebar.Parties ->
+            ( { model
+                | sidebar = Sidebar.GeneralSidebar viewModel
+                , pages = Page.ShowParties ShowPartiesPage.default
+              }
+            , Ports.sendToJs Ports.InitSidebarParty
+            )
+
+        GeneralSidebar.Polls ->
+            ( { model
+                | sidebar = Sidebar.GeneralSidebar viewModel
+                , pages = Page.ShowPolls ShowPollsPage.default
+              }
+            , Ports.sendToJs Ports.InitSidebarPoll
+            )
+
+        GeneralSidebar.Approve ->
+            ( model
+            , Ports.sendToJs Ports.InitSidebarApprove
+            )
+
+        GeneralSidebar.Summary ->
+            ( model
+            , Ports.sendToJs Ports.InitSidebarSummary
+            )
