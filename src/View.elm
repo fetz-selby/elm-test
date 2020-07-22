@@ -9,13 +9,28 @@ import Page.ShowConstituencies
 import Page.ShowParties
 import Page.ShowPolls
 import Page.ShowRegions
+import Sidebar exposing (Sidebar(..))
+import View.GeneralSidebar
 
 
 view : Model.Model -> Html.Html Msg
 view model =
     div []
-        [ pageView model
+        [ sidebarView model
+        , pageView model
         ]
+
+
+sidebarView : Model.Model -> Html.Html Msg
+sidebarView { sidebar } =
+    case sidebar of
+        GeneralSidebar model ->
+            model
+                |> View.GeneralSidebar.view
+                |> Html.map Msg.ShowSidebar
+
+        Other ->
+            div [] []
 
 
 pageView : Model.Model -> Html.Html Msg

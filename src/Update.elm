@@ -8,6 +8,8 @@ import Page.ShowConstituencies as ShowConstituenciesPage
 import Page.ShowParties as ShowPartiesPage
 import Page.ShowPolls as ShowPollsPage
 import Page.ShowRegions as ShowRegionsPage
+import Sidebar as Sidebar
+import View.GeneralSidebar as GeneralSidebar
 
 
 update : Msg.Msg -> Model -> ( Model, Cmd Msg.Msg )
@@ -68,6 +70,17 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        Msg.ShowSidebar sidebarMsg ->
+            case model.sidebar of
+                Sidebar.GeneralSidebar submodel ->
+                    sidebarMsg
+                        |> GeneralSidebar.update submodel
+                        |> Tuple.mapFirst (updateWithSidebarView model)
+                        |> Tuple.first
+
+                _ ->
+                    ( model, Cmd.none )
+
         Msg.IncomingMsgError errMsg ->
             ( model, Cmd.none )
 
@@ -95,3 +108,8 @@ updateWithPartiesPage model pageModel =
 updateWithPollsPage : Model -> ShowPollsPage.Model -> ( Model, Cmd Msg.Msg )
 updateWithPollsPage model pageModel =
     ( { model | pages = Page.ShowPolls pageModel }, Cmd.none )
+
+
+updateWithSidebarView : Model -> GeneralSidebar.Model -> ( Model, Cmd Msg.Msg )
+updateWithSidebarView model viewModel =
+    ( { model | sidebar = Sidebar.GeneralSidebar viewModel }, Cmd.none )

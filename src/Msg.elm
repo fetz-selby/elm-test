@@ -7,6 +7,7 @@ import Page.ShowConstituencies as ShowConstituencies
 import Page.ShowParties as ShowParties
 import Page.ShowPolls as ShowPolls
 import Page.ShowRegions as ShowRegions
+import View.GeneralSidebar as GeneralSidebar
 
 
 type Msg
@@ -15,6 +16,7 @@ type Msg
     | ShowParties ShowParties.Msg
     | ShowPolls ShowPolls.Msg
     | ShowRegions ShowRegions.Msg
+    | ShowSidebar GeneralSidebar.Msg
     | IncomingMsgError IncomingAppError
 
 
