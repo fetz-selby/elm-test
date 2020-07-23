@@ -31,7 +31,7 @@ update model msg =
             ( model, Cmd.none )
 
         PartiesReceived parties ->
-            ( model, Cmd.none )
+            ( { model | parties = parties }, Cmd.none )
 
 
 renderPartyList : List Party.Model -> Html.Html Msg

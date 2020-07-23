@@ -31,7 +31,7 @@ update model msg =
             ( model, Cmd.none )
 
         CandidatesReceived candidates ->
-            ( model, Cmd.none )
+            ( { model | candidates = candidates }, Cmd.none )
 
 
 view : Model -> Html.Html Msg

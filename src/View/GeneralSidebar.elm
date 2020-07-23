@@ -28,6 +28,7 @@ view model =
         [ menu "Regions" Regions
         , menu "Constituency" Constituencies
         , menu "Candidates" Candidates
+        , menu "Parties" Parties
         , menu "Polls" Polls
         , menu "Approve" Approve
         , menu "Summary" Summary

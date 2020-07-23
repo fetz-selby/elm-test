@@ -2,17 +2,15 @@ import { URL } from "../constants";
 
 const addCandidate = ({ service, app, payload }) => {};
 
-const getCandidates = async ({ service, app, payload }) => {
-  const { year } = payload;
-  const candidates = await service
-    .service("candidates")
-    .find({ query: { year } });
+const getCandidates = async ({ service, payload }) => {
+  const { year, constituencyId } = payload;
+  if (year) {
+    return await service.service("candidates").find({ query: { year } });
+  }
 
-  console.log("candidates, ", candidates);
-  // app.main.ports.msgForElm.send({
-  //   type: "Candidates",
-  //   payload: { candidates }
-  // });
+  return await service
+    .service("candidates")
+    .find({ query: { constituencyId } });
 };
 
 export { addCandidate, getCandidates };

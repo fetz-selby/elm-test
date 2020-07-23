@@ -24,8 +24,8 @@ update model msg =
         FetchConstituencies constituencyId ->
             ( model, Cmd.none )
 
-        ConstituenciesReceived candidates ->
-            ( model, Cmd.none )
+        ConstituenciesReceived constituencies ->
+            ( { model | constituencies = constituencies }, Cmd.none )
 
 
 view : Model -> Html.Html Msg

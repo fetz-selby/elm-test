@@ -50,6 +50,12 @@ encode candidate =
         ]
 
 
+couldBeNull : Decode.Decoder String
+couldBeNull =
+    Decode.oneOf
+        [ Decode.string, Decode.null "" ]
+
+
 decode : Decode.Decoder Model
 decode =
     Decode.succeed Model
@@ -60,7 +66,7 @@ decode =
         |> JDP.required "year" Decode.string
         |> JDP.required "votes" Decode.int
         |> JDP.required "group_type" Decode.string
-        |> JDP.required "avatar_path" Decode.string
+        |> JDP.required "avatar_path" couldBeNull
         |> JDP.required "angle" Decode.float
         |> JDP.required "percentage" Decode.float
         |> JDP.required "bar_ratio" Decode.float

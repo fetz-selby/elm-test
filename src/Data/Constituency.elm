@@ -8,7 +8,6 @@ import Json.Encode as Encode
 type alias Model =
     { id : String
     , name : String
-    , regionId : String
     , year : String
     , autoCompute : Bool
     , castedVotes : Int
@@ -25,7 +24,6 @@ initConstituency : Model
 initConstituency =
     { id = ""
     , name = ""
-    , regionId = ""
     , year = ""
     , autoCompute = False
     , castedVotes = 0
@@ -42,7 +40,6 @@ encode : Model -> Encode.Value
 encode constituency =
     Encode.object
         [ ( "name", Encode.string constituency.name )
-        , ( "region_id", Encode.string constituency.regionId )
         , ( "year", Encode.string constituency.year )
         ]
 
@@ -52,7 +49,6 @@ decode =
     Decode.succeed Model
         |> JDP.required "id" Decode.string
         |> JDP.required "name" Decode.string
-        |> JDP.required "region_id" Decode.string
         |> JDP.required "year" Decode.string
         |> JDP.required "auto_compute" Decode.bool
         |> JDP.required "casted_votes" Decode.int

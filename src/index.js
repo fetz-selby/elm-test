@@ -5,7 +5,12 @@ import { getParties, addParty } from "./api/parties";
 import { getPolls, addPoll } from "./api/polls";
 import { getRegions } from "./api/regions";
 import { getParentConstituencies } from "./api/parentConstituencies";
-import { flatenConstituenciesWithRegionIdIncluded } from "./api/helper";
+import { ROLE } from "./constants";
+import {
+  flatenConstituenciesWithRegionIdIncluded,
+  normalizeConstituencies,
+  normalizeCandidates,
+} from "./api/helper";
 import io from "socket.io-client";
 import feathers from "@feathersjs/client";
 
@@ -16,7 +21,7 @@ async function create() {
 
   // init and show the app
   let [regions, parentConstituencies] = [[], []];
-  let setup = { constituencyId: "", regionId: "", year: "2016" };
+  let setup = { constituencyId: "", regionId: "", year: "2016", role: "admin" };
 
   const node = document.getElementById("app");
   const app = Elm.Elm.Main.init({ node, flags: "" + Date.now() });
@@ -25,7 +30,8 @@ async function create() {
     const socket = io("http://localhost:5002");
     // @feathersjs/client is exposed as the `feathers` global.
     const service = feathers();
-    const { constituencyId, regionId, year } = setup;
+    const { constituencyId, regionId, year, role } = setup;
+    const { ADMIN, USER } = ROLE;
 
     service.configure(feathers.socketio(socket));
     service.configure(feathers.authentication());
@@ -50,10 +56,7 @@ async function create() {
         app.main.ports.msgForElm.send({
           type: "ConstituenciesLoaded",
           payload: {
-            constituencies: flatenConstituenciesWithRegionIdIncluded(
-              parentConstituencies,
-              constituencies
-            ),
+            constituencies,
           },
         });
 
@@ -80,18 +83,13 @@ async function create() {
 
       case "InitApp": {
         regions = await getRegions({ service, app });
+        parentConstituencies = await getParentConstituencies({ service });
 
-        app.ports.msgForElm.send({
-          type: "RegionsLoaded",
-          payload: {
-            regions,
-          },
-        });
         break;
       }
 
       case "InitRegions": {
-        regions = await getRegions({ service, app });
+        regions = role === ADMIN ? await getRegions({ service, app }) : [];
 
         app.ports.msgForElm.send({
           type: "RegionsLoaded",
@@ -102,27 +100,42 @@ async function create() {
       }
 
       case "InitConstituencies": {
+        const constituencies =
+          role === ADMIN
+            ? await getConstituencies({
+                service,
+                year,
+              })
+            : [];
+
         app.ports.msgForElm.send({
           type: "ConstituenciesLoaded",
-          payload: null,
+          payload: { constituencies: normalizeConstituencies(constituencies) },
         });
 
         break;
       }
 
       case "InitCandidates": {
+        const candidates =
+          role === ADMIN
+            ? await getCandidates({ service, payload: { year } })
+            : await getCandidates({ service, payload: { constituencyId } });
+
         app.ports.msgForElm.send({
           type: "CandidatesLoaded",
-          payload: null,
+          payload: { candidates: normalizeCandidates(candidates) },
         });
 
         break;
       }
 
       case "InitParties": {
+        const parties = await getParties({ service });
+
         app.ports.msgForElm.send({
           type: "PartiesLoaded",
-          payload: null,
+          payload: { parties },
         });
 
         break;
