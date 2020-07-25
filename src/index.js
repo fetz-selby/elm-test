@@ -6,12 +6,16 @@ import { getPolls, addPoll } from "./api/polls";
 import { getRegions } from "./api/regions";
 import { getParentConstituencies } from "./api/parentConstituencies";
 import { getApproves } from "./api/approves";
+import { getNationalAnalysis } from "./api/nationalAnalysis";
+import { getRegionalAnalysis } from "./api/regionalAnalysis";
 import { ROLE } from "./constants";
 import {
   flatenConstituenciesWithRegionIdIncluded,
   normalizeConstituencies,
   normalizeCandidates,
   normalizeApproves,
+  normalizeAllNationalAnalysis,
+  normalizeAllRegionalAnalysis,
 } from "./api/helper";
 import io from "socket.io-client";
 import feathers from "@feathersjs/client";
@@ -167,10 +171,25 @@ async function create() {
         break;
       }
 
-      case "InitSummary": {
+      case "InitNationalSummary": {
+        const nationalAnalysis = await getNationalAnalysis({ service, year });
         app.ports.msgForElm.send({
-          type: "SummarysLoaded",
-          payload: null,
+          type: "NationalAnalysisLoaded",
+          payload: {
+            nationalAnalysis: normalizeAllNationalAnalysis(nationalAnalysis),
+          },
+        });
+
+        break;
+      }
+
+      case "InitRegionalSummary": {
+        const regionalAnalysis = await getRegionalAnalysis({ service, year });
+        app.ports.msgForElm.send({
+          type: "RegionalAnalysisLoaded",
+          payload: {
+            regionalAnalysis: normalizeAllRegionalAnalysis(regionalAnalysis),
+          },
         });
 
         break;

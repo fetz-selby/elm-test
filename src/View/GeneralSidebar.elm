@@ -12,7 +12,8 @@ type Msg
     | Parties
     | Polls
     | Approve
-    | Summary
+    | RegionalSummary
+    | NationalSummary
 
 
 type alias Model =
@@ -31,7 +32,8 @@ view model =
         , menu "Parties" Parties
         , menu "Polls" Polls
         , menu "Approve" Approve
-        , menu "Summary" Summary
+        , menu "Regional Summary" RegionalSummary
+        , menu "National Summary" NationalSummary
         ]
 
 
@@ -56,8 +58,11 @@ update model msg =
         Approve ->
             ( { model | current = Approve }, Cmd.none )
 
-        Summary ->
-            ( { model | current = Summary }, Cmd.none )
+        RegionalSummary ->
+            ( { model | current = RegionalSummary }, Cmd.none )
+
+        NationalSummary ->
+            ( { model | current = NationalSummary }, Cmd.none )
 
 
 menu : String -> Msg -> Html.Html Msg

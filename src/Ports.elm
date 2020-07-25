@@ -12,7 +12,8 @@ type OutgoingMsg
     | FetchPolls PollFilter.Model
     | InitApp
     | InitSidebarApprove
-    | InitSidebarSummary
+    | InitSidebarRegionalSummary
+    | InitSidebarNationalSummary
     | InitSidebarRegion
     | InitSidebarParty
     | InitSidebarPoll
@@ -70,5 +71,8 @@ toPortData msg =
         InitSidebarApprove ->
             { action = "InitApprove", payload = Encode.null }
 
-        InitSidebarSummary ->
-            { action = "InitSummary", payload = Encode.null }
+        InitSidebarRegionalSummary ->
+            { action = "InitRegionalSummary", payload = Encode.null }
+
+        InitSidebarNationalSummary ->
+            { action = "InitNationalSummary", payload = Encode.null }

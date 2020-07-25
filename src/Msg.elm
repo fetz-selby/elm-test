@@ -5,8 +5,10 @@ import Model as Model
 import Page.ShowApproves as ShowApproves
 import Page.ShowCandidates as ShowCandidates
 import Page.ShowConstituencies as ShowConstituencies
+import Page.ShowNationalAnalysis as ShowNationalAnalysis
 import Page.ShowParties as ShowParties
 import Page.ShowPolls as ShowPolls
+import Page.ShowRegionalAnalysis as ShowRegionalAnalysis
 import Page.ShowRegions as ShowRegions
 import View.GeneralSidebar as GeneralSidebar
 
@@ -18,6 +20,8 @@ type Msg
     | ShowPolls ShowPolls.Msg
     | ShowRegions ShowRegions.Msg
     | ShowApproves ShowApproves.Msg
+    | ShowRegionalAnalysis ShowRegionalAnalysis.Msg
+    | ShowNationalAnalysis ShowNationalAnalysis.Msg
     | ShowSidebar GeneralSidebar.Msg
     | IncomingMsgError IncomingAppError
 
@@ -29,6 +33,8 @@ type IncomingAppError
     | FailedToLoadPolls
     | FailedToLoadRegions
     | FailedToLoadApproves
+    | FailedToLoadRegionalAnalysis
+    | FailedToLoadNationalAnalysis
     | NoDecoderMatchFound
 
 
@@ -82,6 +88,26 @@ decode model json =
 
                 Err _ ->
                     IncomingMsgError FailedToLoadApproves
+
+        Ok "RegionalAnalysisLoaded" ->
+            case decodePayload ShowRegionalAnalysis.decode json of
+                Ok regionalAnalysis ->
+                    ShowRegionalAnalysis (ShowRegionalAnalysis.RegionalAnalysisReceived regionalAnalysis)
+
+                Err err ->
+                    let
+                        _ =
+                            Debug.log "[RegionalAnalysisLoaded] " err
+                    in
+                    IncomingMsgError FailedToLoadRegionalAnalysis
+
+        Ok "NationalAnalysisLoaded" ->
+            case decodePayload ShowNationalAnalysis.decode json of
+                Ok nationalAnalysis ->
+                    ShowNationalAnalysis (ShowNationalAnalysis.NationalAnalysisReceived nationalAnalysis)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadNationalAnalysis
 
         _ ->
             IncomingMsgError NoDecoderMatchFound

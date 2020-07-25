@@ -6,8 +6,10 @@ import Page as Page
 import Page.ShowApproves as ShowApprovesPage
 import Page.ShowCandidates as ShowCandidatesPage
 import Page.ShowConstituencies as ShowConstituenciesPage
+import Page.ShowNationalAnalysis as ShowNationalAnalysisPage
 import Page.ShowParties as ShowPartiesPage
 import Page.ShowPolls as ShowPollsPage
+import Page.ShowRegionalAnalysis as ShowRegionalAnalysisPage
 import Page.ShowRegions as ShowRegionsPage
 import Ports
 import Sidebar as Sidebar
@@ -83,6 +85,28 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        Msg.ShowRegionalAnalysis regionalMsg ->
+            case model.pages of
+                Page.ShowRegionalAnalysis submodel ->
+                    regionalMsg
+                        |> ShowRegionalAnalysisPage.update submodel
+                        |> Tuple.mapFirst (updateWithRegionalPage model)
+                        |> Tuple.first
+
+                _ ->
+                    ( model, Cmd.none )
+
+        Msg.ShowNationalAnalysis nationalMsg ->
+            case model.pages of
+                Page.ShowNationalAnalysis submodel ->
+                    nationalMsg
+                        |> ShowNationalAnalysisPage.update submodel
+                        |> Tuple.mapFirst (updateWithNationalPage model)
+                        |> Tuple.first
+
+                _ ->
+                    ( model, Cmd.none )
+
         Msg.ShowSidebar sidebarMsg ->
             case model.sidebar of
                 Sidebar.GeneralSidebar submodel ->
@@ -126,6 +150,16 @@ updateWithPollsPage model pageModel =
 updateWithApprovesPage : Model -> ShowApprovesPage.Model -> ( Model, Cmd Msg.Msg )
 updateWithApprovesPage model pageModel =
     ( { model | pages = Page.ShowApproves pageModel }, Cmd.none )
+
+
+updateWithRegionalPage : Model -> ShowRegionalAnalysisPage.Model -> ( Model, Cmd Msg.Msg )
+updateWithRegionalPage model pageModel =
+    ( { model | pages = Page.ShowRegionalAnalysis pageModel }, Cmd.none )
+
+
+updateWithNationalPage : Model -> ShowNationalAnalysisPage.Model -> ( Model, Cmd Msg.Msg )
+updateWithNationalPage model pageModel =
+    ( { model | pages = Page.ShowNationalAnalysis pageModel }, Cmd.none )
 
 
 updateWithSidebarView : Model -> GeneralSidebar.Model -> ( Model, Cmd Msg.Msg )
@@ -179,7 +213,18 @@ updateWithSidebarView model viewModel =
             , Ports.sendToJs Ports.InitSidebarApprove
             )
 
-        GeneralSidebar.Summary ->
-            ( model
-            , Ports.sendToJs Ports.InitSidebarSummary
+        GeneralSidebar.RegionalSummary ->
+            ( { model
+                | sidebar = Sidebar.GeneralSidebar viewModel
+                , pages = Page.ShowRegionalAnalysis ShowRegionalAnalysisPage.default
+              }
+            , Ports.sendToJs Ports.InitSidebarRegionalSummary
+            )
+
+        GeneralSidebar.NationalSummary ->
+            ( { model
+                | sidebar = Sidebar.GeneralSidebar viewModel
+                , pages = Page.ShowNationalAnalysis ShowNationalAnalysisPage.default
+              }
+            , Ports.sendToJs Ports.InitSidebarNationalSummary
             )

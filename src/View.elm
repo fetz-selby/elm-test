@@ -7,8 +7,10 @@ import Page exposing (Page(..))
 import Page.ShowApproves
 import Page.ShowCandidates
 import Page.ShowConstituencies
+import Page.ShowNationalAnalysis
 import Page.ShowParties
 import Page.ShowPolls
+import Page.ShowRegionalAnalysis
 import Page.ShowRegions
 import Sidebar exposing (Sidebar(..))
 import View.GeneralSidebar
@@ -66,3 +68,13 @@ pageView { pages } =
             model
                 |> Page.ShowApproves.view
                 |> Html.map Msg.ShowApproves
+
+        Page.ShowRegionalAnalysis model ->
+            model
+                |> Page.ShowRegionalAnalysis.view
+                |> Html.map Msg.ShowRegionalAnalysis
+
+        Page.ShowNationalAnalysis model ->
+            model
+                |> Page.ShowNationalAnalysis.view
+                |> Html.map Msg.ShowNationalAnalysis
