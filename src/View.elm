@@ -4,6 +4,7 @@ import Html exposing (div)
 import Model
 import Msg exposing (Msg(..))
 import Page exposing (Page(..))
+import Page.ShowApproves
 import Page.ShowCandidates
 import Page.ShowConstituencies
 import Page.ShowParties
@@ -60,3 +61,8 @@ pageView { pages } =
             model
                 |> Page.ShowPolls.view
                 |> Html.map Msg.ShowPolls
+
+        Page.ShowApproves model ->
+            model
+                |> Page.ShowApproves.view
+                |> Html.map Msg.ShowApproves

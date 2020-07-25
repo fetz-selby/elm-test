@@ -53,8 +53,11 @@ update model msg =
         Polls ->
             ( { model | current = Polls }, Cmd.none )
 
-        _ ->
-            ( model, Cmd.none )
+        Approve ->
+            ( { model | current = Approve }, Cmd.none )
+
+        Summary ->
+            ( { model | current = Summary }, Cmd.none )
 
 
 menu : String -> Msg -> Html.Html Msg

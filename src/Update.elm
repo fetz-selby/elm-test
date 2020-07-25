@@ -3,6 +3,7 @@ module Update exposing (update)
 import Model exposing (Model)
 import Msg as Msg
 import Page as Page
+import Page.ShowApproves as ShowApprovesPage
 import Page.ShowCandidates as ShowCandidatesPage
 import Page.ShowConstituencies as ShowConstituenciesPage
 import Page.ShowParties as ShowPartiesPage
@@ -71,6 +72,17 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        Msg.ShowApproves approveMsg ->
+            case model.pages of
+                Page.ShowApproves submodel ->
+                    approveMsg
+                        |> ShowApprovesPage.update submodel
+                        |> Tuple.mapFirst (updateWithApprovesPage model)
+                        |> Tuple.first
+
+                _ ->
+                    ( model, Cmd.none )
+
         Msg.ShowSidebar sidebarMsg ->
             case model.sidebar of
                 Sidebar.GeneralSidebar submodel ->
@@ -109,6 +121,11 @@ updateWithPartiesPage model pageModel =
 updateWithPollsPage : Model -> ShowPollsPage.Model -> ( Model, Cmd Msg.Msg )
 updateWithPollsPage model pageModel =
     ( { model | pages = Page.ShowPolls pageModel }, Cmd.none )
+
+
+updateWithApprovesPage : Model -> ShowApprovesPage.Model -> ( Model, Cmd Msg.Msg )
+updateWithApprovesPage model pageModel =
+    ( { model | pages = Page.ShowApproves pageModel }, Cmd.none )
 
 
 updateWithSidebarView : Model -> GeneralSidebar.Model -> ( Model, Cmd Msg.Msg )
@@ -155,7 +172,10 @@ updateWithSidebarView model viewModel =
             )
 
         GeneralSidebar.Approve ->
-            ( model
+            ( { model
+                | sidebar = Sidebar.GeneralSidebar viewModel
+                , pages = Page.ShowApproves ShowApprovesPage.default
+              }
             , Ports.sendToJs Ports.InitSidebarApprove
             )
 

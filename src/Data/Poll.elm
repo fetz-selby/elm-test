@@ -2,6 +2,7 @@ module Data.Poll exposing (Model, decode, encode, initPoll)
 
 import Data.Constituency as Constituency
 import Json.Decode as Decode
+import Json.Decode.Pipeline as JDP
 import Json.Encode as Encode
 
 
@@ -31,9 +32,9 @@ encode poll =
 
 decode : Decode.Decoder Model
 decode =
-    Decode.map5 Model
-        (Decode.field "id" Decode.string)
-        (Decode.field "name" Decode.string)
-        (Decode.field "year" Decode.string)
-        (Decode.field "total_voters" Decode.string)
-        (Decode.field "constituency" Constituency.decode)
+    Decode.succeed Model
+        |> JDP.required "id" Decode.string
+        |> JDP.required "name" Decode.string
+        |> JDP.required "year" Decode.string
+        |> JDP.required "total_voters" Decode.string
+        |> JDP.required "constituency" Constituency.decode

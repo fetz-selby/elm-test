@@ -2,6 +2,7 @@ module Msg exposing (Msg(..), decode)
 
 import Json.Decode as Decode
 import Model as Model
+import Page.ShowApproves as ShowApproves
 import Page.ShowCandidates as ShowCandidates
 import Page.ShowConstituencies as ShowConstituencies
 import Page.ShowParties as ShowParties
@@ -16,6 +17,7 @@ type Msg
     | ShowParties ShowParties.Msg
     | ShowPolls ShowPolls.Msg
     | ShowRegions ShowRegions.Msg
+    | ShowApproves ShowApproves.Msg
     | ShowSidebar GeneralSidebar.Msg
     | IncomingMsgError IncomingAppError
 
@@ -26,6 +28,7 @@ type IncomingAppError
     | FailedToLoadParties
     | FailedToLoadPolls
     | FailedToLoadRegions
+    | FailedToLoadApproves
     | NoDecoderMatchFound
 
 
@@ -71,6 +74,14 @@ decode model json =
 
                 Err _ ->
                     IncomingMsgError FailedToLoadRegions
+
+        Ok "ApprovesLoaded" ->
+            case decodePayload ShowApproves.decode json of
+                Ok approves ->
+                    ShowApproves (ShowApproves.ApprovesReceived approves)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadApproves
 
         _ ->
             IncomingMsgError NoDecoderMatchFound

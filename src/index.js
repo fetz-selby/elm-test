@@ -5,11 +5,13 @@ import { getParties, addParty } from "./api/parties";
 import { getPolls, addPoll } from "./api/polls";
 import { getRegions } from "./api/regions";
 import { getParentConstituencies } from "./api/parentConstituencies";
+import { getApproves } from "./api/approves";
 import { ROLE } from "./constants";
 import {
   flatenConstituenciesWithRegionIdIncluded,
   normalizeConstituencies,
   normalizeCandidates,
+  normalizeApproves,
 } from "./api/helper";
 import io from "socket.io-client";
 import feathers from "@feathersjs/client";
@@ -21,7 +23,12 @@ async function create() {
 
   // init and show the app
   let [regions, parentConstituencies] = [[], []];
-  let setup = { constituencyId: "", regionId: "", year: "2016", role: "admin" };
+  let setup = {
+    constituencyId: "",
+    regionId: "1",
+    year: "2016",
+    role: "admin",
+  };
 
   const node = document.getElementById("app");
   const app = Elm.Elm.Main.init({ node, flags: "" + Date.now() });
@@ -151,9 +158,10 @@ async function create() {
       }
 
       case "InitApprove": {
+        const approves = await getApproves({ service, year, regionId });
         app.ports.msgForElm.send({
           type: "ApprovesLoaded",
-          payload: null,
+          payload: { approves: normalizeApproves(approves) },
         });
 
         break;
