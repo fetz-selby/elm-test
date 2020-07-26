@@ -1,13 +1,16 @@
 module Page.ShowConstituencies exposing (Model, Msg(..), decode, default, update, view)
 
 import Data.Constituency as Constituency
-import Html exposing (div)
-import Html.Attributes exposing (..)
+import Html exposing (button, div, input, table, tbody, td, th, thead, tr)
+import Html.Attributes exposing (class)
+import Html.Events exposing (onClick)
 import Json.Decode as Decode
 
 
 type Msg
     = FetchConstituencies String
+    | AddConstituency
+    | ShowDetail Constituency.Model
     | ConstituenciesReceived (List Constituency.Model)
 
 
@@ -24,6 +27,12 @@ update model msg =
         FetchConstituencies constituencyId ->
             ( model, Cmd.none )
 
+        AddConstituency ->
+            ( model, Cmd.none )
+
+        ShowDetail constituency ->
+            ( model, Cmd.none )
+
         ConstituenciesReceived constituencies ->
             ( { model | constituencies = constituencies }, Cmd.none )
 
@@ -32,20 +41,52 @@ view : Model -> Html.Html Msg
 view model =
     div
         []
-        [ renderConstituencyList model.constituencies ]
+        [ renderHeader
+        , div [ class "row" ]
+            [ div [ class "col-md-8" ]
+                [ renderConstituencyList model.constituencies
+                ]
+            , div [ class "col-md-4" ] []
+            ]
+        ]
+
+
+renderHeader : Html.Html Msg
+renderHeader =
+    div [ class "row" ]
+        [ div [ class "col-md-9" ]
+            [ input [] []
+            ]
+        , div [ class "col-md-offset-3" ]
+            [ button [ onClick AddConstituency ] [ Html.text "Add" ]
+            ]
+        ]
 
 
 renderConstituencyList : List Constituency.Model -> Html.Html Msg
 renderConstituencyList constituencies =
-    div []
-        (List.map renderConstituencyItem constituencies)
+    table [ class "table table-striped table table-hover" ]
+        [ thead []
+            [ renderConstituencyHeader ]
+        , tbody [] (List.map renderConstituencyItem constituencies)
+        ]
+
+
+renderConstituencyHeader : Html.Html Msg
+renderConstituencyHeader =
+    tr []
+        [ th [] [ Html.text "Constituency" ]
+        , th [] [ Html.text "Seat Won" ]
+        , th [] [ Html.text "Total Votes" ]
+        ]
 
 
 renderConstituencyItem : Constituency.Model -> Html.Html Msg
 renderConstituencyItem constituency =
-    div []
-        [ div [] [ Html.text constituency.name ]
-        , div [] [ Html.text constituency.year ]
+    tr [ onClick (ShowDetail constituency) ]
+        [ td [] [ Html.text constituency.name ]
+        , td [] [ Html.text "XXX" ]
+        , td [] [ Html.text (String.fromInt constituency.totalVotes) ]
         ]
 
 

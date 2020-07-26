@@ -2,13 +2,16 @@ module Page.ShowCandidates exposing (Model, Msg(..), decode, default, initShowCa
 
 import Data.Candidate as Candidate
 import Data.Constituency as Constituency
-import Html exposing (div)
-import Html.Attributes exposing (..)
+import Html exposing (button, div, input, table, tbody, td, th, thead, tr)
+import Html.Attributes exposing (class)
+import Html.Events exposing (onClick)
 import Json.Decode as Decode
 
 
 type Msg
     = FetchCandidates String
+    | AddCandidate
+    | ShowDetail Candidate.Model
     | CandidatesReceived (List Candidate.Model)
 
 
@@ -30,6 +33,12 @@ update model msg =
         FetchCandidates constituencyId ->
             ( model, Cmd.none )
 
+        AddCandidate ->
+            ( model, Cmd.none )
+
+        ShowDetail candidate ->
+            ( model, Cmd.none )
+
         CandidatesReceived candidates ->
             ( { model | candidates = candidates }, Cmd.none )
 
@@ -38,23 +47,54 @@ view : Model -> Html.Html Msg
 view model =
     div
         []
-        [ renderCandidateList model.candidates ]
+        [ renderHeader
+        , div [ class "row" ]
+            [ div [ class "col-md-8" ]
+                [ renderCandidateList model.candidates
+                ]
+            , div [ class "col-md-4" ] []
+            ]
+        ]
+
+
+renderHeader : Html.Html Msg
+renderHeader =
+    div [ class "row" ]
+        [ div [ class "col-md-9" ]
+            [ input [] []
+            ]
+        , div [ class "col-md-offset-3" ]
+            [ button [ onClick AddCandidate ] [ Html.text "Add" ]
+            ]
+        ]
 
 
 renderCandidateList : List Candidate.Model -> Html.Html Msg
 renderCandidateList candidates =
-    div []
-        (List.map renderCandidateItem candidates)
+    table [ class "table table-striped table table-hover" ]
+        [ thead [] [ renderNationalAnalysisHeader ]
+        , tbody []
+            (List.map renderCandidateItem candidates)
+        ]
+
+
+renderNationalAnalysisHeader : Html.Html Msg
+renderNationalAnalysisHeader =
+    tr []
+        [ th [] [ Html.text "Candidate Name" ]
+        , th [] [ Html.text "Votes" ]
+        , th [] [ Html.text "Party" ]
+        , th [] [ Html.text "Constituency" ]
+        ]
 
 
 renderCandidateItem : Candidate.Model -> Html.Html Msg
 renderCandidateItem candidate =
-    div []
-        [ div [] [ Html.text candidate.name ]
-        , div [] [ Html.text (String.fromInt candidate.votes) ]
-        , div [] [ Html.text candidate.party.name ]
-        , div [] [ Html.text candidate.constituency.name ]
-        , div [] [ Html.text candidate.year ]
+    tr [ onClick (ShowDetail candidate) ]
+        [ td [] [ Html.text candidate.name ]
+        , td [] [ Html.text (String.fromInt candidate.votes) ]
+        , td [] [ Html.text candidate.party.name ]
+        , td [] [ Html.text candidate.constituency.name ]
         ]
 
 

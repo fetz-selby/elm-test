@@ -1,7 +1,7 @@
 module View.GeneralSidebar exposing (Model, Msg(..), default, update, view)
 
 import Html exposing (div, text)
-import Html.Attributes exposing (..)
+import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 
 
@@ -25,7 +25,7 @@ type alias Model =
 view : Model -> Html.Html Msg
 view model =
     div
-        []
+        [ class "row" ]
         [ menu "Regions" Regions
         , menu "Constituency" Constituencies
         , menu "Candidates" Candidates
@@ -68,7 +68,7 @@ update model msg =
 menu : String -> Msg -> Html.Html Msg
 menu label event =
     div
-        [ onClick event ]
+        [ class "col-md-12", onClick event ]
         [ text label
         ]
 

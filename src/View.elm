@@ -1,6 +1,7 @@
 module View exposing (view)
 
 import Html exposing (div)
+import Html.Attributes exposing (class)
 import Model
 import Msg exposing (Msg(..))
 import Page exposing (Page(..))
@@ -18,9 +19,13 @@ import View.GeneralSidebar
 
 view : Model.Model -> Html.Html Msg
 view model =
-    div []
-        [ sidebarView model
-        , pageView model
+    div [ class "row" ]
+        [ div [ class "col-md-2 col-lg-2" ]
+            [ sidebarView model
+            ]
+        , div [ class "col-md-10 col-lg-10" ]
+            [ pageView model
+            ]
         ]
 
 

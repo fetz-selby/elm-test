@@ -1,13 +1,16 @@
 module Page.ShowApproves exposing (Model, Msg(..), decode, default, update, view)
 
 import Data.Approve as Approve
-import Html exposing (div)
-import Html.Attributes exposing (..)
+import Html exposing (button, div, input, table, tbody, td, th, thead, tr)
+import Html.Attributes exposing (class)
+import Html.Events exposing (onClick)
 import Json.Decode as Decode
 
 
 type Msg
     = FetchApproves
+    | AddApprove
+    | ShowDetail Approve.Model
     | ApprovesReceived (List Approve.Model)
 
 
@@ -22,7 +25,12 @@ view : Model -> Html.Html Msg
 view model =
     div
         []
-        [ renderApproveList model.approves ]
+        [ renderHeader
+        , div [ class "row" ]
+            [ div [ class "col-md-8" ] [ renderApproveList model.approves ]
+            , div [ class "col-md-4" ] []
+            ]
+        ]
 
 
 update : Model -> Msg -> ( Model, Cmd Msg )
@@ -31,24 +39,49 @@ update model msg =
         FetchApproves ->
             ( model, Cmd.none )
 
+        AddApprove ->
+            ( model, Cmd.none )
+
+        ShowDetail approve ->
+            ( model, Cmd.none )
+
         ApprovesReceived approves ->
             ( { model | approves = approves }, Cmd.none )
 
 
+renderHeader : Html.Html Msg
+renderHeader =
+    div [ class "row" ]
+        [ div [ class "col-md-9" ]
+            [ input [] []
+            ]
+        , div [ class "col-md-offset-3" ]
+            [ button [ onClick AddApprove ] [ Html.text "Add" ]
+            ]
+        ]
+
+
 renderApproveList : List Approve.Model -> Html.Html Msg
 renderApproveList approves =
-    div []
-        (List.map renderApproveItem approves)
+    table [ class "table table-striped table table-hover" ]
+        [ thead [] [ renderApproveHeader ]
+        , tbody [] (List.map renderApproveItem approves)
+        ]
+
+
+renderApproveHeader : Html.Html Msg
+renderApproveHeader =
+    tr []
+        [ th [] [ Html.text "Constituency Name" ]
+        , th [] [ Html.text "Message" ]
+        ]
 
 
 renderApproveItem : Approve.Model -> Html.Html Msg
 renderApproveItem approve =
-    div []
-        [ div [] [ Html.text approve.constituency.name ]
-        , div [] [ Html.text approve.msisdn ]
-        , div [] [ Html.text approve.message ]
-        , div [] [ Html.text approve.region.name ]
-        , div [] [ Html.text approve.agent.name ]
+    tr [ onClick (ShowDetail approve) ]
+        [ td [] [ Html.text approve.constituency.name ]
+        , td [] [ Html.text approve.message ]
         ]
 
 
