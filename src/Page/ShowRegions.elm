@@ -1,9 +1,9 @@
 module Page.ShowRegions exposing (Model, Msg(..), decode, default, update, view)
 
 import Data.Region as Region
-import Html exposing (button, div, input, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class)
-import Html.Events exposing (onClick)
+import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
+import Html.Attributes exposing (class, placeholder, type_, value)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
 
 
@@ -12,11 +12,19 @@ type Msg
     | AddRegion
     | ShowDetail Region.Model
     | RegionsReceived (List Region.Model)
+    | Form Field
+    | Save
+
+
+type Field
+    = Name String
+    | Seats String
 
 
 type alias Model =
     { regions : List Region.Model
     , year : String
+    , selectedRegion : Region.Model
     }
 
 
@@ -28,7 +36,9 @@ view model =
         , div [ class "row" ]
             [ div [ class "col-md-8" ]
                 [ renderRegionList model.regions ]
-            , div [ class "col-md-4" ] []
+            , div [ class "col-md-4" ]
+                [ renderDetails model.selectedRegion
+                ]
             ]
         ]
 
@@ -43,10 +53,16 @@ update model msg =
             ( model, Cmd.none )
 
         ShowDetail region ->
-            ( model, Cmd.none )
+            ( { model | selectedRegion = region }, Cmd.none )
 
         RegionsReceived regions ->
             ( { model | regions = regions }, Cmd.none )
+
+        Form field ->
+            ( model, Cmd.none )
+
+        Save ->
+            ( model, Cmd.none )
 
 
 renderHeader : Html.Html Msg
@@ -88,6 +104,22 @@ renderRegionItem region =
         ]
 
 
+renderField : String -> String -> String -> (String -> Field) -> Html.Html Msg
+renderField fieldLabel fieldValue fieldPlaceholder field =
+    div [ class "form-group" ]
+        [ label [] [ Html.text fieldLabel ]
+        , input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+        ]
+
+
+renderDetails : Region.Model -> Html.Html Msg
+renderDetails model =
+    form [ onSubmit Save ]
+        [ renderField "Region" model.name "eg.Ashanti" Name
+        , renderField "Seat" (String.fromInt model.seats) "e.g 300" Seats
+        ]
+
+
 decode : Decode.Decoder (List Region.Model)
 decode =
     Decode.field "regions" (Decode.list Region.decode)
@@ -95,4 +127,4 @@ decode =
 
 default : Model
 default =
-    { regions = [], year = "" }
+    { regions = [], year = "", selectedRegion = Region.initRegion }
