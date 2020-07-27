@@ -1,9 +1,9 @@
 module Page.ShowParties exposing (Model, Msg(..), decode, default, update, view)
 
 import Data.Party as Party
-import Html exposing (button, div, input, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class)
-import Html.Events exposing (onClick)
+import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
+import Html.Attributes exposing (class, placeholder, type_, value)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
 
 
@@ -12,11 +12,20 @@ type Msg
     | AddParty
     | ShowDetail Party.Model
     | PartiesReceived (List Party.Model)
+    | Form Field
+    | Save
+
+
+type Field
+    = Party String
+    | Color String
+    | LogoPath String
 
 
 type alias Model =
     { parties : List Party.Model
     , year : String
+    , selectedParty : Party.Model
     }
 
 
@@ -27,7 +36,7 @@ view model =
         [ renderHeader
         , div [ class "row" ]
             [ div [ class "col-md-8" ] [ renderPartyList model.parties ]
-            , div [ class "col-md-4" ] []
+            , div [ class "col-md-4" ] [ renderDetails model.selectedParty ]
             ]
         ]
 
@@ -42,10 +51,16 @@ update model msg =
             ( model, Cmd.none )
 
         ShowDetail party ->
-            ( model, Cmd.none )
+            ( { model | selectedParty = party }, Cmd.none )
 
         PartiesReceived parties ->
             ( { model | parties = parties }, Cmd.none )
+
+        Form field ->
+            ( model, Cmd.none )
+
+        Save ->
+            ( model, Cmd.none )
 
 
 renderHeader : Html.Html Msg
@@ -87,6 +102,23 @@ renderPartyItem party =
         ]
 
 
+renderField : String -> String -> String -> (String -> Field) -> Html.Html Msg
+renderField fieldLabel fieldValue fieldPlaceholder field =
+    div [ class "form-group" ]
+        [ label [] [ Html.text fieldLabel ]
+        , input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+        ]
+
+
+renderDetails : Party.Model -> Html.Html Msg
+renderDetails model =
+    form [ onSubmit Save ]
+        [ renderField "party" model.name "eg.XXX" Party
+        , renderField "color" model.color "e.g P" Color
+        , renderField "logo path" model.logoPath "e.g #F33e345" LogoPath
+        ]
+
+
 decode : Decode.Decoder (List Party.Model)
 decode =
     Decode.field "parties" (Decode.list Party.decode)
@@ -94,4 +126,4 @@ decode =
 
 default : Model
 default =
-    { parties = [], year = "" }
+    { parties = [], year = "", selectedParty = Party.initParty }

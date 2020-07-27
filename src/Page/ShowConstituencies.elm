@@ -1,9 +1,9 @@
 module Page.ShowConstituencies exposing (Model, Msg(..), decode, default, update, view)
 
 import Data.Constituency as Constituency
-import Html exposing (button, div, input, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class)
-import Html.Events exposing (onClick)
+import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
+import Html.Attributes exposing (class, placeholder, type_, value)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
 
 
@@ -12,12 +12,27 @@ type Msg
     | AddConstituency
     | ShowDetail Constituency.Model
     | ConstituenciesReceived (List Constituency.Model)
+    | Form Field
+    | Save
+
+
+type Field
+    = Constituency String
+    | CastedVotes String
+    | IsDeclared String
+    | ParentId String
+    | RegVotes String
+    | RejectVotes String
+    | SeatWonId String
+    | TotalVotes String
+    | AutoCompute String
 
 
 type alias Model =
     { constituencies : List Constituency.Model
     , region : String
     , year : String
+    , selectedConstituency : Constituency.Model
     }
 
 
@@ -31,10 +46,16 @@ update model msg =
             ( model, Cmd.none )
 
         ShowDetail constituency ->
-            ( model, Cmd.none )
+            ( { model | selectedConstituency = constituency }, Cmd.none )
 
         ConstituenciesReceived constituencies ->
             ( { model | constituencies = constituencies }, Cmd.none )
+
+        Form field ->
+            ( model, Cmd.none )
+
+        Save ->
+            ( model, Cmd.none )
 
 
 view : Model -> Html.Html Msg
@@ -46,7 +67,7 @@ view model =
             [ div [ class "col-md-8" ]
                 [ renderConstituencyList model.constituencies
                 ]
-            , div [ class "col-md-4" ] []
+            , div [ class "col-md-4" ] [ renderDetails model.selectedConstituency ]
             ]
         ]
 
@@ -90,6 +111,45 @@ renderConstituencyItem constituency =
         ]
 
 
+renderField : String -> String -> String -> (String -> Field) -> Html.Html Msg
+renderField fieldLabel fieldValue fieldPlaceholder field =
+    div [ class "form-group" ]
+        [ label [] [ Html.text fieldLabel ]
+        , input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+        ]
+
+
+renderDetails : Constituency.Model -> Html.Html Msg
+renderDetails model =
+    form [ onSubmit Save ]
+        [ renderField "constituency" model.name "eg.Bekwai" Constituency
+        , renderField "seat won by" model.seatWonId "eg.XXX" SeatWonId
+        , renderField "casted votes" (String.fromInt model.castedVotes) "e.g P" CastedVotes
+        , renderField "reg votes" (String.fromInt model.regVotes) "e.g 432" RegVotes
+        , renderField "rejected votes" (String.fromInt model.rejectVotes) "e.g 180" RejectVotes
+        , renderField "total votes" (String.fromInt model.totalVotes) "e.g 234" TotalVotes
+        , renderField "is declared"
+            (if model.isDeclared then
+                "Yes"
+
+             else
+                "No"
+            )
+            "e.g Yes"
+            IsDeclared
+        , renderField "is declared"
+            (if model.autoCompute then
+                "Yes"
+
+             else
+                "No"
+            )
+            "e.g No"
+            AutoCompute
+        , renderField "parent id" model.parentId "e.g 1001" ParentId
+        ]
+
+
 decode : Decode.Decoder (List Constituency.Model)
 decode =
     Decode.field "constituencies" (Decode.list Constituency.decode)
@@ -97,4 +157,4 @@ decode =
 
 default : Model
 default =
-    { constituencies = [], region = "", year = "" }
+    { constituencies = [], region = "", year = "", selectedConstituency = Constituency.initConstituency }

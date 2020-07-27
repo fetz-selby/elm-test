@@ -1,9 +1,9 @@
 module Page.ShowNationalAnalysis exposing (Model, Msg(..), decode, default, update, view)
 
 import Data.NationalAnalysis as NationalAnalysis
-import Html exposing (button, div, input, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class)
-import Html.Events exposing (onClick)
+import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
+import Html.Attributes exposing (class, placeholder, type_, value)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
 
 
@@ -12,11 +12,23 @@ type Msg
     | AddNationalAnalysis
     | ShowDetail NationalAnalysis.Model
     | NationalAnalysisReceived (List NationalAnalysis.Model)
+    | Form Field
+    | Save
+
+
+type Field
+    = Party String
+    | Votes String
+    | CandidateType String
+    | Percentage String
+    | Angle String
+    | Bar String
 
 
 type alias Model =
     { nationalAnalysis : List NationalAnalysis.Model
     , year : String
+    , selectedNationalAnalysis : NationalAnalysis.Model
     }
 
 
@@ -28,7 +40,7 @@ view model =
         , div [ class "row" ]
             [ div [ class "col-md-8" ]
                 [ renderNationalList model.nationalAnalysis ]
-            , div [ class "col-md-4" ] []
+            , div [ class "col-md-4" ] [ renderDetails model.selectedNationalAnalysis ]
             ]
         ]
 
@@ -43,10 +55,16 @@ update model msg =
             ( model, Cmd.none )
 
         ShowDetail nationalAnalysis ->
-            ( model, Cmd.none )
+            ( { model | selectedNationalAnalysis = nationalAnalysis }, Cmd.none )
 
         NationalAnalysisReceived nationalAnalysis ->
             ( { model | nationalAnalysis = nationalAnalysis }, Cmd.none )
+
+        Form field ->
+            ( model, Cmd.none )
+
+        Save ->
+            ( model, Cmd.none )
 
 
 renderHeader : Html.Html Msg
@@ -88,6 +106,26 @@ renderNationalItem national =
         ]
 
 
+renderField : String -> String -> String -> (String -> Field) -> Html.Html Msg
+renderField fieldLabel fieldValue fieldPlaceholder field =
+    div [ class "form-group" ]
+        [ label [] [ Html.text fieldLabel ]
+        , input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+        ]
+
+
+renderDetails : NationalAnalysis.Model -> Html.Html Msg
+renderDetails model =
+    form [ onSubmit Save ]
+        [ renderField "party" model.party.name "eg.XXX" Party
+        , renderField "votes" (String.fromInt model.votes) "e.g 23009" Votes
+        , renderField "type" model.candidateType "e.g X" CandidateType
+        , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" Percentage
+        , renderField "angle" (String.fromFloat model.angle) "e.g 180" Angle
+        , renderField "bar" (String.fromFloat model.bar) "e.g 234" Bar
+        ]
+
+
 decode : Decode.Decoder (List NationalAnalysis.Model)
 decode =
     Decode.field "nationalAnalysis" (Decode.list NationalAnalysis.decode)
@@ -95,4 +133,4 @@ decode =
 
 default : Model
 default =
-    { nationalAnalysis = [], year = "" }
+    { nationalAnalysis = [], year = "", selectedNationalAnalysis = NationalAnalysis.initNationalAnalysis }

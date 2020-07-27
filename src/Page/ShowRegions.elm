@@ -115,8 +115,8 @@ renderField fieldLabel fieldValue fieldPlaceholder field =
 renderDetails : Region.Model -> Html.Html Msg
 renderDetails model =
     form [ onSubmit Save ]
-        [ renderField "Region" model.name "eg.Ashanti" Name
-        , renderField "Seat" (String.fromInt model.seats) "e.g 300" Seats
+        [ renderField "region" model.name "eg.Ashanti" Name
+        , renderField "seat" (String.fromInt model.seats) "e.g 300" Seats
         ]
 
 

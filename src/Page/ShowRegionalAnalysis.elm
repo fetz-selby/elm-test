@@ -1,9 +1,9 @@
-module Page.ShowRegionalAnalysis exposing (Model, Msg(..), decode, default, update, view)
+module Page.ShowRegionalAnalysis exposing (Model, Msg(..), decode, default, renderField, update, view)
 
 import Data.RegionalAnalysis as RegionalAnalysis
-import Html exposing (button, div, input, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class)
-import Html.Events exposing (onClick)
+import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
+import Html.Attributes exposing (class, placeholder, type_, value)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
 
 
@@ -12,11 +12,25 @@ type Msg
     | AddRegionalAnalysis
     | ShowDetail RegionalAnalysis.Model
     | RegionalAnalysisReceived (List RegionalAnalysis.Model)
+    | Form Field
+    | Save
+
+
+type Field
+    = Region String
+    | Votes String
+    | CandidateType String
+    | Percentage String
+    | Angle String
+    | Bar String
+    | Party String
+    | Status String
 
 
 type alias Model =
     { regionalAnalysis : List RegionalAnalysis.Model
     , year : String
+    , selectedRegionalAnalysis : RegionalAnalysis.Model
     }
 
 
@@ -29,7 +43,7 @@ view model =
             [ div [ class "col-md-8" ]
                 [ renderRegionalList model.regionalAnalysis
                 ]
-            , div [ class "col-md-4" ] []
+            , div [ class "col-md-4" ] [ renderDetails model.selectedRegionalAnalysis ]
             ]
         ]
 
@@ -44,10 +58,16 @@ update model msg =
             ( model, Cmd.none )
 
         ShowDetail regionalAnalysis ->
-            ( model, Cmd.none )
+            ( { model | selectedRegionalAnalysis = regionalAnalysis }, Cmd.none )
 
         RegionalAnalysisReceived regionalAnalysis ->
             ( { model | regionalAnalysis = regionalAnalysis }, Cmd.none )
+
+        Form field ->
+            ( model, Cmd.none )
+
+        Save ->
+            ( model, Cmd.none )
 
 
 renderHeader : Html.Html Msg
@@ -90,6 +110,28 @@ renderRegionalItem regional =
         ]
 
 
+renderField : String -> String -> String -> (String -> Field) -> Html.Html Msg
+renderField fieldLabel fieldValue fieldPlaceholder field =
+    div [ class "form-group" ]
+        [ label [] [ Html.text fieldLabel ]
+        , input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+        ]
+
+
+renderDetails : RegionalAnalysis.Model -> Html.Html Msg
+renderDetails model =
+    form [ onSubmit Save ]
+        [ renderField "region" model.region.name "eg.Ashanti" Region
+        , renderField "type" model.candidateType "e.g P" CandidateType
+        , renderField "votes" (String.fromInt model.votes) "e.g 1002" Votes
+        , renderField "party" model.party.name "e.g XXX" Party
+        , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" Percentage
+        , renderField "angle" (String.fromFloat model.angle) "e.g 180" Angle
+        , renderField "bar" (String.fromFloat model.bar) "e.g 234" Bar
+        , renderField "status" model.status "e.g A/D" Status
+        ]
+
+
 decode : Decode.Decoder (List RegionalAnalysis.Model)
 decode =
     Decode.field "regionalAnalysis" (Decode.list RegionalAnalysis.decode)
@@ -97,4 +139,4 @@ decode =
 
 default : Model
 default =
-    { regionalAnalysis = [], year = "" }
+    { regionalAnalysis = [], year = "", selectedRegionalAnalysis = RegionalAnalysis.initRegionalAnalysis }
