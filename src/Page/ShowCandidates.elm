@@ -2,7 +2,7 @@ module Page.ShowCandidates exposing (Model, Msg(..), decode, default, initShowCa
 
 import Data.Candidate as Candidate
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, type_, value)
+import Html.Attributes exposing (class, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
 
@@ -30,10 +30,9 @@ type Field
 
 type alias Model =
     { candidates : List Candidate.Model
-
-    -- , constituency : Constituency.Model
     , year : String
     , selectedCandidate : Candidate.Model
+    , isEditableMode : Bool
     }
 
 
@@ -73,7 +72,13 @@ view model =
             [ div [ class "col-md-8" ]
                 [ renderCandidateList model.candidates
                 ]
-            , div [ class "col-md-4" ] [ renderDetails model.selectedCandidate ]
+            , div [ class "col-md-4" ]
+                [ if model.isEditableMode then
+                    renderEditableDetails model.selectedCandidate
+
+                  else
+                    renderDetails model.selectedCandidate
+                ]
             ]
         ]
 
@@ -119,26 +124,45 @@ renderCandidateItem candidate =
         ]
 
 
-renderField : String -> String -> String -> (String -> Field) -> Html.Html Msg
-renderField fieldLabel fieldValue fieldPlaceholder field =
+renderField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
+renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
-        , input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+        , if isEditable then
+            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+
+          else
+            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
         ]
 
 
 renderDetails : Candidate.Model -> Html.Html Msg
 renderDetails model =
     form [ onSubmit Save ]
-        [ renderField "name" model.name "eg.Ashanti" Name
-        , renderField "constituency" model.constituency.name "e.g P" Constituency
-        , renderField "type" model.candidateType "e.g P" CandidateType
-        , renderField "votes" (String.fromInt model.votes) "e.g 1002" Votes
-        , renderField "party" model.party.name "e.g XXX" Party
-        , renderField "avatar path" model.avatarPath "e.g XXX" AvatarPath
-        , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" Percentage
-        , renderField "angle" (String.fromFloat model.angle) "e.g 180" Angle
-        , renderField "bar" (String.fromFloat model.barRatio) "e.g 234" BarRatio
+        [ renderField "name" model.name "eg.Ashanti" False Name
+        , renderField "constituency" model.constituency.name "e.g P" False Constituency
+        , renderField "type" model.candidateType "e.g P" False CandidateType
+        , renderField "votes" (String.fromInt model.votes) "e.g 1002" False Votes
+        , renderField "party" model.party.name "e.g XXX" False Party
+        , renderField "avatar path" model.avatarPath "e.g XXX" False AvatarPath
+        , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" False Percentage
+        , renderField "angle" (String.fromFloat model.angle) "e.g 180" False Angle
+        , renderField "bar" (String.fromFloat model.barRatio) "e.g 234" False BarRatio
+        ]
+
+
+renderEditableDetails : Candidate.Model -> Html.Html Msg
+renderEditableDetails model =
+    form [ onSubmit Save ]
+        [ renderField "name" model.name "eg.Ashanti" True Name
+        , renderField "constituency" model.constituency.name "e.g P" True Constituency
+        , renderField "type" model.candidateType "e.g P" True CandidateType
+        , renderField "votes" (String.fromInt model.votes) "e.g 1002" True Votes
+        , renderField "party" model.party.name "e.g XXX" True Party
+        , renderField "avatar path" model.avatarPath "e.g XXX" True AvatarPath
+        , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" True Percentage
+        , renderField "angle" (String.fromFloat model.angle) "e.g 180" True Angle
+        , renderField "bar" (String.fromFloat model.barRatio) "e.g 234" True BarRatio
         ]
 
 
@@ -149,4 +173,4 @@ decode =
 
 default : Model
 default =
-    { candidates = [], year = "", selectedCandidate = Candidate.initCandidate }
+    { candidates = [], year = "", selectedCandidate = Candidate.initCandidate, isEditableMode = False }

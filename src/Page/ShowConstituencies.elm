@@ -2,7 +2,7 @@ module Page.ShowConstituencies exposing (Model, Msg(..), decode, default, update
 
 import Data.Constituency as Constituency
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, type_, value)
+import Html.Attributes exposing (class, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
 
@@ -33,6 +33,7 @@ type alias Model =
     , region : String
     , year : String
     , selectedConstituency : Constituency.Model
+    , isEditableMode : Bool
     }
 
 
@@ -67,7 +68,13 @@ view model =
             [ div [ class "col-md-8" ]
                 [ renderConstituencyList model.constituencies
                 ]
-            , div [ class "col-md-4" ] [ renderDetails model.selectedConstituency ]
+            , div [ class "col-md-4" ]
+                [ if model.isEditableMode then
+                    renderEditableDetails model.selectedConstituency
+
+                  else
+                    renderDetails model.selectedConstituency
+                ]
             ]
         ]
 
@@ -111,23 +118,27 @@ renderConstituencyItem constituency =
         ]
 
 
-renderField : String -> String -> String -> (String -> Field) -> Html.Html Msg
-renderField fieldLabel fieldValue fieldPlaceholder field =
+renderField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
+renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
-        , input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+        , if isEditable then
+            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+
+          else
+            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
         ]
 
 
 renderDetails : Constituency.Model -> Html.Html Msg
 renderDetails model =
     form [ onSubmit Save ]
-        [ renderField "constituency" model.name "eg.Bekwai" Constituency
-        , renderField "seat won by" model.seatWonId "eg.XXX" SeatWonId
-        , renderField "casted votes" (String.fromInt model.castedVotes) "e.g P" CastedVotes
-        , renderField "reg votes" (String.fromInt model.regVotes) "e.g 432" RegVotes
-        , renderField "rejected votes" (String.fromInt model.rejectVotes) "e.g 180" RejectVotes
-        , renderField "total votes" (String.fromInt model.totalVotes) "e.g 234" TotalVotes
+        [ renderField "constituency" model.name "eg.Bekwai" False Constituency
+        , renderField "seat won by" model.seatWonId "eg.XXX" False SeatWonId
+        , renderField "casted votes" (String.fromInt model.castedVotes) "e.g P" False CastedVotes
+        , renderField "reg votes" (String.fromInt model.regVotes) "e.g 432" False RegVotes
+        , renderField "rejected votes" (String.fromInt model.rejectVotes) "e.g 180" False RejectVotes
+        , renderField "total votes" (String.fromInt model.totalVotes) "e.g 234" False TotalVotes
         , renderField "is declared"
             (if model.isDeclared then
                 "Yes"
@@ -136,6 +147,7 @@ renderDetails model =
                 "No"
             )
             "e.g Yes"
+            False
             IsDeclared
         , renderField "is declared"
             (if model.autoCompute then
@@ -145,8 +157,42 @@ renderDetails model =
                 "No"
             )
             "e.g No"
+            False
             AutoCompute
-        , renderField "parent id" model.parentId "e.g 1001" ParentId
+        , renderField "parent id" model.parentId "e.g 1001" False ParentId
+        ]
+
+
+renderEditableDetails : Constituency.Model -> Html.Html Msg
+renderEditableDetails model =
+    form [ onSubmit Save ]
+        [ renderField "constituency" model.name "eg.Bekwai" True Constituency
+        , renderField "seat won by" model.seatWonId "eg.XXX" True SeatWonId
+        , renderField "casted votes" (String.fromInt model.castedVotes) "e.g P" True CastedVotes
+        , renderField "reg votes" (String.fromInt model.regVotes) "e.g 432" True RegVotes
+        , renderField "rejected votes" (String.fromInt model.rejectVotes) "e.g 180" True RejectVotes
+        , renderField "total votes" (String.fromInt model.totalVotes) "e.g 234" True TotalVotes
+        , renderField "is declared"
+            (if model.isDeclared then
+                "Yes"
+
+             else
+                "No"
+            )
+            "e.g Yes"
+            True
+            IsDeclared
+        , renderField "is declared"
+            (if model.autoCompute then
+                "Yes"
+
+             else
+                "No"
+            )
+            "e.g No"
+            True
+            AutoCompute
+        , renderField "parent id" model.parentId "e.g 1001" True ParentId
         ]
 
 
@@ -157,4 +203,4 @@ decode =
 
 default : Model
 default =
-    { constituencies = [], region = "", year = "", selectedConstituency = Constituency.initConstituency }
+    { constituencies = [], region = "", year = "", selectedConstituency = Constituency.initConstituency, isEditableMode = False }

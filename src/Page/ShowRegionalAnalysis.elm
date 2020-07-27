@@ -2,7 +2,7 @@ module Page.ShowRegionalAnalysis exposing (Model, Msg(..), decode, default, rend
 
 import Data.RegionalAnalysis as RegionalAnalysis
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, type_, value)
+import Html.Attributes exposing (class, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
 
@@ -31,6 +31,7 @@ type alias Model =
     { regionalAnalysis : List RegionalAnalysis.Model
     , year : String
     , selectedRegionalAnalysis : RegionalAnalysis.Model
+    , isEditableMode : Bool
     }
 
 
@@ -43,7 +44,13 @@ view model =
             [ div [ class "col-md-8" ]
                 [ renderRegionalList model.regionalAnalysis
                 ]
-            , div [ class "col-md-4" ] [ renderDetails model.selectedRegionalAnalysis ]
+            , div [ class "col-md-4" ]
+                [ if model.isEditableMode then
+                    renderEditableDetails model.selectedRegionalAnalysis
+
+                  else
+                    renderDetails model.selectedRegionalAnalysis
+                ]
             ]
         ]
 
@@ -110,25 +117,43 @@ renderRegionalItem regional =
         ]
 
 
-renderField : String -> String -> String -> (String -> Field) -> Html.Html Msg
-renderField fieldLabel fieldValue fieldPlaceholder field =
+renderField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
+renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
-        , input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+        , if isEditable then
+            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+
+          else
+            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
         ]
 
 
 renderDetails : RegionalAnalysis.Model -> Html.Html Msg
 renderDetails model =
     form [ onSubmit Save ]
-        [ renderField "region" model.region.name "eg.Ashanti" Region
-        , renderField "type" model.candidateType "e.g P" CandidateType
-        , renderField "votes" (String.fromInt model.votes) "e.g 1002" Votes
-        , renderField "party" model.party.name "e.g XXX" Party
-        , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" Percentage
-        , renderField "angle" (String.fromFloat model.angle) "e.g 180" Angle
-        , renderField "bar" (String.fromFloat model.bar) "e.g 234" Bar
-        , renderField "status" model.status "e.g A/D" Status
+        [ renderField "region" model.region.name "eg.Ashanti" False Region
+        , renderField "type" model.candidateType "e.g P" False CandidateType
+        , renderField "votes" (String.fromInt model.votes) "e.g 1002" False Votes
+        , renderField "party" model.party.name "e.g XXX" False Party
+        , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" False Percentage
+        , renderField "angle" (String.fromFloat model.angle) "e.g 180" False Angle
+        , renderField "bar" (String.fromFloat model.bar) "e.g 234" False Bar
+        , renderField "status" model.status "e.g A/D" False Status
+        ]
+
+
+renderEditableDetails : RegionalAnalysis.Model -> Html.Html Msg
+renderEditableDetails model =
+    form [ onSubmit Save ]
+        [ renderField "region" model.region.name "eg.Ashanti" True Region
+        , renderField "type" model.candidateType "e.g P" True CandidateType
+        , renderField "votes" (String.fromInt model.votes) "e.g 1002" True Votes
+        , renderField "party" model.party.name "e.g XXX" True Party
+        , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" True Percentage
+        , renderField "angle" (String.fromFloat model.angle) "e.g 180" True Angle
+        , renderField "bar" (String.fromFloat model.bar) "e.g 234" True Bar
+        , renderField "status" model.status "e.g A/D" True Status
         ]
 
 
@@ -139,4 +164,4 @@ decode =
 
 default : Model
 default =
-    { regionalAnalysis = [], year = "", selectedRegionalAnalysis = RegionalAnalysis.initRegionalAnalysis }
+    { regionalAnalysis = [], year = "", selectedRegionalAnalysis = RegionalAnalysis.initRegionalAnalysis, isEditableMode = False }

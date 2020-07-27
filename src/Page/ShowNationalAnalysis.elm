@@ -2,7 +2,7 @@ module Page.ShowNationalAnalysis exposing (Model, Msg(..), decode, default, upda
 
 import Data.NationalAnalysis as NationalAnalysis
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, type_, value)
+import Html.Attributes exposing (class, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
 
@@ -29,6 +29,7 @@ type alias Model =
     { nationalAnalysis : List NationalAnalysis.Model
     , year : String
     , selectedNationalAnalysis : NationalAnalysis.Model
+    , isEditableMode : Bool
     }
 
 
@@ -40,7 +41,13 @@ view model =
         , div [ class "row" ]
             [ div [ class "col-md-8" ]
                 [ renderNationalList model.nationalAnalysis ]
-            , div [ class "col-md-4" ] [ renderDetails model.selectedNationalAnalysis ]
+            , div [ class "col-md-4" ]
+                [ if model.isEditableMode then
+                    renderEditableDetails model.selectedNationalAnalysis
+
+                  else
+                    renderDetails model.selectedNationalAnalysis
+                ]
             ]
         ]
 
@@ -106,23 +113,39 @@ renderNationalItem national =
         ]
 
 
-renderField : String -> String -> String -> (String -> Field) -> Html.Html Msg
-renderField fieldLabel fieldValue fieldPlaceholder field =
+renderField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
+renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
-        , input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+        , if isEditable then
+            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+
+          else
+            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
         ]
 
 
 renderDetails : NationalAnalysis.Model -> Html.Html Msg
 renderDetails model =
     form [ onSubmit Save ]
-        [ renderField "party" model.party.name "eg.XXX" Party
-        , renderField "votes" (String.fromInt model.votes) "e.g 23009" Votes
-        , renderField "type" model.candidateType "e.g X" CandidateType
-        , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" Percentage
-        , renderField "angle" (String.fromFloat model.angle) "e.g 180" Angle
-        , renderField "bar" (String.fromFloat model.bar) "e.g 234" Bar
+        [ renderField "party" model.party.name "eg.XXX" False Party
+        , renderField "votes" (String.fromInt model.votes) "e.g 23009" False Votes
+        , renderField "type" model.candidateType "e.g X" False CandidateType
+        , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" False Percentage
+        , renderField "angle" (String.fromFloat model.angle) "e.g 180" False Angle
+        , renderField "bar" (String.fromFloat model.bar) "e.g 234" False Bar
+        ]
+
+
+renderEditableDetails : NationalAnalysis.Model -> Html.Html Msg
+renderEditableDetails model =
+    form [ onSubmit Save ]
+        [ renderField "party" model.party.name "eg.XXX" True Party
+        , renderField "votes" (String.fromInt model.votes) "e.g 23009" True Votes
+        , renderField "type" model.candidateType "e.g X" True CandidateType
+        , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" True Percentage
+        , renderField "angle" (String.fromFloat model.angle) "e.g 180" True Angle
+        , renderField "bar" (String.fromFloat model.bar) "e.g 234" True Bar
         ]
 
 
@@ -133,4 +156,4 @@ decode =
 
 default : Model
 default =
-    { nationalAnalysis = [], year = "", selectedNationalAnalysis = NationalAnalysis.initNationalAnalysis }
+    { nationalAnalysis = [], year = "", selectedNationalAnalysis = NationalAnalysis.initNationalAnalysis, isEditableMode = False }

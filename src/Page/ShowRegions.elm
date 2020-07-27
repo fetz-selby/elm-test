@@ -2,7 +2,7 @@ module Page.ShowRegions exposing (Model, Msg(..), decode, default, update, view)
 
 import Data.Region as Region
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, type_, value)
+import Html.Attributes exposing (class, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
 
@@ -25,6 +25,7 @@ type alias Model =
     { regions : List Region.Model
     , year : String
     , selectedRegion : Region.Model
+    , isEditMode : Bool
     }
 
 
@@ -37,7 +38,11 @@ view model =
             [ div [ class "col-md-8" ]
                 [ renderRegionList model.regions ]
             , div [ class "col-md-4" ]
-                [ renderDetails model.selectedRegion
+                [ if model.isEditMode then
+                    renderEditableDetails model.selectedRegion
+
+                  else
+                    renderDetails model.selectedRegion
                 ]
             ]
         ]
@@ -104,19 +109,31 @@ renderRegionItem region =
         ]
 
 
-renderField : String -> String -> String -> (String -> Field) -> Html.Html Msg
-renderField fieldLabel fieldValue fieldPlaceholder field =
+renderField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
+renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
-        , input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+        , if isEditable then
+            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+
+          else
+            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
         ]
 
 
 renderDetails : Region.Model -> Html.Html Msg
 renderDetails model =
     form [ onSubmit Save ]
-        [ renderField "region" model.name "eg.Ashanti" Name
-        , renderField "seat" (String.fromInt model.seats) "e.g 300" Seats
+        [ renderField "region" model.name "eg.Ashanti" False Name
+        , renderField "seat" (String.fromInt model.seats) "e.g 300" False Seats
+        ]
+
+
+renderEditableDetails : Region.Model -> Html.Html Msg
+renderEditableDetails model =
+    form [ onSubmit Save ]
+        [ renderField "region" model.name "eg.Ashanti" False Name
+        , renderField "seat" (String.fromInt model.seats) "e.g 300" True Seats
         ]
 
 
@@ -127,4 +144,4 @@ decode =
 
 default : Model
 default =
-    { regions = [], year = "", selectedRegion = Region.initRegion }
+    { regions = [], year = "", selectedRegion = Region.initRegion, isEditMode = False }

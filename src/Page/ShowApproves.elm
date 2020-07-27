@@ -2,7 +2,7 @@ module Page.ShowApproves exposing (Model, Msg(..), decode, default, update, view
 
 import Data.Approve as Approve
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, type_, value)
+import Html.Attributes exposing (class, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
 
@@ -33,6 +33,7 @@ type alias Model =
     , year : String
     , voteType : String
     , selectedApprove : Approve.Model
+    , isEditableMode : Bool
     }
 
 
@@ -43,7 +44,13 @@ view model =
         [ renderHeader
         , div [ class "row" ]
             [ div [ class "col-md-8" ] [ renderApproveList model.approves ]
-            , div [ class "col-md-4" ] [ renderDetails model.selectedApprove ]
+            , div [ class "col-md-4" ]
+                [ if model.isEditableMode then
+                    renderEditableDetails model.selectedApprove
+
+                  else
+                    renderDetails model.selectedApprove
+                ]
             ]
         ]
 
@@ -106,26 +113,45 @@ renderApproveItem approve =
         ]
 
 
-renderField : String -> String -> String -> (String -> Field) -> Html.Html Msg
-renderField fieldLabel fieldValue fieldPlaceholder field =
+renderField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
+renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
-        , input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+        , if isEditable then
+            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+
+          else
+            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
         ]
 
 
 renderDetails : Approve.Model -> Html.Html Msg
 renderDetails model =
     form [ onSubmit Save ]
-        [ renderField "message" model.message "eg.XXXX" Message
-        , renderField "agent" model.agent.name "eg.Smith" Agent
-        , renderField "region" model.region.name "eg.Ashanti" Region
-        , renderField "constituency" model.constituency.name "e.g Bekwai" Constituency
-        , renderField "poll station" model.poll.name "e.g XXX" Poll
-        , renderField "type" model.candidateType "e.g 45.4" CandidateType
-        , renderField "msisdn" model.msisdn "e.g +XXX XXXX" Msisdn
-        , renderField "posted ts" model.postedTs "e.g 12.01.2020 16:54 32" PostedTs
-        , renderField "status" model.status "e.g A/D" Status
+        [ renderField "message" model.message "eg.XXXX" False Message
+        , renderField "agent" model.agent.name "eg.Smith" False Agent
+        , renderField "region" model.region.name "eg.Ashanti" False Region
+        , renderField "constituency" model.constituency.name "e.g Bekwai" False Constituency
+        , renderField "poll station" model.poll.name "e.g XXX" False Poll
+        , renderField "type" model.candidateType "e.g 45.4" False CandidateType
+        , renderField "msisdn" model.msisdn "e.g +XXX XXXX" False Msisdn
+        , renderField "posted ts" model.postedTs "e.g 12.01.2020 16:54 32" False PostedTs
+        , renderField "status" model.status "e.g A/D" False Status
+        ]
+
+
+renderEditableDetails : Approve.Model -> Html.Html Msg
+renderEditableDetails model =
+    form [ onSubmit Save ]
+        [ renderField "message" model.message "eg.XXXX" True Message
+        , renderField "agent" model.agent.name "eg.Smith" True Agent
+        , renderField "region" model.region.name "eg.Ashanti" True Region
+        , renderField "constituency" model.constituency.name "e.g Bekwai" True Constituency
+        , renderField "poll station" model.poll.name "e.g XXX" True Poll
+        , renderField "type" model.candidateType "e.g 45.4" True CandidateType
+        , renderField "msisdn" model.msisdn "e.g +XXX XXXX" True Msisdn
+        , renderField "posted ts" model.postedTs "e.g 12.01.2020 16:54 32" True PostedTs
+        , renderField "status" model.status "e.g A/D" True Status
         ]
 
 
@@ -136,4 +162,4 @@ decode =
 
 default : Model
 default =
-    { approves = [], year = "", voteType = "", selectedApprove = Approve.initApprove }
+    { approves = [], year = "", voteType = "", selectedApprove = Approve.initApprove, isEditableMode = False }
