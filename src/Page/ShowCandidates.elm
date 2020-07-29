@@ -58,7 +58,7 @@ update model msg =
             ( model, Cmd.none )
 
         ShowDetail candidate ->
-            ( { model | selectedCandidate = candidate }, Cmd.none )
+            ( { model | showDetailMode = View, selectedCandidate = candidate }, Cmd.none )
 
         CandidatesReceived candidates ->
             ( { model | candidates = candidates }, Cmd.none )

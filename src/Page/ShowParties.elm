@@ -69,7 +69,7 @@ update model msg =
             ( model, Cmd.none )
 
         ShowDetail party ->
-            ( { model | selectedParty = party }, Cmd.none )
+            ( { model | showDetailMode = View, selectedParty = party }, Cmd.none )
 
         PartiesReceived parties ->
             ( { model | parties = parties }, Cmd.none )

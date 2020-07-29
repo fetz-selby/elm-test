@@ -76,7 +76,7 @@ update model msg =
             ( model, Cmd.none )
 
         ShowDetail approve ->
-            ( { model | selectedApprove = approve }, Cmd.none )
+            ( { model | showDetailMode = View, selectedApprove = approve }, Cmd.none )
 
         ApprovesReceived approves ->
             ( { model | approves = approves }, Cmd.none )

@@ -76,7 +76,7 @@ update model msg =
             ( model, Cmd.none )
 
         ShowDetail regionalAnalysis ->
-            ( { model | selectedRegionalAnalysis = regionalAnalysis }, Cmd.none )
+            ( { model | showDetailMode = View, selectedRegionalAnalysis = regionalAnalysis }, Cmd.none )
 
         RegionalAnalysisReceived regionalAnalysis ->
             ( { model | regionalAnalysis = regionalAnalysis }, Cmd.none )

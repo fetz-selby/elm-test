@@ -54,7 +54,7 @@ update model msg =
             ( model, Cmd.none )
 
         ShowDetail constituency ->
-            ( { model | selectedConstituency = constituency, showDetailMode = View }, Cmd.none )
+            ( { model | showDetailMode = View, selectedConstituency = constituency }, Cmd.none )
 
         ConstituenciesReceived constituencies ->
             ( { model | constituencies = constituencies }, Cmd.none )

@@ -69,7 +69,7 @@ update model msg =
             ( model, Cmd.none )
 
         ShowDetail region ->
-            ( { model | selectedRegion = region }, Cmd.none )
+            ( { model | showDetailMode = View, selectedRegion = region }, Cmd.none )
 
         RegionsReceived regions ->
             ( { model | regions = regions }, Cmd.none )

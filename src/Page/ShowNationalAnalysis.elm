@@ -73,7 +73,7 @@ update model msg =
             ( model, Cmd.none )
 
         ShowDetail nationalAnalysis ->
-            ( { model | selectedNationalAnalysis = nationalAnalysis }, Cmd.none )
+            ( { model | showDetailMode = View, selectedNationalAnalysis = nationalAnalysis }, Cmd.none )
 
         NationalAnalysisReceived nationalAnalysis ->
             ( { model | nationalAnalysis = nationalAnalysis }, Cmd.none )
