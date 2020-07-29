@@ -14,6 +14,7 @@ type Msg
     | NationalAnalysisReceived (List NationalAnalysis.Model)
     | Form Field
     | Save
+    | DetailMode ShowDetailMode
 
 
 type Field
@@ -25,11 +26,17 @@ type Field
     | Bar String
 
 
+type ShowDetailMode
+    = View
+    | Edit
+    | New
+
+
 type alias Model =
     { nationalAnalysis : List NationalAnalysis.Model
     , year : String
     , selectedNationalAnalysis : NationalAnalysis.Model
-    , isEditableMode : Bool
+    , showDetailMode : ShowDetailMode
     }
 
 
@@ -42,11 +49,15 @@ view model =
             [ div [ class "col-md-8" ]
                 [ renderNationalList model.nationalAnalysis ]
             , div [ class "col-md-4" ]
-                [ if model.isEditableMode then
-                    renderEditableDetails model.selectedNationalAnalysis
+                [ case model.showDetailMode of
+                    View ->
+                        renderDetails model.selectedNationalAnalysis
 
-                  else
-                    renderDetails model.selectedNationalAnalysis
+                    Edit ->
+                        renderEditableDetails model.selectedNationalAnalysis
+
+                    New ->
+                        div [] []
                 ]
             ]
         ]
@@ -72,6 +83,9 @@ update model msg =
 
         Save ->
             ( model, Cmd.none )
+
+        DetailMode mode ->
+            ( showDetailState mode model, Cmd.none )
 
 
 renderHeader : Html.Html Msg
@@ -149,6 +163,19 @@ renderEditableDetails model =
         ]
 
 
+showDetailState : ShowDetailMode -> Model -> Model
+showDetailState mode model =
+    case mode of
+        View ->
+            { model | showDetailMode = View }
+
+        Edit ->
+            { model | showDetailMode = Edit }
+
+        New ->
+            { model | showDetailMode = New, selectedNationalAnalysis = NationalAnalysis.initNationalAnalysis }
+
+
 decode : Decode.Decoder (List NationalAnalysis.Model)
 decode =
     Decode.field "nationalAnalysis" (Decode.list NationalAnalysis.decode)
@@ -156,4 +183,4 @@ decode =
 
 default : Model
 default =
-    { nationalAnalysis = [], year = "", selectedNationalAnalysis = NationalAnalysis.initNationalAnalysis, isEditableMode = False }
+    { nationalAnalysis = [], year = "", selectedNationalAnalysis = NationalAnalysis.initNationalAnalysis, showDetailMode = View }

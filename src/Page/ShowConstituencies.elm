@@ -14,6 +14,7 @@ type Msg
     | ConstituenciesReceived (List Constituency.Model)
     | Form Field
     | Save
+    | DetailMode ShowDetailMode
 
 
 type Field
@@ -28,12 +29,18 @@ type Field
     | AutoCompute String
 
 
+type ShowDetailMode
+    = View
+    | Edit
+    | New
+
+
 type alias Model =
     { constituencies : List Constituency.Model
     , region : String
     , year : String
     , selectedConstituency : Constituency.Model
-    , isEditableMode : Bool
+    , showDetailMode : ShowDetailMode
     }
 
 
@@ -47,7 +54,7 @@ update model msg =
             ( model, Cmd.none )
 
         ShowDetail constituency ->
-            ( { model | selectedConstituency = constituency }, Cmd.none )
+            ( { model | selectedConstituency = constituency, showDetailMode = View }, Cmd.none )
 
         ConstituenciesReceived constituencies ->
             ( { model | constituencies = constituencies }, Cmd.none )
@@ -57,6 +64,9 @@ update model msg =
 
         Save ->
             ( model, Cmd.none )
+
+        DetailMode mode ->
+            ( showDetailState mode model, Cmd.none )
 
 
 view : Model -> Html.Html Msg
@@ -69,11 +79,15 @@ view model =
                 [ renderConstituencyList model.constituencies
                 ]
             , div [ class "col-md-4" ]
-                [ if model.isEditableMode then
-                    renderEditableDetails model.selectedConstituency
+                [ case model.showDetailMode of
+                    View ->
+                        renderDetails model.selectedConstituency
 
-                  else
-                    renderDetails model.selectedConstituency
+                    Edit ->
+                        renderEditableDetails model.selectedConstituency
+
+                    New ->
+                        div [] []
                 ]
             ]
         ]
@@ -196,6 +210,19 @@ renderEditableDetails model =
         ]
 
 
+showDetailState : ShowDetailMode -> Model -> Model
+showDetailState mode model =
+    case mode of
+        View ->
+            { model | showDetailMode = View }
+
+        Edit ->
+            { model | showDetailMode = Edit }
+
+        New ->
+            { model | showDetailMode = New, selectedConstituency = Constituency.initConstituency }
+
+
 decode : Decode.Decoder (List Constituency.Model)
 decode =
     Decode.field "constituencies" (Decode.list Constituency.decode)
@@ -203,4 +230,4 @@ decode =
 
 default : Model
 default =
-    { constituencies = [], region = "", year = "", selectedConstituency = Constituency.initConstituency, isEditableMode = False }
+    { constituencies = [], region = "", year = "", selectedConstituency = Constituency.initConstituency, showDetailMode = View }

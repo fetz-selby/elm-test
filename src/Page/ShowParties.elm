@@ -14,6 +14,7 @@ type Msg
     | PartiesReceived (List Party.Model)
     | Form Field
     | Save
+    | DetailMode ShowDetailMode
 
 
 type Field
@@ -22,11 +23,17 @@ type Field
     | LogoPath String
 
 
+type ShowDetailMode
+    = View
+    | Edit
+    | New
+
+
 type alias Model =
     { parties : List Party.Model
     , year : String
     , selectedParty : Party.Model
-    , isEditableMode : Bool
+    , showDetailMode : ShowDetailMode
     }
 
 
@@ -38,11 +45,15 @@ view model =
         , div [ class "row" ]
             [ div [ class "col-md-8" ] [ renderPartyList model.parties ]
             , div [ class "col-md-4" ]
-                [ if model.isEditableMode then
-                    renderEditableDetails model.selectedParty
+                [ case model.showDetailMode of
+                    View ->
+                        renderDetails model.selectedParty
 
-                  else
-                    renderDetails model.selectedParty
+                    Edit ->
+                        renderEditableDetails model.selectedParty
+
+                    New ->
+                        div [] []
                 ]
             ]
         ]
@@ -68,6 +79,9 @@ update model msg =
 
         Save ->
             ( model, Cmd.none )
+
+        DetailMode mode ->
+            ( showDetailState mode model, Cmd.none )
 
 
 renderHeader : Html.Html Msg
@@ -139,6 +153,19 @@ renderEditableDetails model =
         ]
 
 
+showDetailState : ShowDetailMode -> Model -> Model
+showDetailState mode model =
+    case mode of
+        View ->
+            { model | showDetailMode = View }
+
+        Edit ->
+            { model | showDetailMode = Edit }
+
+        New ->
+            { model | showDetailMode = New, selectedParty = Party.initParty }
+
+
 decode : Decode.Decoder (List Party.Model)
 decode =
     Decode.field "parties" (Decode.list Party.decode)
@@ -146,4 +173,4 @@ decode =
 
 default : Model
 default =
-    { parties = [], year = "", selectedParty = Party.initParty, isEditableMode = False }
+    { parties = [], year = "", selectedParty = Party.initParty, showDetailMode = View }

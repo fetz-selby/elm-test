@@ -14,6 +14,7 @@ type Msg
     | RegionsReceived (List Region.Model)
     | Form Field
     | Save
+    | DetailMode ShowDetailMode
 
 
 type Field
@@ -21,11 +22,17 @@ type Field
     | Seats String
 
 
+type ShowDetailMode
+    = View
+    | Edit
+    | New
+
+
 type alias Model =
     { regions : List Region.Model
     , year : String
     , selectedRegion : Region.Model
-    , isEditMode : Bool
+    , showDetailMode : ShowDetailMode
     }
 
 
@@ -38,11 +45,15 @@ view model =
             [ div [ class "col-md-8" ]
                 [ renderRegionList model.regions ]
             , div [ class "col-md-4" ]
-                [ if model.isEditMode then
-                    renderEditableDetails model.selectedRegion
+                [ case model.showDetailMode of
+                    View ->
+                        renderDetails model.selectedRegion
 
-                  else
-                    renderDetails model.selectedRegion
+                    Edit ->
+                        renderEditableDetails model.selectedRegion
+
+                    New ->
+                        div [] []
                 ]
             ]
         ]
@@ -68,6 +79,9 @@ update model msg =
 
         Save ->
             ( model, Cmd.none )
+
+        DetailMode mode ->
+            ( showDetailState mode model, Cmd.none )
 
 
 renderHeader : Html.Html Msg
@@ -137,6 +151,19 @@ renderEditableDetails model =
         ]
 
 
+showDetailState : ShowDetailMode -> Model -> Model
+showDetailState mode model =
+    case mode of
+        View ->
+            { model | showDetailMode = View }
+
+        Edit ->
+            { model | showDetailMode = Edit }
+
+        New ->
+            { model | showDetailMode = New, selectedRegion = Region.initRegion }
+
+
 decode : Decode.Decoder (List Region.Model)
 decode =
     Decode.field "regions" (Decode.list Region.decode)
@@ -144,4 +171,4 @@ decode =
 
 default : Model
 default =
-    { regions = [], year = "", selectedRegion = Region.initRegion, isEditMode = False }
+    { regions = [], year = "", selectedRegion = Region.initRegion, showDetailMode = View }

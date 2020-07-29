@@ -14,6 +14,7 @@ type Msg
     | CandidatesReceived (List Candidate.Model)
     | Form Field
     | Save
+    | DetailMode ShowDetailMode
 
 
 type Field
@@ -28,11 +29,17 @@ type Field
     | BarRatio String
 
 
+type ShowDetailMode
+    = View
+    | Edit
+    | New
+
+
 type alias Model =
     { candidates : List Candidate.Model
     , year : String
     , selectedCandidate : Candidate.Model
-    , isEditableMode : Bool
+    , showDetailMode : ShowDetailMode
     }
 
 
@@ -62,6 +69,9 @@ update model msg =
         Save ->
             ( model, Cmd.none )
 
+        DetailMode mode ->
+            ( showDetailState mode model, Cmd.none )
+
 
 view : Model -> Html.Html Msg
 view model =
@@ -73,11 +83,15 @@ view model =
                 [ renderCandidateList model.candidates
                 ]
             , div [ class "col-md-4" ]
-                [ if model.isEditableMode then
-                    renderEditableDetails model.selectedCandidate
+                [ case model.showDetailMode of
+                    View ->
+                        renderDetails model.selectedCandidate
 
-                  else
-                    renderDetails model.selectedCandidate
+                    Edit ->
+                        renderEditableDetails model.selectedCandidate
+
+                    New ->
+                        div [] []
                 ]
             ]
         ]
@@ -166,6 +180,19 @@ renderEditableDetails model =
         ]
 
 
+showDetailState : ShowDetailMode -> Model -> Model
+showDetailState mode model =
+    case mode of
+        View ->
+            { model | showDetailMode = View }
+
+        Edit ->
+            { model | showDetailMode = Edit }
+
+        New ->
+            { model | showDetailMode = New, selectedCandidate = Candidate.initCandidate }
+
+
 decode : Decode.Decoder (List Candidate.Model)
 decode =
     Decode.field "candidates" (Decode.list Candidate.decode)
@@ -173,4 +200,4 @@ decode =
 
 default : Model
 default =
-    { candidates = [], year = "", selectedCandidate = Candidate.initCandidate, isEditableMode = False }
+    { candidates = [], year = "", selectedCandidate = Candidate.initCandidate, showDetailMode = View }

@@ -14,6 +14,7 @@ type Msg
     | RegionalAnalysisReceived (List RegionalAnalysis.Model)
     | Form Field
     | Save
+    | DetailMode ShowDetailMode
 
 
 type Field
@@ -27,11 +28,17 @@ type Field
     | Status String
 
 
+type ShowDetailMode
+    = View
+    | Edit
+    | New
+
+
 type alias Model =
     { regionalAnalysis : List RegionalAnalysis.Model
     , year : String
     , selectedRegionalAnalysis : RegionalAnalysis.Model
-    , isEditableMode : Bool
+    , showDetailMode : ShowDetailMode
     }
 
 
@@ -45,11 +52,15 @@ view model =
                 [ renderRegionalList model.regionalAnalysis
                 ]
             , div [ class "col-md-4" ]
-                [ if model.isEditableMode then
-                    renderEditableDetails model.selectedRegionalAnalysis
+                [ case model.showDetailMode of
+                    View ->
+                        renderDetails model.selectedRegionalAnalysis
 
-                  else
-                    renderDetails model.selectedRegionalAnalysis
+                    Edit ->
+                        renderEditableDetails model.selectedRegionalAnalysis
+
+                    New ->
+                        div [] []
                 ]
             ]
         ]
@@ -75,6 +86,9 @@ update model msg =
 
         Save ->
             ( model, Cmd.none )
+
+        DetailMode mode ->
+            ( showDetailState mode model, Cmd.none )
 
 
 renderHeader : Html.Html Msg
@@ -157,6 +171,19 @@ renderEditableDetails model =
         ]
 
 
+showDetailState : ShowDetailMode -> Model -> Model
+showDetailState mode model =
+    case mode of
+        View ->
+            { model | showDetailMode = View }
+
+        Edit ->
+            { model | showDetailMode = Edit }
+
+        New ->
+            { model | showDetailMode = New, selectedRegionalAnalysis = RegionalAnalysis.initRegionalAnalysis }
+
+
 decode : Decode.Decoder (List RegionalAnalysis.Model)
 decode =
     Decode.field "regionalAnalysis" (Decode.list RegionalAnalysis.decode)
@@ -164,4 +191,4 @@ decode =
 
 default : Model
 default =
-    { regionalAnalysis = [], year = "", selectedRegionalAnalysis = RegionalAnalysis.initRegionalAnalysis, isEditableMode = False }
+    { regionalAnalysis = [], year = "", selectedRegionalAnalysis = RegionalAnalysis.initRegionalAnalysis, showDetailMode = View }

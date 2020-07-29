@@ -14,6 +14,7 @@ type Msg
     | ApprovesReceived (List Approve.Model)
     | Form Field
     | Save
+    | DetailMode ShowDetailMode
 
 
 type Field
@@ -28,12 +29,18 @@ type Field
     | Status String
 
 
+type ShowDetailMode
+    = View
+    | Edit
+    | New
+
+
 type alias Model =
     { approves : List Approve.Model
     , year : String
     , voteType : String
     , selectedApprove : Approve.Model
-    , isEditableMode : Bool
+    , showDetailMode : ShowDetailMode
     }
 
 
@@ -45,11 +52,15 @@ view model =
         , div [ class "row" ]
             [ div [ class "col-md-8" ] [ renderApproveList model.approves ]
             , div [ class "col-md-4" ]
-                [ if model.isEditableMode then
-                    renderEditableDetails model.selectedApprove
+                [ case model.showDetailMode of
+                    View ->
+                        renderDetails model.selectedApprove
 
-                  else
-                    renderDetails model.selectedApprove
+                    Edit ->
+                        renderEditableDetails model.selectedApprove
+
+                    New ->
+                        div [] []
                 ]
             ]
         ]
@@ -75,6 +86,9 @@ update model msg =
 
         Save ->
             ( model, Cmd.none )
+
+        DetailMode mode ->
+            ( showDetailState mode model, Cmd.none )
 
 
 renderHeader : Html.Html Msg
@@ -155,6 +169,19 @@ renderEditableDetails model =
         ]
 
 
+showDetailState : ShowDetailMode -> Model -> Model
+showDetailState mode model =
+    case mode of
+        View ->
+            { model | showDetailMode = View }
+
+        Edit ->
+            { model | showDetailMode = Edit }
+
+        New ->
+            { model | showDetailMode = New, selectedApprove = Approve.initApprove }
+
+
 decode : Decode.Decoder (List Approve.Model)
 decode =
     Decode.field "approves" (Decode.list Approve.decode)
@@ -162,4 +189,4 @@ decode =
 
 default : Model
 default =
-    { approves = [], year = "", voteType = "", selectedApprove = Approve.initApprove, isEditableMode = False }
+    { approves = [], year = "", voteType = "", selectedApprove = Approve.initApprove, showDetailMode = View }
