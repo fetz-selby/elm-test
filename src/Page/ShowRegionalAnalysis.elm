@@ -1,5 +1,7 @@
 module Page.ShowRegionalAnalysis exposing (Model, Msg(..), decode, default, renderField, update, view)
 
+import Data.Party as Party
+import Data.Region as Region
 import Data.RegionalAnalysis as RegionalAnalysis
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
 import Html.Attributes exposing (class, placeholder, readonly, type_, value)
@@ -11,7 +13,7 @@ type Msg
     = FetchRegionalAnalysis String
     | AddRegionalAnalysis
     | ShowDetail RegionalAnalysis.Model
-    | RegionalAnalysisReceived (List RegionalAnalysis.Model)
+    | RegionalAnalysisReceived RegionalAnalysisData
     | Form Field
     | Save
     | DetailMode ShowDetailMode
@@ -34,8 +36,17 @@ type ShowDetailMode
     | New
 
 
+type alias RegionalAnalysisData =
+    { regionalAnalysis : List RegionalAnalysis.Model
+    , regions : List Region.Model
+    , parties : List Party.Model
+    }
+
+
 type alias Model =
     { regionalAnalysis : List RegionalAnalysis.Model
+    , regions : List Region.Model
+    , parties : List Party.Model
     , year : String
     , selectedRegionalAnalysis : RegionalAnalysis.Model
     , showDetailMode : ShowDetailMode
@@ -78,8 +89,14 @@ update model msg =
         ShowDetail regionalAnalysis ->
             ( { model | showDetailMode = View, selectedRegionalAnalysis = regionalAnalysis }, Cmd.none )
 
-        RegionalAnalysisReceived regionalAnalysis ->
-            ( { model | regionalAnalysis = regionalAnalysis }, Cmd.none )
+        RegionalAnalysisReceived regionalAnalysisData ->
+            ( { model
+                | regionalAnalysis = regionalAnalysisData.regionalAnalysis
+                , regions = regionalAnalysisData.regions
+                , parties = regionalAnalysisData.parties
+              }
+            , Cmd.none
+            )
 
         Form field ->
             ( model, Cmd.none )
@@ -184,11 +201,17 @@ showDetailState mode model =
             { model | showDetailMode = New, selectedRegionalAnalysis = RegionalAnalysis.initRegionalAnalysis }
 
 
-decode : Decode.Decoder (List RegionalAnalysis.Model)
+decode : Decode.Decoder RegionalAnalysisData
 decode =
-    Decode.field "regionalAnalysis" (Decode.list RegionalAnalysis.decode)
+    Decode.field "regionalAnalysisData" (Decode.map3 RegionalAnalysisData RegionalAnalysis.decodeList Region.decodeList Party.decodeList)
 
 
 default : Model
 default =
-    { regionalAnalysis = [], year = "", selectedRegionalAnalysis = RegionalAnalysis.initRegionalAnalysis, showDetailMode = View }
+    { regionalAnalysis = []
+    , regions = []
+    , parties = []
+    , year = ""
+    , selectedRegionalAnalysis = RegionalAnalysis.initRegionalAnalysis
+    , showDetailMode = View
+    }

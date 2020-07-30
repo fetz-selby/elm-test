@@ -1,6 +1,7 @@
 module Page.ShowConstituencies exposing (Model, Msg(..), decode, default, update, view)
 
 import Data.Constituency as Constituency
+import Data.ParentConstituency as ParentConstituency
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
 import Html.Attributes exposing (class, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
@@ -11,7 +12,7 @@ type Msg
     = FetchConstituencies String
     | AddConstituency
     | ShowDetail Constituency.Model
-    | ConstituenciesReceived (List Constituency.Model)
+    | ConstituenciesReceived ConstituencyData
     | Form Field
     | Save
     | DetailMode ShowDetailMode
@@ -35,8 +36,15 @@ type ShowDetailMode
     | New
 
 
+type alias ConstituencyData =
+    { constituencies : List Constituency.Model
+    , parentConstituencies : List ParentConstituency.Model
+    }
+
+
 type alias Model =
     { constituencies : List Constituency.Model
+    , parentConstituencies : List ParentConstituency.Model
     , region : String
     , year : String
     , selectedConstituency : Constituency.Model
@@ -56,8 +64,13 @@ update model msg =
         ShowDetail constituency ->
             ( { model | showDetailMode = View, selectedConstituency = constituency }, Cmd.none )
 
-        ConstituenciesReceived constituencies ->
-            ( { model | constituencies = constituencies }, Cmd.none )
+        ConstituenciesReceived constituencyData ->
+            ( { model
+                | constituencies = constituencyData.constituencies
+                , parentConstituencies = constituencyData.parentConstituencies
+              }
+            , Cmd.none
+            )
 
         Form field ->
             ( model, Cmd.none )
@@ -223,11 +236,11 @@ showDetailState mode model =
             { model | showDetailMode = New, selectedConstituency = Constituency.initConstituency }
 
 
-decode : Decode.Decoder (List Constituency.Model)
+decode : Decode.Decoder ConstituencyData
 decode =
-    Decode.field "constituencies" (Decode.list Constituency.decode)
+    Decode.field "constituencyData" (Decode.map2 ConstituencyData Constituency.decodeList ParentConstituency.decodeList)
 
 
 default : Model
 default =
-    { constituencies = [], region = "", year = "", selectedConstituency = Constituency.initConstituency, showDetailMode = View }
+    { constituencies = [], parentConstituencies = [], region = "", year = "", selectedConstituency = Constituency.initConstituency, showDetailMode = View }

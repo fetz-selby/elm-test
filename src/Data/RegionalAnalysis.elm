@@ -1,4 +1,4 @@
-module Data.RegionalAnalysis exposing (Model, decode, encode, initRegionalAnalysis)
+module Data.RegionalAnalysis exposing (Model, decode, decodeList, encode, initRegionalAnalysis)
 
 import Data.Party as Party
 import Data.Region as Region
@@ -54,3 +54,8 @@ decode =
         |> JDP.required "party" Party.decode
         |> JDP.required "region" Region.decode
         |> JDP.required "status" Decode.string
+
+
+decodeList : Decode.Decoder (List Model)
+decodeList =
+    Decode.field "regionalAnalysis" (Decode.list decode)

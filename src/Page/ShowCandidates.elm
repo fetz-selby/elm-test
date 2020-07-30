@@ -1,6 +1,8 @@
 module Page.ShowCandidates exposing (Model, Msg(..), decode, default, initShowCandidateModel, update, view)
 
 import Data.Candidate as Candidate
+import Data.Constituency as Constituency
+import Data.Party as Party
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
 import Html.Attributes exposing (class, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
@@ -11,7 +13,7 @@ type Msg
     = FetchCandidates String
     | AddCandidate
     | ShowDetail Candidate.Model
-    | CandidatesReceived (List Candidate.Model)
+    | CandidatesReceived CandidateData
     | Form Field
     | Save
     | DetailMode ShowDetailMode
@@ -35,8 +37,17 @@ type ShowDetailMode
     | New
 
 
+type alias CandidateData =
+    { candidates : List Candidate.Model
+    , constituencies : List Constituency.Model
+    , parties : List Party.Model
+    }
+
+
 type alias Model =
     { candidates : List Candidate.Model
+    , constituencies : List Constituency.Model
+    , parties : List Party.Model
     , year : String
     , selectedCandidate : Candidate.Model
     , showDetailMode : ShowDetailMode
@@ -60,8 +71,14 @@ update model msg =
         ShowDetail candidate ->
             ( { model | showDetailMode = View, selectedCandidate = candidate }, Cmd.none )
 
-        CandidatesReceived candidates ->
-            ( { model | candidates = candidates }, Cmd.none )
+        CandidatesReceived candidateData ->
+            ( { model
+                | candidates = candidateData.candidates
+                , constituencies = candidateData.constituencies
+                , parties = candidateData.parties
+              }
+            , Cmd.none
+            )
 
         Form field ->
             ( model, Cmd.none )
@@ -193,11 +210,17 @@ showDetailState mode model =
             { model | showDetailMode = New, selectedCandidate = Candidate.initCandidate }
 
 
-decode : Decode.Decoder (List Candidate.Model)
+decode : Decode.Decoder CandidateData
 decode =
-    Decode.field "candidates" (Decode.list Candidate.decode)
+    Decode.field "candidateData" (Decode.map3 CandidateData Candidate.decodeList Constituency.decodeList Party.decodeList)
 
 
 default : Model
 default =
-    { candidates = [], year = "", selectedCandidate = Candidate.initCandidate, showDetailMode = View }
+    { candidates = []
+    , constituencies = []
+    , parties = []
+    , year = ""
+    , selectedCandidate = Candidate.initCandidate
+    , showDetailMode = View
+    }

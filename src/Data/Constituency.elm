@@ -1,4 +1,4 @@
-module Data.Constituency exposing (Model, decode, default, encode, initConstituency)
+module Data.Constituency exposing (Model, decode, decodeList, default, encode, initConstituency)
 
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
@@ -58,6 +58,11 @@ decode =
         |> JDP.required "reject_votes" Decode.int
         |> JDP.required "seat_won_id" Decode.string
         |> JDP.required "total_votes" Decode.int
+
+
+decodeList : Decode.Decoder (List Model)
+decodeList =
+    Decode.field "constituencies" (Decode.list decode)
 
 
 default : Model

@@ -1,6 +1,7 @@
 module Page.ShowNationalAnalysis exposing (Model, Msg(..), decode, default, update, view)
 
 import Data.NationalAnalysis as NationalAnalysis
+import Data.Party as Party
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
 import Html.Attributes exposing (class, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
@@ -11,7 +12,7 @@ type Msg
     = FetchNationalAnalysis String
     | AddNationalAnalysis
     | ShowDetail NationalAnalysis.Model
-    | NationalAnalysisReceived (List NationalAnalysis.Model)
+    | NationalAnalysisReceived NationalAnalysisData
     | Form Field
     | Save
     | DetailMode ShowDetailMode
@@ -32,8 +33,15 @@ type ShowDetailMode
     | New
 
 
+type alias NationalAnalysisData =
+    { nationalAnalysis : List NationalAnalysis.Model
+    , parties : List Party.Model
+    }
+
+
 type alias Model =
     { nationalAnalysis : List NationalAnalysis.Model
+    , parties : List Party.Model
     , year : String
     , selectedNationalAnalysis : NationalAnalysis.Model
     , showDetailMode : ShowDetailMode
@@ -75,8 +83,13 @@ update model msg =
         ShowDetail nationalAnalysis ->
             ( { model | showDetailMode = View, selectedNationalAnalysis = nationalAnalysis }, Cmd.none )
 
-        NationalAnalysisReceived nationalAnalysis ->
-            ( { model | nationalAnalysis = nationalAnalysis }, Cmd.none )
+        NationalAnalysisReceived nationalAnalysisData ->
+            ( { model
+                | nationalAnalysis = nationalAnalysisData.nationalAnalysis
+                , parties = nationalAnalysisData.parties
+              }
+            , Cmd.none
+            )
 
         Form field ->
             ( model, Cmd.none )
@@ -176,11 +189,16 @@ showDetailState mode model =
             { model | showDetailMode = New, selectedNationalAnalysis = NationalAnalysis.initNationalAnalysis }
 
 
-decode : Decode.Decoder (List NationalAnalysis.Model)
+decode : Decode.Decoder NationalAnalysisData
 decode =
-    Decode.field "nationalAnalysis" (Decode.list NationalAnalysis.decode)
+    Decode.field "nationalAnalysisData" (Decode.map2 NationalAnalysisData NationalAnalysis.decodeList Party.decodeList)
 
 
 default : Model
 default =
-    { nationalAnalysis = [], year = "", selectedNationalAnalysis = NationalAnalysis.initNationalAnalysis, showDetailMode = View }
+    { nationalAnalysis = []
+    , parties = []
+    , year = ""
+    , selectedNationalAnalysis = NationalAnalysis.initNationalAnalysis
+    , showDetailMode = View
+    }

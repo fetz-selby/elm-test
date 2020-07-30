@@ -43,16 +43,16 @@ decode model json =
     case Decode.decodeValue (Decode.field "type" Decode.string) json of
         Ok "CandidatesLoaded" ->
             case decodePayload ShowCandidates.decode json of
-                Ok candidates ->
-                    ShowCandidates (ShowCandidates.CandidatesReceived candidates)
+                Ok candidateData ->
+                    ShowCandidates (ShowCandidates.CandidatesReceived candidateData)
 
                 Err _ ->
                     IncomingMsgError FailedToLoadCandidates
 
         Ok "ConstituenciesLoaded" ->
             case decodePayload ShowConstituencies.decode json of
-                Ok constituencies ->
-                    ShowConstituencies (ShowConstituencies.ConstituenciesReceived constituencies)
+                Ok constituencyData ->
+                    ShowConstituencies (ShowConstituencies.ConstituenciesReceived constituencyData)
 
                 Err _ ->
                     IncomingMsgError FailedToLoadConstituencies
@@ -67,16 +67,16 @@ decode model json =
 
         Ok "PartiesLoaded" ->
             case decodePayload ShowParties.decode json of
-                Ok parties ->
-                    ShowParties (ShowParties.PartiesReceived parties)
+                Ok partyData ->
+                    ShowParties (ShowParties.PartiesReceived partyData)
 
                 Err _ ->
                     IncomingMsgError FailedToLoadParties
 
         Ok "RegionsLoaded" ->
             case decodePayload ShowRegions.decode json of
-                Ok regions ->
-                    ShowRegions (ShowRegions.RegionsReceived regions)
+                Ok regionData ->
+                    ShowRegions (ShowRegions.RegionsReceived regionData)
 
                 Err _ ->
                     IncomingMsgError FailedToLoadRegions
@@ -103,8 +103,8 @@ decode model json =
 
         Ok "NationalAnalysisLoaded" ->
             case decodePayload ShowNationalAnalysis.decode json of
-                Ok nationalAnalysis ->
-                    ShowNationalAnalysis (ShowNationalAnalysis.NationalAnalysisReceived nationalAnalysis)
+                Ok nationalAnalysisData ->
+                    ShowNationalAnalysis (ShowNationalAnalysis.NationalAnalysisReceived nationalAnalysisData)
 
                 Err _ ->
                     IncomingMsgError FailedToLoadNationalAnalysis

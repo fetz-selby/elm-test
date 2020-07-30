@@ -16,6 +16,9 @@ import {
   normalizeApproves,
   normalizeAllNationalAnalysis,
   normalizeAllRegionalAnalysis,
+  normalizeParentConstituencies,
+  normalizeParties,
+  normalizeRegions,
 } from "./api/helper";
 import io from "socket.io-client";
 import feathers from "@feathersjs/client";
@@ -104,7 +107,7 @@ async function create() {
 
         app.ports.msgForElm.send({
           type: "RegionsLoaded",
-          payload: { regions },
+          payload: { regionData: { regions } },
         });
 
         break;
@@ -119,9 +122,18 @@ async function create() {
               })
             : [];
 
+        const parentConstituencies = await getParentConstituencies({ service });
+
         app.ports.msgForElm.send({
           type: "ConstituenciesLoaded",
-          payload: { constituencies: normalizeConstituencies(constituencies) },
+          payload: {
+            constituencyData: {
+              constituencies: normalizeConstituencies(constituencies),
+              parentConstituencies: normalizeParentConstituencies(
+                parentConstituencies
+              ),
+            },
+          },
         });
 
         break;
@@ -132,10 +144,18 @@ async function create() {
           role === ADMIN
             ? await getCandidates({ service, payload: { year } })
             : await getCandidates({ service, payload: { constituencyId } });
+        const constituencies = await getConstituencies({ service, year });
+        const parties = await getParties({ service });
 
         app.ports.msgForElm.send({
           type: "CandidatesLoaded",
-          payload: { candidates: normalizeCandidates(candidates) },
+          payload: {
+            candidateData: {
+              candidates: normalizeCandidates(candidates),
+              constituencies: normalizeConstituencies(constituencies),
+              parties: normalizeParties(parties),
+            },
+          },
         });
 
         break;
@@ -146,7 +166,7 @@ async function create() {
 
         app.ports.msgForElm.send({
           type: "PartiesLoaded",
-          payload: { parties },
+          payload: { partyData: { parties: normalizeParties(parties) } },
         });
 
         break;
@@ -165,7 +185,7 @@ async function create() {
         const approves = await getApproves({ service, year, regionId });
         app.ports.msgForElm.send({
           type: "ApprovesLoaded",
-          payload: { approves: normalizeApproves(approves) },
+          payload: { approveData: { approves: normalizeApproves(approves) } },
         });
 
         break;
@@ -173,10 +193,15 @@ async function create() {
 
       case "InitNationalSummary": {
         const nationalAnalysis = await getNationalAnalysis({ service, year });
+        const parties = await getParties({ service });
+
         app.ports.msgForElm.send({
           type: "NationalAnalysisLoaded",
           payload: {
-            nationalAnalysis: normalizeAllNationalAnalysis(nationalAnalysis),
+            nationalAnalysisData: {
+              nationalAnalysis: normalizeAllNationalAnalysis(nationalAnalysis),
+              parties: normalizeParties(parties),
+            },
           },
         });
 
@@ -185,10 +210,17 @@ async function create() {
 
       case "InitRegionalSummary": {
         const regionalAnalysis = await getRegionalAnalysis({ service, year });
+        const regions = await getRegions({ service });
+        const parties = await getRegions({ service });
+
         app.ports.msgForElm.send({
           type: "RegionalAnalysisLoaded",
           payload: {
-            regionalAnalysis: normalizeAllRegionalAnalysis(regionalAnalysis),
+            regionalAnalysisData: {
+              regionalAnalysis: normalizeAllRegionalAnalysis(regionalAnalysis),
+              regions: normalizeRegions(regions),
+              parties: normalizeParties(parties),
+            },
           },
         });
 

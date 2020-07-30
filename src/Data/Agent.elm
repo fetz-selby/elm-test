@@ -1,4 +1,4 @@
-module Data.Agent exposing (Model, decode, encode, initAgent)
+module Data.Agent exposing (Model, decode, decodeList, encode, initAgent)
 
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
@@ -31,3 +31,8 @@ decode =
         |> JDP.required "id" Decode.string
         |> JDP.required "name" Decode.string
         |> JDP.required "msisdn" Decode.string
+
+
+decodeList : Decode.Decoder (List Model)
+decodeList =
+    Decode.field "agents" (Decode.list decode)

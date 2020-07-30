@@ -11,7 +11,7 @@ type Msg
     = FetchApproves
     | AddApprove
     | ShowDetail Approve.Model
-    | ApprovesReceived (List Approve.Model)
+    | ApprovesReceived ApproveData
     | Form Field
     | Save
     | DetailMode ShowDetailMode
@@ -33,6 +33,11 @@ type ShowDetailMode
     = View
     | Edit
     | New
+
+
+type alias ApproveData =
+    { approves : List Approve.Model
+    }
 
 
 type alias Model =
@@ -78,8 +83,8 @@ update model msg =
         ShowDetail approve ->
             ( { model | showDetailMode = View, selectedApprove = approve }, Cmd.none )
 
-        ApprovesReceived approves ->
-            ( { model | approves = approves }, Cmd.none )
+        ApprovesReceived approveData ->
+            ( { model | approves = approveData.approves }, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )
@@ -182,9 +187,9 @@ showDetailState mode model =
             { model | showDetailMode = New, selectedApprove = Approve.initApprove }
 
 
-decode : Decode.Decoder (List Approve.Model)
+decode : Decode.Decoder ApproveData
 decode =
-    Decode.field "approves" (Decode.list Approve.decode)
+    Decode.field "approveData" (Decode.map ApproveData Approve.decodeList)
 
 
 default : Model

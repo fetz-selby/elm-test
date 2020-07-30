@@ -1,4 +1,4 @@
-module Data.NationalAnalysis exposing (Model, decode, encode, initNationalAnalysis)
+module Data.NationalAnalysis exposing (Model, decode, decodeList, encode, initNationalAnalysis)
 
 import Data.Party as Party
 import Json.Decode as Decode
@@ -47,3 +47,8 @@ decode =
         |> JDP.required "angle" Decode.float
         |> JDP.required "bar" Decode.float
         |> JDP.required "party" Party.decode
+
+
+decodeList : Decode.Decoder (List Model)
+decodeList =
+    Decode.field "nationalAnalysis" (Decode.list decode)

@@ -1,4 +1,4 @@
-module Data.Approve exposing (Model, decode, encode, initApprove)
+module Data.Approve exposing (Model, decode, decodeList, encode, initApprove)
 
 import Data.Agent as Agent
 import Data.Constituency as Constituency
@@ -50,12 +50,6 @@ encode approve =
         ]
 
 
-couldBeNull : Decode.Decoder String
-couldBeNull =
-    Decode.oneOf
-        [ Decode.string, Decode.null "" ]
-
-
 decode : Decode.Decoder Model
 decode =
     Decode.succeed Model
@@ -70,3 +64,8 @@ decode =
         |> JDP.required "msisdn" Decode.string
         |> JDP.required "posted_ts" Decode.string
         |> JDP.required "status" Decode.string
+
+
+decodeList : Decode.Decoder (List Model)
+decodeList =
+    Decode.field "approves" (Decode.list decode)

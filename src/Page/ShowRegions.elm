@@ -11,7 +11,7 @@ type Msg
     = FetchRegions
     | AddRegion
     | ShowDetail Region.Model
-    | RegionsReceived (List Region.Model)
+    | RegionsReceived RegionData
     | Form Field
     | Save
     | DetailMode ShowDetailMode
@@ -26,6 +26,11 @@ type ShowDetailMode
     = View
     | Edit
     | New
+
+
+type alias RegionData =
+    { regions : List Region.Model
+    }
 
 
 type alias Model =
@@ -71,8 +76,8 @@ update model msg =
         ShowDetail region ->
             ( { model | showDetailMode = View, selectedRegion = region }, Cmd.none )
 
-        RegionsReceived regions ->
-            ( { model | regions = regions }, Cmd.none )
+        RegionsReceived regionData ->
+            ( { model | regions = regionData.regions }, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )
@@ -164,9 +169,9 @@ showDetailState mode model =
             { model | showDetailMode = New, selectedRegion = Region.initRegion }
 
 
-decode : Decode.Decoder (List Region.Model)
+decode : Decode.Decoder RegionData
 decode =
-    Decode.field "regions" (Decode.list Region.decode)
+    Decode.field "regionData" (Decode.map RegionData Region.decodeList)
 
 
 default : Model

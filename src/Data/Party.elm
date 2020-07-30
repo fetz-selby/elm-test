@@ -1,4 +1,4 @@
-module Data.Party exposing (Model, decode, encode, initParty)
+module Data.Party exposing (Model, decode, decodeList, encode, initParty)
 
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
@@ -34,3 +34,8 @@ decode =
         |> JDP.required "name" Decode.string
         |> JDP.required "color" Decode.string
         |> JDP.required "logo_path" Decode.string
+
+
+decodeList : Decode.Decoder (List Model)
+decodeList =
+    Decode.field "parties" (Decode.list decode)

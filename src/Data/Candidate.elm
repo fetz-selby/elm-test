@@ -1,4 +1,4 @@
-module Data.Candidate exposing (Model, decode, encode, initCandidate)
+module Data.Candidate exposing (Model, decode, decodeList, encode, initCandidate)
 
 import Data.Constituency as Constituency
 import Data.Party as Party
@@ -70,3 +70,8 @@ decode =
         |> JDP.required "angle" Decode.float
         |> JDP.required "percentage" Decode.float
         |> JDP.required "bar_ratio" Decode.float
+
+
+decodeList : Decode.Decoder (List Model)
+decodeList =
+    Decode.field "candidates" (Decode.list decode)

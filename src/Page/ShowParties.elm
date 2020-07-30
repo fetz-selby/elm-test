@@ -11,7 +11,7 @@ type Msg
     = FetchParties String
     | AddParty
     | ShowDetail Party.Model
-    | PartiesReceived (List Party.Model)
+    | PartiesReceived PartyData
     | Form Field
     | Save
     | DetailMode ShowDetailMode
@@ -27,6 +27,11 @@ type ShowDetailMode
     = View
     | Edit
     | New
+
+
+type alias PartyData =
+    { parties : List Party.Model
+    }
 
 
 type alias Model =
@@ -71,8 +76,8 @@ update model msg =
         ShowDetail party ->
             ( { model | showDetailMode = View, selectedParty = party }, Cmd.none )
 
-        PartiesReceived parties ->
-            ( { model | parties = parties }, Cmd.none )
+        PartiesReceived partyData ->
+            ( { model | parties = partyData.parties }, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )
@@ -166,9 +171,9 @@ showDetailState mode model =
             { model | showDetailMode = New, selectedParty = Party.initParty }
 
 
-decode : Decode.Decoder (List Party.Model)
+decode : Decode.Decoder PartyData
 decode =
-    Decode.field "parties" (Decode.list Party.decode)
+    Decode.field "partyData" (Decode.map PartyData Party.decodeList)
 
 
 default : Model

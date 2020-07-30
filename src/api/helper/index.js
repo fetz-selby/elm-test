@@ -111,8 +111,8 @@ export const normalizeApprove = (approve) => ({
 export const normalizeNationalAnalysis = (nationalAnalysis) => ({
   ...nationalAnalysis,
   id:
-    nationalAnalysis && nationalAnalysis.id.toString()
-      ? nationalAnalysis.id
+    nationalAnalysis && nationalAnalysis.id
+      ? nationalAnalysis.id.toString()
       : "",
   party: normalizeParty(nationalAnalysis.party),
   year:
@@ -167,6 +167,18 @@ export const normalizeRegionalAnalysis = (regionalAnalysis) => ({
     regionalAnalysis && regionalAnalysis.status ? regionalAnalysis.status : "",
 });
 
+export const normalizeParentConstituency = (parentConstituency) => ({
+  ...parentConstituency,
+  id:
+    parentConstituency && parentConstituency.id
+      ? parentConstituency.id.toString()
+      : "",
+  name:
+    parentConstituency && parentConstituency.name
+      ? parentConstituency.name
+      : "",
+});
+
 export const normalizeApproves = (apporoves) =>
   apporoves && apporoves.length
     ? apporoves.map((approve) => normalizeApprove(approve))
@@ -194,4 +206,21 @@ export const normalizeAllRegionalAnalysis = (allRegionalAnalysis) =>
     ? allRegionalAnalysis.map((regionalAnalysis) =>
         normalizeRegionalAnalysis(regionalAnalysis)
       )
+    : [];
+
+export const normalizeParentConstituencies = (parentConstituencies) =>
+  parentConstituencies && parentConstituencies.length
+    ? parentConstituencies.map((parentConstituency) =>
+        normalizeParentConstituency(parentConstituency)
+      )
+    : [];
+
+export const normalizeParties = (parties) =>
+  parties && parties.length
+    ? parties.map((party) => normalizeParty(party))
+    : [];
+
+export const normalizeRegions = (regions) =>
+  regions && regions.length
+    ? regions.map((region) => normalizeRegion(region))
     : [];
