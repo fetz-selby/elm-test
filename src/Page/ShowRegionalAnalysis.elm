@@ -3,10 +3,12 @@ module Page.ShowRegionalAnalysis exposing (Model, Msg(..), decode, default, rend
 import Data.Party as Party
 import Data.Region as Region
 import Data.RegionalAnalysis as RegionalAnalysis
-import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
+import Html exposing (button, div, form, input, label, option, select, table, tbody, td, th, thead, tr)
 import Html.Attributes exposing (class, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
+import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
+import Page.ShowConstituencies exposing (Msg(..))
 
 
 type Msg
@@ -17,6 +19,8 @@ type Msg
     | Form Field
     | Save
     | DetailMode ShowDetailMode
+    | OnPartyChange String
+    | OnRegionChange String
 
 
 type Field
@@ -71,7 +75,7 @@ view model =
                         renderEditableDetails model.selectedRegionalAnalysis
 
                     New ->
-                        div [] []
+                        renderNewDetails model
                 ]
             ]
         ]
@@ -84,7 +88,7 @@ update model msg =
             ( model, Cmd.none )
 
         AddRegionalAnalysis ->
-            ( model, Cmd.none )
+            ( { model | showDetailMode = New }, Cmd.none )
 
         ShowDetail regionalAnalysis ->
             ( { model | showDetailMode = View, selectedRegionalAnalysis = regionalAnalysis }, Cmd.none )
@@ -107,6 +111,12 @@ update model msg =
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
 
+        OnRegionChange val ->
+            ( model, Cmd.none )
+
+        OnPartyChange val ->
+            ( model, Cmd.none )
+
 
 renderHeader : Html.Html Msg
 renderHeader =
@@ -118,6 +128,40 @@ renderHeader =
             [ button [ onClick AddRegionalAnalysis ] [ Html.text "Add" ]
             ]
         ]
+
+
+renderRegions : String -> List Region.Model -> Html.Html Msg
+renderRegions fieldLabel regionList =
+    div [ class "form-group" ]
+        [ label [] [ Html.text fieldLabel ]
+        , select
+            [ class "form-control"
+            , onChange OnRegionChange
+            ]
+            (List.map regionItem regionList)
+        ]
+
+
+regionItem : Region.Model -> Html.Html msg
+regionItem item =
+    option [ value item.id ] [ Html.text item.name ]
+
+
+renderParties : String -> List Party.Model -> Html.Html Msg
+renderParties fieldLabel partyList =
+    div [ class "form-group" ]
+        [ label [] [ Html.text fieldLabel ]
+        , select
+            [ class "form-control"
+            , onChange OnPartyChange
+            ]
+            (List.map partyItem partyList)
+        ]
+
+
+partyItem : Party.Model -> Html.Html msg
+partyItem item =
+    option [ value item.id ] [ Html.text item.name ]
 
 
 renderRegionalList : List RegionalAnalysis.Model -> Html.Html Msg
@@ -185,6 +229,20 @@ renderEditableDetails model =
         , renderField "angle" (String.fromFloat model.angle) "e.g 180" True Angle
         , renderField "bar" (String.fromFloat model.bar) "e.g 234" True Bar
         , renderField "status" model.status "e.g A/D" True Status
+        ]
+
+
+renderNewDetails : Model -> Html.Html Msg
+renderNewDetails model =
+    form [ onSubmit Save ]
+        [ renderRegions "region" model.regions
+        , renderParties "party" model.parties
+        , renderField "type" "" "e.g P" True CandidateType
+        , renderField "votes" "" "e.g 1002" True Votes
+        , renderField "percentage" "" "e.g 45.4" True Percentage
+        , renderField "angle" "" "e.g 180" True Angle
+        , renderField "bar" "" "e.g 234" True Bar
+        , renderField "status" "" "e.g A/D" True Status
         ]
 
 

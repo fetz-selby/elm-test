@@ -21,6 +21,7 @@ type Field
     = Party String
     | Color String
     | LogoPath String
+    | OrderQueue String
 
 
 type ShowDetailMode
@@ -58,7 +59,7 @@ view model =
                         renderEditableDetails model.selectedParty
 
                     New ->
-                        div [] []
+                        renderNewDetails
                 ]
             ]
         ]
@@ -71,7 +72,7 @@ update model msg =
             ( model, Cmd.none )
 
         AddParty ->
-            ( model, Cmd.none )
+            ( { model | showDetailMode = New }, Cmd.none )
 
         ShowDetail party ->
             ( { model | showDetailMode = View, selectedParty = party }, Cmd.none )
@@ -125,6 +126,7 @@ renderPartyItem party =
         [ td [] [ Html.text party.name ]
         , td [] [ Html.text party.color ]
         , td [] [ Html.text party.logoPath ]
+        , td [] [ Html.text (String.fromInt party.orderQueue) ]
         ]
 
 
@@ -146,6 +148,7 @@ renderDetails model =
         [ renderField "party" model.name "eg.XXX" False Party
         , renderField "color" model.color "e.g P" False Color
         , renderField "logo path" model.logoPath "e.g #F33e345" False LogoPath
+        , renderField "order queue" (String.fromInt model.orderQueue) "e.g 12" False OrderQueue
         ]
 
 
@@ -155,6 +158,17 @@ renderEditableDetails model =
         [ renderField "party" model.name "eg.XXX" True Party
         , renderField "color" model.color "e.g P" True Color
         , renderField "logo path" model.logoPath "e.g #F33e345" True LogoPath
+        , renderField "order queue" (String.fromInt model.orderQueue) "e.g 12" True OrderQueue
+        ]
+
+
+renderNewDetails : Html.Html Msg
+renderNewDetails =
+    form [ onSubmit Save ]
+        [ renderField "party" "" "eg.XXX" True Party
+        , renderField "color" "" "e.g P" True Color
+        , renderField "logo path" "" "e.g #F33e345" True LogoPath
+        , renderField "order queue" "" "e.g 12" True OrderQueue
         ]
 
 

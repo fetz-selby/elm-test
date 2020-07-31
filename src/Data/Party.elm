@@ -10,12 +10,13 @@ type alias Model =
     , name : String
     , color : String
     , logoPath : String
+    , orderQueue : Int
     }
 
 
 initParty : Model
 initParty =
-    { id = "", name = "", color = "", logoPath = "" }
+    { id = "", name = "", color = "", logoPath = "", orderQueue = 0 }
 
 
 encode : Model -> Encode.Value
@@ -34,6 +35,7 @@ decode =
         |> JDP.required "name" Decode.string
         |> JDP.required "color" Decode.string
         |> JDP.required "logo_path" Decode.string
+        |> JDP.required "order_queue" Decode.int
 
 
 decodeList : Decode.Decoder (List Model)

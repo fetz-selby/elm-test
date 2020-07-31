@@ -123,6 +123,7 @@ async function create() {
             : [];
 
         const parentConstituencies = await getParentConstituencies({ service });
+        const parties = await getParties({ service });
 
         app.ports.msgForElm.send({
           type: "ConstituenciesLoaded",
@@ -132,6 +133,7 @@ async function create() {
               parentConstituencies: normalizeParentConstituencies(
                 parentConstituencies
               ),
+              parties: normalizeParties(parties),
             },
           },
         });
@@ -211,7 +213,7 @@ async function create() {
       case "InitRegionalSummary": {
         const regionalAnalysis = await getRegionalAnalysis({ service, year });
         const regions = await getRegions({ service });
-        const parties = await getRegions({ service });
+        const parties = await getParties({ service });
 
         app.ports.msgForElm.send({
           type: "RegionalAnalysisLoaded",

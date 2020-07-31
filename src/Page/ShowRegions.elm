@@ -58,7 +58,7 @@ view model =
                         renderEditableDetails model.selectedRegion
 
                     New ->
-                        div [] []
+                        renderNewDetails
                 ]
             ]
         ]
@@ -71,7 +71,7 @@ update model msg =
             ( model, Cmd.none )
 
         AddRegion ->
-            ( model, Cmd.none )
+            ( { model | showDetailMode = New }, Cmd.none )
 
         ShowDetail region ->
             ( { model | showDetailMode = View, selectedRegion = region }, Cmd.none )
@@ -144,7 +144,7 @@ renderDetails : Region.Model -> Html.Html Msg
 renderDetails model =
     form [ onSubmit Save ]
         [ renderField "region" model.name "eg.Ashanti" False Name
-        , renderField "seat" (String.fromInt model.seats) "e.g 300" False Seats
+        , renderField "seat" (String.fromInt model.seats) "e.g 30" False Seats
         ]
 
 
@@ -152,7 +152,15 @@ renderEditableDetails : Region.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Save ]
         [ renderField "region" model.name "eg.Ashanti" False Name
-        , renderField "seat" (String.fromInt model.seats) "e.g 300" True Seats
+        , renderField "seat" (String.fromInt model.seats) "e.g 30" True Seats
+        ]
+
+
+renderNewDetails : Html.Html Msg
+renderNewDetails =
+    form [ onSubmit Save ]
+        [ renderField "region" "" "eg.Ashanti" True Name
+        , renderField "seat" "" "e.g 30" True Seats
         ]
 
 

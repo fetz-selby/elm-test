@@ -1,3 +1,10 @@
+const sort = (a, b) =>
+  a.name.toLowerCase() === b.name.toLowerCase()
+    ? 0
+    : a.name.toLowerCase() < b.name.toLowerCase()
+    ? -1
+    : 1;
+
 export const flatenConstituenciesWithRegionIdIncluded = (
   parentConstituencies,
   constituencies
@@ -34,6 +41,7 @@ export const normalizeParty = (party) => ({
   name: party && party.name ? party.name : "Unknown",
   color: party && party.color ? party.color : "Unknown",
   logo_path: party && party.logo_path ? party.logo_path : "Unknown",
+  order_queue: party && party.order_queue ? parseInt(party.order_queue) : 0,
 });
 
 export const normalizeConstituency = (constituency) => ({
@@ -186,41 +194,49 @@ export const normalizeApproves = (apporoves) =>
 
 export const normalizeCandidates = (candidates) =>
   candidates && candidates.length
-    ? candidates.map((candidate) => normalizeCandidate(candidate))
+    ? candidates
+        .map((candidate) => normalizeCandidate(candidate))
+        .sort((a, b) => sort(a, b))
     : [];
 
 export const normalizeConstituencies = (constituencies) =>
   constituencies && constituencies.length
-    ? constituencies.map((constituency) => normalizeConstituency(constituency))
+    ? constituencies
+        .map((constituency) => normalizeConstituency(constituency))
+        .sort((a, b) => sort(a, b))
     : [];
 
 export const normalizeAllNationalAnalysis = (allNationalAnalysis) =>
   allNationalAnalysis && allNationalAnalysis.length
-    ? allNationalAnalysis.map((nationalAnalysis) =>
-        normalizeNationalAnalysis(nationalAnalysis)
-      )
+    ? allNationalAnalysis
+        .map((nationalAnalysis) => normalizeNationalAnalysis(nationalAnalysis))
+        .sort((a, b) => sort(a.party, b.party))
     : [];
 
 export const normalizeAllRegionalAnalysis = (allRegionalAnalysis) =>
   allRegionalAnalysis && allRegionalAnalysis.length
-    ? allRegionalAnalysis.map((regionalAnalysis) =>
-        normalizeRegionalAnalysis(regionalAnalysis)
-      )
+    ? allRegionalAnalysis
+        .map((regionalAnalysis) => normalizeRegionalAnalysis(regionalAnalysis))
+        .sort((a, b) => sort(a.region, b.region))
     : [];
 
 export const normalizeParentConstituencies = (parentConstituencies) =>
   parentConstituencies && parentConstituencies.length
-    ? parentConstituencies.map((parentConstituency) =>
-        normalizeParentConstituency(parentConstituency)
-      )
+    ? parentConstituencies
+        .map((parentConstituency) =>
+          normalizeParentConstituency(parentConstituency)
+        )
+        .sort((a, b) => sort(a, b))
     : [];
 
 export const normalizeParties = (parties) =>
   parties && parties.length
-    ? parties.map((party) => normalizeParty(party))
+    ? parties.map((party) => normalizeParty(party)).sort((a, b) => sort(a, b))
     : [];
 
 export const normalizeRegions = (regions) =>
   regions && regions.length
-    ? regions.map((region) => normalizeRegion(region))
+    ? regions
+        .map((region) => normalizeRegion(region))
+        .sort((a, b) => sort(a, b))
     : [];

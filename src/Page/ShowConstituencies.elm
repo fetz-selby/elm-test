@@ -2,9 +2,11 @@ module Page.ShowConstituencies exposing (Model, Msg(..), decode, default, update
 
 import Data.Constituency as Constituency
 import Data.ParentConstituency as ParentConstituency
-import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
+import Data.Party as Party
+import Html exposing (button, div, form, input, label, option, select, table, tbody, td, th, thead, tr)
 import Html.Attributes exposing (class, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
+import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
 
 
@@ -16,6 +18,8 @@ type Msg
     | Form Field
     | Save
     | DetailMode ShowDetailMode
+    | OnParentConstituencyChange String
+    | OnPartyChange String
 
 
 type Field
@@ -39,12 +43,14 @@ type ShowDetailMode
 type alias ConstituencyData =
     { constituencies : List Constituency.Model
     , parentConstituencies : List ParentConstituency.Model
+    , parties : List Party.Model
     }
 
 
 type alias Model =
     { constituencies : List Constituency.Model
     , parentConstituencies : List ParentConstituency.Model
+    , parties : List Party.Model
     , region : String
     , year : String
     , selectedConstituency : Constituency.Model
@@ -59,7 +65,7 @@ update model msg =
             ( model, Cmd.none )
 
         AddConstituency ->
-            ( model, Cmd.none )
+            ( { model | showDetailMode = New }, Cmd.none )
 
         ShowDetail constituency ->
             ( { model | showDetailMode = View, selectedConstituency = constituency }, Cmd.none )
@@ -68,6 +74,7 @@ update model msg =
             ( { model
                 | constituencies = constituencyData.constituencies
                 , parentConstituencies = constituencyData.parentConstituencies
+                , parties = constituencyData.parties
               }
             , Cmd.none
             )
@@ -80,6 +87,12 @@ update model msg =
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
+
+        OnParentConstituencyChange val ->
+            ( model, Cmd.none )
+
+        OnPartyChange val ->
+            ( model, Cmd.none )
 
 
 view : Model -> Html.Html Msg
@@ -100,10 +113,44 @@ view model =
                         renderEditableDetails model.selectedConstituency
 
                     New ->
-                        div [] []
+                        renderNewDetails model
                 ]
             ]
         ]
+
+
+renderParentConstituencies : String -> List ParentConstituency.Model -> Html.Html Msg
+renderParentConstituencies fieldLabel parentConstituencyList =
+    div [ class "form-group" ]
+        [ label [] [ Html.text fieldLabel ]
+        , select
+            [ class "form-control"
+            , onChange OnParentConstituencyChange
+            ]
+            (List.map parentConstituencyItem parentConstituencyList)
+        ]
+
+
+parentConstituencyItem : ParentConstituency.Model -> Html.Html msg
+parentConstituencyItem item =
+    option [ value item.id ] [ Html.text item.name ]
+
+
+renderParties : String -> List Party.Model -> Html.Html Msg
+renderParties fieldLabel partyList =
+    div [ class "form-group" ]
+        [ label [] [ Html.text fieldLabel ]
+        , select
+            [ class "form-control"
+            , onChange OnPartyChange
+            ]
+            (List.map partyItem partyList)
+        ]
+
+
+partyItem : Party.Model -> Html.Html msg
+partyItem item =
+    option [ value item.id ] [ Html.text item.name ]
 
 
 renderHeader : Html.Html Msg
@@ -113,7 +160,7 @@ renderHeader =
             [ input [] []
             ]
         , div [ class "col-md-offset-3" ]
-            [ button [ onClick AddConstituency ] [ Html.text "Add" ]
+            [ button [ class "btn btn-primary", onClick AddConstituency ] [ Html.text "Add" ]
             ]
         ]
 
@@ -223,6 +270,29 @@ renderEditableDetails model =
         ]
 
 
+renderNewDetails : Model -> Html.Html Msg
+renderNewDetails model =
+    form [ onSubmit Save ]
+        [ renderParentConstituencies "parent constituency" model.parentConstituencies
+        , renderParties "seat won by" model.parties
+        , renderField "constituency" "" "eg.Bekwai" True Constituency
+        , renderField "casted votes" "" "e.g P" True CastedVotes
+        , renderField "reg votes" "" "e.g 432" True RegVotes
+        , renderField "rejected votes" "" "e.g 180" True RejectVotes
+        , renderField "total votes" "" "e.g 234" True TotalVotes
+        , renderField "is declared"
+            "No"
+            "e.g Yes"
+            True
+            IsDeclared
+        , renderField "is autoCompute"
+            "No"
+            "e.g No"
+            True
+            AutoCompute
+        ]
+
+
 showDetailState : ShowDetailMode -> Model -> Model
 showDetailState mode model =
     case mode of
@@ -238,9 +308,16 @@ showDetailState mode model =
 
 decode : Decode.Decoder ConstituencyData
 decode =
-    Decode.field "constituencyData" (Decode.map2 ConstituencyData Constituency.decodeList ParentConstituency.decodeList)
+    Decode.field "constituencyData" (Decode.map3 ConstituencyData Constituency.decodeList ParentConstituency.decodeList Party.decodeList)
 
 
 default : Model
 default =
-    { constituencies = [], parentConstituencies = [], region = "", year = "", selectedConstituency = Constituency.initConstituency, showDetailMode = View }
+    { constituencies = []
+    , parentConstituencies = []
+    , parties = []
+    , region = ""
+    , year = ""
+    , selectedConstituency = Constituency.initConstituency
+    , showDetailMode = View
+    }
