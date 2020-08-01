@@ -68,7 +68,7 @@ update model msg =
 menu : String -> Msg -> Html.Html Msg
 menu label event =
     div
-        [ class "col-md-12", onClick event ]
+        [ class "col-md-12 sidebar-menu", onClick event ]
         [ text label
         ]
 

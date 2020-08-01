@@ -6,6 +6,7 @@ import Sidebar as Sidebar
 
 type alias Model =
     { pages : Page.Page
+    , pageTitle : String
     , sidebar : Sidebar.Sidebar
     , userName : String
     , regionId : String
@@ -14,4 +15,4 @@ type alias Model =
 
 default : Model
 default =
-    { pages = Page.default, sidebar = Sidebar.default, userName = "", regionId = "" }
+    { pages = Page.default, pageTitle = "", sidebar = Sidebar.default, userName = "", regionId = "" }

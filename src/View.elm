@@ -19,12 +19,14 @@ import View.GeneralSidebar
 
 view : Model.Model -> Html.Html Msg
 view model =
-    div [ class "row" ]
-        [ div [ class "col-md-2 col-lg-2" ]
+    div [ class "row container" ]
+        [ div [ class "col-md-2 col-lg-2 sidebar-container" ]
             [ sidebarView model
             ]
         , div [ class "col-md-10 col-lg-10" ]
-            [ pageView model
+            [ div [ class "col-md-12 app-title" ]
+                [ Html.text model.pageTitle ]
+            , pageView model
             ]
         ]
 

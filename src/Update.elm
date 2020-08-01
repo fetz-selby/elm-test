@@ -124,42 +124,42 @@ update msg model =
 
 updateWithCandidatesPage : Model -> ShowCandidatesPage.Model -> ( Model, Cmd Msg.Msg )
 updateWithCandidatesPage model pageModel =
-    ( { model | pages = Page.ShowCandidates pageModel }, Cmd.none )
+    ( { model | pages = Page.ShowCandidates pageModel, pageTitle = "Candidates" }, Cmd.none )
 
 
 updateWithRegionsPage : Model -> ShowRegionsPage.Model -> ( Model, Cmd Msg.Msg )
 updateWithRegionsPage model pageModel =
-    ( { model | pages = Page.ShowRegions pageModel }, Cmd.none )
+    ( { model | pages = Page.ShowRegions pageModel, pageTitle = "Regions" }, Cmd.none )
 
 
 updateWithConstituenciesPage : Model -> ShowConstituenciesPage.Model -> ( Model, Cmd Msg.Msg )
 updateWithConstituenciesPage model pageModel =
-    ( { model | pages = Page.ShowConstituencies pageModel }, Cmd.none )
+    ( { model | pages = Page.ShowConstituencies pageModel, pageTitle = "Constituencies" }, Cmd.none )
 
 
 updateWithPartiesPage : Model -> ShowPartiesPage.Model -> ( Model, Cmd Msg.Msg )
 updateWithPartiesPage model pageModel =
-    ( { model | pages = Page.ShowParties pageModel }, Cmd.none )
+    ( { model | pages = Page.ShowParties pageModel, pageTitle = "Parties" }, Cmd.none )
 
 
 updateWithPollsPage : Model -> ShowPollsPage.Model -> ( Model, Cmd Msg.Msg )
 updateWithPollsPage model pageModel =
-    ( { model | pages = Page.ShowPolls pageModel }, Cmd.none )
+    ( { model | pages = Page.ShowPolls pageModel, pageTitle = "Polls" }, Cmd.none )
 
 
 updateWithApprovesPage : Model -> ShowApprovesPage.Model -> ( Model, Cmd Msg.Msg )
 updateWithApprovesPage model pageModel =
-    ( { model | pages = Page.ShowApproves pageModel }, Cmd.none )
+    ( { model | pages = Page.ShowApproves pageModel, pageTitle = "Approve" }, Cmd.none )
 
 
 updateWithRegionalPage : Model -> ShowRegionalAnalysisPage.Model -> ( Model, Cmd Msg.Msg )
 updateWithRegionalPage model pageModel =
-    ( { model | pages = Page.ShowRegionalAnalysis pageModel }, Cmd.none )
+    ( { model | pages = Page.ShowRegionalAnalysis pageModel, pageTitle = "Regional Analysis" }, Cmd.none )
 
 
 updateWithNationalPage : Model -> ShowNationalAnalysisPage.Model -> ( Model, Cmd Msg.Msg )
 updateWithNationalPage model pageModel =
-    ( { model | pages = Page.ShowNationalAnalysis pageModel }, Cmd.none )
+    ( { model | pages = Page.ShowNationalAnalysis pageModel, pageTitle = "National Analysis" }, Cmd.none )
 
 
 updateWithSidebarView : Model -> GeneralSidebar.Model -> ( Model, Cmd Msg.Msg )
