@@ -21,6 +21,7 @@ type Msg
     | DetailMode ShowDetailMode
     | OnPartyChange String
     | OnRegionChange String
+    | OnEdit
 
 
 type Field
@@ -117,15 +118,18 @@ update model msg =
         OnPartyChange val ->
             ( model, Cmd.none )
 
+        OnEdit ->
+            ( { model | showDetailMode = Edit }, Cmd.none )
+
 
 renderHeader : Html.Html Msg
 renderHeader =
-    div [ class "row" ]
+    div [ class "row spacing" ]
         [ div [ class "col-md-9" ]
-            [ input [] []
+            [ input [ class "search-input" ] []
             ]
-        , div [ class "col-md-offset-3" ]
-            [ button [ onClick AddRegionalAnalysis ] [ Html.text "Add" ]
+        , div [ class "col-md-3" ]
+            [ button [ class "btn btn-primary new-button", onClick AddRegionalAnalysis ] [ Html.text "New" ]
             ]
         ]
 
@@ -206,15 +210,20 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
 
 renderDetails : RegionalAnalysis.Model -> Html.Html Msg
 renderDetails model =
-    form [ onSubmit Save ]
-        [ renderField "region" model.region.name "eg.Ashanti" False Region
-        , renderField "type" model.candidateType "e.g P" False CandidateType
-        , renderField "votes" (String.fromInt model.votes) "e.g 1002" False Votes
-        , renderField "party" model.party.name "e.g XXX" False Party
-        , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" False Percentage
-        , renderField "angle" (String.fromFloat model.angle) "e.g 180" False Angle
-        , renderField "bar" (String.fromFloat model.bar) "e.g 234" False Bar
-        , renderField "status" model.status "e.g A/D" False Status
+    div []
+        [ div [ class "col-md-12 spacing-bottom" ]
+            [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
+            ]
+        , form [ onSubmit Save ]
+            [ renderField "region" model.region.name "eg.Ashanti" False Region
+            , renderField "type" model.candidateType "e.g P" False CandidateType
+            , renderField "votes" (String.fromInt model.votes) "e.g 1002" False Votes
+            , renderField "party" model.party.name "e.g XXX" False Party
+            , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" False Percentage
+            , renderField "angle" (String.fromFloat model.angle) "e.g 180" False Angle
+            , renderField "bar" (String.fromFloat model.bar) "e.g 234" False Bar
+            , renderField "status" model.status "e.g A/D" False Status
+            ]
         ]
 
 

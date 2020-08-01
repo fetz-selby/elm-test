@@ -19,6 +19,7 @@ type Msg
     | Save
     | DetailMode ShowDetailMode
     | OnPartyChange String
+    | OnEdit
 
 
 type Field
@@ -106,15 +107,18 @@ update model msg =
         OnPartyChange val ->
             ( model, Cmd.none )
 
+        OnEdit ->
+            ( { model | showDetailMode = Edit }, Cmd.none )
+
 
 renderHeader : Html.Html Msg
 renderHeader =
-    div [ class "row" ]
+    div [ class "row spacing" ]
         [ div [ class "col-md-9" ]
-            [ input [] []
+            [ input [ class "search-input" ] []
             ]
-        , div [ class "col-md-offset-3" ]
-            [ button [ onClick AddNationalAnalysis ] [ Html.text "Add" ]
+        , div [ class "col-md-3" ]
+            [ button [ class "btn btn-primary new-button", onClick AddNationalAnalysis ] [ Html.text "New" ]
             ]
         ]
 
@@ -177,13 +181,18 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
 
 renderDetails : NationalAnalysis.Model -> Html.Html Msg
 renderDetails model =
-    form [ onSubmit Save ]
-        [ renderField "party" model.party.name "eg.XXX" False Party
-        , renderField "votes" (String.fromInt model.votes) "e.g 23009" False Votes
-        , renderField "type" model.candidateType "e.g X" False CandidateType
-        , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" False Percentage
-        , renderField "angle" (String.fromFloat model.angle) "e.g 180" False Angle
-        , renderField "bar" (String.fromFloat model.bar) "e.g 234" False Bar
+    div []
+        [ div [ class "col-md-12 spacing-bottom" ]
+            [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
+            ]
+        , form [ onSubmit Save ]
+            [ renderField "party" model.party.name "eg.XXX" False Party
+            , renderField "votes" (String.fromInt model.votes) "e.g 23009" False Votes
+            , renderField "type" model.candidateType "e.g X" False CandidateType
+            , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" False Percentage
+            , renderField "angle" (String.fromFloat model.angle) "e.g 180" False Angle
+            , renderField "bar" (String.fromFloat model.bar) "e.g 234" False Bar
+            ]
         ]
 
 

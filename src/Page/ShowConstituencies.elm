@@ -20,6 +20,7 @@ type Msg
     | DetailMode ShowDetailMode
     | OnParentConstituencyChange String
     | OnPartyChange String
+    | OnEdit
 
 
 type Field
@@ -94,6 +95,9 @@ update model msg =
         OnPartyChange val ->
             ( model, Cmd.none )
 
+        OnEdit ->
+            ( { model | showDetailMode = Edit }, Cmd.none )
+
 
 view : Model -> Html.Html Msg
 view model =
@@ -155,12 +159,12 @@ partyItem item =
 
 renderHeader : Html.Html Msg
 renderHeader =
-    div [ class "row" ]
+    div [ class "row spacing" ]
         [ div [ class "col-md-9" ]
-            [ input [] []
+            [ input [ class "search-input" ] []
             ]
-        , div [ class "col-md-offset-3" ]
-            [ button [ class "btn btn-primary", onClick AddConstituency ] [ Html.text "Add" ]
+        , div [ class "col-md-3" ]
+            [ button [ class "btn btn-primary new-button", onClick AddConstituency ] [ Html.text "New" ]
             ]
         ]
 
@@ -206,34 +210,39 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
 
 renderDetails : Constituency.Model -> Html.Html Msg
 renderDetails model =
-    form [ onSubmit Save ]
-        [ renderField "constituency" model.name "eg.Bekwai" False Constituency
-        , renderField "seat won by" model.seatWonId "eg.XXX" False SeatWonId
-        , renderField "casted votes" (String.fromInt model.castedVotes) "e.g P" False CastedVotes
-        , renderField "reg votes" (String.fromInt model.regVotes) "e.g 432" False RegVotes
-        , renderField "rejected votes" (String.fromInt model.rejectVotes) "e.g 180" False RejectVotes
-        , renderField "total votes" (String.fromInt model.totalVotes) "e.g 234" False TotalVotes
-        , renderField "is declared"
-            (if model.isDeclared then
-                "Yes"
+    div []
+        [ div [ class "col-md-12 spacing-bottom" ]
+            [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
+            ]
+        , form [ onSubmit Save ]
+            [ renderField "constituency" model.name "eg.Bekwai" False Constituency
+            , renderField "seat won by" model.seatWonId "eg.XXX" False SeatWonId
+            , renderField "casted votes" (String.fromInt model.castedVotes) "e.g P" False CastedVotes
+            , renderField "reg votes" (String.fromInt model.regVotes) "e.g 432" False RegVotes
+            , renderField "rejected votes" (String.fromInt model.rejectVotes) "e.g 180" False RejectVotes
+            , renderField "total votes" (String.fromInt model.totalVotes) "e.g 234" False TotalVotes
+            , renderField "is declared"
+                (if model.isDeclared then
+                    "Yes"
 
-             else
-                "No"
-            )
-            "e.g Yes"
-            False
-            IsDeclared
-        , renderField "is declared"
-            (if model.autoCompute then
-                "Yes"
+                 else
+                    "No"
+                )
+                "e.g Yes"
+                False
+                IsDeclared
+            , renderField "is declared"
+                (if model.autoCompute then
+                    "Yes"
 
-             else
-                "No"
-            )
-            "e.g No"
-            False
-            AutoCompute
-        , renderField "parent id" model.parentId "e.g 1001" False ParentId
+                 else
+                    "No"
+                )
+                "e.g No"
+                False
+                AutoCompute
+            , renderField "parent id" model.parentId "e.g 1001" False ParentId
+            ]
         ]
 
 

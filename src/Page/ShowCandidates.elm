@@ -20,6 +20,7 @@ type Msg
     | DetailMode ShowDetailMode
     | OnConstituencyChange String
     | OnPartyChange String
+    | OnEdit
 
 
 type Field
@@ -98,6 +99,9 @@ update model msg =
         OnPartyChange val ->
             ( model, Cmd.none )
 
+        OnEdit ->
+            ( { model | showDetailMode = Edit }, Cmd.none )
+
 
 view : Model -> Html.Html Msg
 view model =
@@ -125,12 +129,12 @@ view model =
 
 renderHeader : Html.Html Msg
 renderHeader =
-    div [ class "row" ]
+    div [ class "row spacing" ]
         [ div [ class "col-md-9" ]
-            [ input [] []
+            [ input [ class "search-input" ] []
             ]
-        , div [ class "col-md-offset-3" ]
-            [ button [ onClick AddCandidate ] [ Html.text "Add" ]
+        , div [ class "col-md-3" ]
+            [ button [ class "btn btn-primary new-button", onClick AddCandidate ] [ Html.text "New" ]
             ]
         ]
 
@@ -212,16 +216,21 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
 
 renderDetails : Candidate.Model -> Html.Html Msg
 renderDetails model =
-    form [ onSubmit Save ]
-        [ renderField "name" model.name "eg. Smith" False Name
-        , renderField "constituency" model.constituency.name "e.g P" False Constituency
-        , renderField "type" model.candidateType "e.g P" False CandidateType
-        , renderField "votes" (String.fromInt model.votes) "e.g 1002" False Votes
-        , renderField "party" model.party.name "e.g XXX" False Party
-        , renderField "avatar path" model.avatarPath "e.g XXX" False AvatarPath
-        , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" False Percentage
-        , renderField "angle" (String.fromFloat model.angle) "e.g 180" False Angle
-        , renderField "bar" (String.fromFloat model.barRatio) "e.g 234" False BarRatio
+    div []
+        [ div [ class "col-md-12 spacing-bottom" ]
+            [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
+            ]
+        , form [ onSubmit Save ]
+            [ renderField "name" model.name "eg. Smith" False Name
+            , renderField "constituency" model.constituency.name "e.g P" False Constituency
+            , renderField "type" model.candidateType "e.g P" False CandidateType
+            , renderField "votes" (String.fromInt model.votes) "e.g 1002" False Votes
+            , renderField "party" model.party.name "e.g XXX" False Party
+            , renderField "avatar path" model.avatarPath "e.g XXX" False AvatarPath
+            , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" False Percentage
+            , renderField "angle" (String.fromFloat model.angle) "e.g 180" False Angle
+            , renderField "bar" (String.fromFloat model.barRatio) "e.g 234" False BarRatio
+            ]
         ]
 
 

@@ -98,12 +98,12 @@ update model msg =
 
 renderHeader : Html.Html Msg
 renderHeader =
-    div [ class "row" ]
+    div [ class "row spacing" ]
         [ div [ class "col-md-9" ]
-            [ input [] []
+            [ input [ class "search-input" ] []
             ]
-        , div [ class "col-md-offset-3" ]
-            [ button [ onClick AddApprove ] [ Html.text "Add" ]
+        , div [ class "col-md-3" ]
+            [ button [ class "btn btn-primary new-button", onClick AddApprove ] [ Html.text "New" ]
             ]
         ]
 
@@ -146,16 +146,21 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
 
 renderDetails : Approve.Model -> Html.Html Msg
 renderDetails model =
-    form [ onSubmit Save ]
-        [ renderField "message" model.message "eg.XXXX" False Message
-        , renderField "agent" model.agent.name "eg.Smith" False Agent
-        , renderField "region" model.region.name "eg.Ashanti" False Region
-        , renderField "constituency" model.constituency.name "e.g Bekwai" False Constituency
-        , renderField "poll station" model.poll.name "e.g XXX" False Poll
-        , renderField "type" model.candidateType "e.g 45.4" False CandidateType
-        , renderField "msisdn" model.msisdn "e.g +XXX XXXX" False Msisdn
-        , renderField "posted ts" model.postedTs "e.g 12.01.2020 16:54 32" False PostedTs
-        , renderField "status" model.status "e.g A/D" False Status
+    div []
+        [ div [ class "col-md-12 spacing-bottom" ]
+            [ div [ class "pull-right edit-style" ] [ Html.text "edit" ]
+            ]
+        , form [ onSubmit Save ]
+            [ renderField "message" model.message "eg.XXXX" False Message
+            , renderField "agent" model.agent.name "eg.Smith" False Agent
+            , renderField "region" model.region.name "eg.Ashanti" False Region
+            , renderField "constituency" model.constituency.name "e.g Bekwai" False Constituency
+            , renderField "poll station" model.poll.name "e.g XXX" False Poll
+            , renderField "type" model.candidateType "e.g 45.4" False CandidateType
+            , renderField "msisdn" model.msisdn "e.g +XXX XXXX" False Msisdn
+            , renderField "posted ts" model.postedTs "e.g 12.01.2020 16:54 32" False PostedTs
+            , renderField "status" model.status "e.g A/D" False Status
+            ]
         ]
 
 

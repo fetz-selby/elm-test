@@ -15,6 +15,7 @@ type Msg
     | Form Field
     | Save
     | DetailMode ShowDetailMode
+    | OnEdit
 
 
 type Field
@@ -88,15 +89,18 @@ update model msg =
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
 
+        OnEdit ->
+            ( { model | showDetailMode = Edit }, Cmd.none )
+
 
 renderHeader : Html.Html Msg
 renderHeader =
-    div [ class "row" ]
+    div [ class "row spacing" ]
         [ div [ class "col-md-9" ]
-            [ input [] []
+            [ input [ class "search-input" ] []
             ]
-        , div [ class "col-md-offset-3" ]
-            [ button [ onClick AddRegion ] [ Html.text "Add" ]
+        , div [ class "col-md-3" ]
+            [ button [ class "btn btn-primary new-button", onClick AddRegion ] [ Html.text "New" ]
             ]
         ]
 
@@ -142,9 +146,14 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
 
 renderDetails : Region.Model -> Html.Html Msg
 renderDetails model =
-    form [ onSubmit Save ]
-        [ renderField "region" model.name "eg.Ashanti" False Name
-        , renderField "seat" (String.fromInt model.seats) "e.g 30" False Seats
+    div []
+        [ div [ class "col-md-12 spacing-bottom" ]
+            [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
+            ]
+        , form [ onSubmit Save ]
+            [ renderField "region" model.name "eg.Ashanti" False Name
+            , renderField "seat" (String.fromInt model.seats) "e.g 30" False Seats
+            ]
         ]
 
 
