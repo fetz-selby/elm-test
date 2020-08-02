@@ -16,6 +16,7 @@ type Msg
     | Save
     | DetailMode ShowDetailMode
     | OnEdit
+    | SearchList String
 
 
 type Field
@@ -30,12 +31,12 @@ type ShowDetailMode
 
 
 type alias RegionData =
-    { regions : List Region.Model
-    }
+    { regions : List Region.Model }
 
 
 type alias Model =
     { regions : List Region.Model
+    , searchWord : String
     , year : String
     , selectedRegion : Region.Model
     , showDetailMode : ShowDetailMode
@@ -49,7 +50,12 @@ view model =
         [ renderHeader
         , div [ class "row" ]
             [ div [ class "col-md-8" ]
-                [ renderRegionList model.regions ]
+                [ if String.length model.searchWord > 0 then
+                    renderRegionList (Region.filter model.searchWord model.regions)
+
+                  else
+                    renderRegionList model.regions
+                ]
             , div [ class "col-md-4" ]
                 [ case model.showDetailMode of
                     View ->
@@ -92,12 +98,15 @@ update model msg =
         OnEdit ->
             ( { model | showDetailMode = Edit }, Cmd.none )
 
+        SearchList val ->
+            ( { model | searchWord = val }, Cmd.none )
+
 
 renderHeader : Html.Html Msg
 renderHeader =
     div [ class "row spacing" ]
         [ div [ class "col-md-9" ]
-            [ input [ class "search-input" ] []
+            [ input [ class "search-input", placeholder "Type to search", onInput SearchList ] []
             ]
         , div [ class "col-md-3" ]
             [ button [ class "btn btn-primary new-button", onClick AddRegion ] [ Html.text "New" ]
@@ -128,7 +137,7 @@ renderRegionItem : Region.Model -> Html.Html Msg
 renderRegionItem region =
     tr [ onClick (ShowDetail region) ]
         [ td [] [ Html.text region.name ]
-        , td [] [ Html.text (String.fromInt region.seats) ]
+        , td [] [ Html.text region.seats ]
         ]
 
 
@@ -152,7 +161,7 @@ renderDetails model =
             ]
         , form [ onSubmit Save ]
             [ renderField "region" model.name "eg.Ashanti" False Name
-            , renderField "seat" (String.fromInt model.seats) "e.g 30" False Seats
+            , renderField "seat" model.seats "e.g 30" False Seats
             ]
         ]
 
@@ -161,7 +170,7 @@ renderEditableDetails : Region.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Save ]
         [ renderField "region" model.name "eg.Ashanti" False Name
-        , renderField "seat" (String.fromInt model.seats) "e.g 30" True Seats
+        , renderField "seat" model.seats "e.g 30" True Seats
         ]
 
 
@@ -193,4 +202,9 @@ decode =
 
 default : Model
 default =
-    { regions = [], year = "", selectedRegion = Region.initRegion, showDetailMode = View }
+    { regions = []
+    , searchWord = ""
+    , year = ""
+    , selectedRegion = Region.initRegion
+    , showDetailMode = View
+    }

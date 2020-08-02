@@ -107,7 +107,7 @@ async function create() {
 
         app.ports.msgForElm.send({
           type: "RegionsLoaded",
-          payload: { regionData: { regions } },
+          payload: { regionData: { regions: normalizeRegions(regions) } },
         });
 
         break;

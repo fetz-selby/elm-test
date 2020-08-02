@@ -16,6 +16,7 @@ type Msg
     | Save
     | DetailMode ShowDetailMode
     | OnEdit
+    | SearchList String
 
 
 type Field
@@ -38,6 +39,7 @@ type alias PartyData =
 
 type alias Model =
     { parties : List Party.Model
+    , searchWord : String
     , year : String
     , selectedParty : Party.Model
     , showDetailMode : ShowDetailMode
@@ -50,7 +52,13 @@ view model =
         []
         [ renderHeader
         , div [ class "row" ]
-            [ div [ class "col-md-8" ] [ renderPartyList model.parties ]
+            [ div [ class "col-md-8" ]
+                [ if String.length model.searchWord > 0 then
+                    renderPartyList (Party.filter model.searchWord model.parties)
+
+                  else
+                    renderPartyList model.parties
+                ]
             , div [ class "col-md-4" ]
                 [ case model.showDetailMode of
                     View ->
@@ -93,12 +101,15 @@ update model msg =
         OnEdit ->
             ( { model | showDetailMode = Edit }, Cmd.none )
 
+        SearchList val ->
+            ( { model | searchWord = val }, Cmd.none )
+
 
 renderHeader : Html.Html Msg
 renderHeader =
     div [ class "row spacing" ]
         [ div [ class "col-md-9" ]
-            [ input [ class "search-input" ] []
+            [ input [ class "search-input", placeholder "Type to search", onInput SearchList ] []
             ]
         , div [ class "col-md-3" ]
             [ button [ class "btn btn-primary new-button", onClick AddParty ] [ Html.text "New" ]
@@ -130,7 +141,7 @@ renderPartyItem party =
         [ td [] [ Html.text party.name ]
         , td [] [ Html.text party.color ]
         , td [] [ Html.text party.logoPath ]
-        , td [] [ Html.text (String.fromInt party.orderQueue) ]
+        , td [] [ Html.text party.orderQueue ]
         ]
 
 
@@ -156,7 +167,7 @@ renderDetails model =
             [ renderField "party" model.name "eg.XXX" False Party
             , renderField "color" model.color "e.g P" False Color
             , renderField "logo path" model.logoPath "e.g #F33e345" False LogoPath
-            , renderField "order queue" (String.fromInt model.orderQueue) "e.g 12" False OrderQueue
+            , renderField "order queue" model.orderQueue "e.g 12" False OrderQueue
             ]
         ]
 
@@ -167,7 +178,7 @@ renderEditableDetails model =
         [ renderField "party" model.name "eg.XXX" True Party
         , renderField "color" model.color "e.g P" True Color
         , renderField "logo path" model.logoPath "e.g #F33e345" True LogoPath
-        , renderField "order queue" (String.fromInt model.orderQueue) "e.g 12" True OrderQueue
+        , renderField "order queue" model.orderQueue "e.g 12" True OrderQueue
         ]
 
 
@@ -201,4 +212,9 @@ decode =
 
 default : Model
 default =
-    { parties = [], year = "", selectedParty = Party.initParty, showDetailMode = View }
+    { parties = []
+    , searchWord = ""
+    , year = ""
+    , selectedParty = Party.initParty
+    , showDetailMode = View
+    }

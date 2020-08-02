@@ -1,4 +1,4 @@
-module Data.Approve exposing (Model, decode, decodeList, encode, initApprove)
+module Data.Approve exposing (Model, convertModelToLower, decode, decodeList, encode, filter, initApprove)
 
 import Data.Agent as Agent
 import Data.Constituency as Constituency
@@ -37,6 +37,30 @@ initApprove =
     , msisdn = ""
     , postedTs = ""
     , status = ""
+    }
+
+
+filter : String -> List Model -> List Model
+filter search list =
+    List.filter (\model -> model |> convertModelToLower |> isFound (String.toLower search)) list
+
+
+isFound : String -> Model -> Bool
+isFound search model =
+    String.contains search model.candidateType
+        || String.contains search model.msisdn
+        || String.contains search model.message
+        || String.contains search model.agent.name
+        || String.contains search model.region.name
+
+
+convertModelToLower : Model -> Model
+convertModelToLower model =
+    { model
+        | message = String.toLower model.message
+        , region = Region.convertModelToLower model.region
+        , agent = Agent.convertModelToLower model.agent
+        , candidateType = String.toLower model.candidateType
     }
 
 

@@ -1,4 +1,4 @@
-module Data.Candidate exposing (Model, decode, decodeList, encode, initCandidate)
+module Data.Candidate exposing (Model, convertModelToLower, decode, decodeList, encode, filter, initCandidate)
 
 import Data.Constituency as Constituency
 import Data.Party as Party
@@ -13,7 +13,7 @@ type alias Model =
     , constituency : Constituency.Model
     , party : Party.Model
     , year : String
-    , votes : Int
+    , votes : String
     , candidateType : String
     , avatarPath : String
     , angle : Float
@@ -29,12 +29,34 @@ initCandidate =
     , constituency = Constituency.initConstituency
     , party = Party.initParty
     , year = ""
-    , votes = 0
+    , votes = "0"
     , candidateType = ""
     , avatarPath = ""
     , angle = 0.0
     , percentage = 0.0
     , barRatio = 0.0
+    }
+
+
+filter : String -> List Model -> List Model
+filter search list =
+    List.filter (\model -> model |> convertModelToLower |> isFound (String.toLower search)) list
+
+
+isFound : String -> Model -> Bool
+isFound search model =
+    String.contains search model.name
+        || String.contains search model.votes
+        || String.contains search model.constituency.name
+        || String.contains search model.party.name
+
+
+convertModelToLower : Model -> Model
+convertModelToLower model =
+    { model
+        | name = String.toLower model.name
+        , constituency = Constituency.convertModelToLower model.constituency
+        , party = Party.convertModelToLower model.party
     }
 
 
@@ -46,7 +68,7 @@ encode candidate =
         , ( "party_id", Encode.string candidate.party.id )
         , ( "year", Encode.string candidate.year )
         , ( "type", Encode.string candidate.candidateType )
-        , ( "votes", Encode.int candidate.votes )
+        , ( "votes", Encode.string candidate.votes )
         ]
 
 
@@ -64,7 +86,7 @@ decode =
         |> JDP.required "constituency" Constituency.decode
         |> JDP.required "party" Party.decode
         |> JDP.required "year" Decode.string
-        |> JDP.required "votes" Decode.int
+        |> JDP.required "votes" Decode.string
         |> JDP.required "group_type" Decode.string
         |> JDP.required "avatar_path" couldBeNull
         |> JDP.required "angle" Decode.float

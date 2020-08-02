@@ -21,6 +21,7 @@ type Msg
     | OnParentConstituencyChange String
     | OnPartyChange String
     | OnEdit
+    | SearchList String
 
 
 type Field
@@ -53,6 +54,7 @@ type alias Model =
     , parentConstituencies : List ParentConstituency.Model
     , parties : List Party.Model
     , region : String
+    , searchWord : String
     , year : String
     , selectedConstituency : Constituency.Model
     , showDetailMode : ShowDetailMode
@@ -98,6 +100,9 @@ update model msg =
         OnEdit ->
             ( { model | showDetailMode = Edit }, Cmd.none )
 
+        SearchList val ->
+            ( { model | searchWord = val }, Cmd.none )
+
 
 view : Model -> Html.Html Msg
 view model =
@@ -106,7 +111,11 @@ view model =
         [ renderHeader
         , div [ class "row" ]
             [ div [ class "col-md-8" ]
-                [ renderConstituencyList model.constituencies
+                [ if String.length model.searchWord > 0 then
+                    renderConstituencyList (Constituency.filter model.searchWord model.constituencies)
+
+                  else
+                    renderConstituencyList model.constituencies
                 ]
             , div [ class "col-md-4" ]
                 [ case model.showDetailMode of
@@ -161,7 +170,7 @@ renderHeader : Html.Html Msg
 renderHeader =
     div [ class "row spacing" ]
         [ div [ class "col-md-9" ]
-            [ input [ class "search-input" ] []
+            [ input [ class "search-input", placeholder "Type to search", onInput SearchList ] []
             ]
         , div [ class "col-md-3" ]
             [ button [ class "btn btn-primary new-button", onClick AddConstituency ] [ Html.text "New" ]
@@ -326,6 +335,7 @@ default =
     , parentConstituencies = []
     , parties = []
     , region = ""
+    , searchWord = ""
     , year = ""
     , selectedConstituency = Constituency.initConstituency
     , showDetailMode = View

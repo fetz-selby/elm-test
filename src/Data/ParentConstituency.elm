@@ -1,4 +1,4 @@
-module Data.ParentConstituency exposing (Model, decode, decodeList, encode, initParentConstituency)
+module Data.ParentConstituency exposing (Model, convertModelToLower, decode, decodeList, encode, filter, initParentConstituency)
 
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
@@ -14,6 +14,23 @@ type alias Model =
 initParentConstituency : Model
 initParentConstituency =
     { id = "", name = "" }
+
+
+filter : String -> List Model -> List Model
+filter search list =
+    List.filter (\model -> model |> convertModelToLower |> isFound (String.toLower search)) list
+
+
+isFound : String -> Model -> Bool
+isFound search model =
+    String.contains search model.name
+
+
+convertModelToLower : Model -> Model
+convertModelToLower model =
+    { model
+        | name = String.toLower model.name
+    }
 
 
 encode : Model -> Encode.Value

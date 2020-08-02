@@ -15,6 +15,7 @@ type Msg
     | Form Field
     | Save
     | DetailMode ShowDetailMode
+    | SearchList String
 
 
 type Field
@@ -42,6 +43,7 @@ type alias ApproveData =
 
 type alias Model =
     { approves : List Approve.Model
+    , searchWord : String
     , year : String
     , voteType : String
     , selectedApprove : Approve.Model
@@ -55,7 +57,13 @@ view model =
         []
         [ renderHeader
         , div [ class "row" ]
-            [ div [ class "col-md-8" ] [ renderApproveList model.approves ]
+            [ div [ class "col-md-8" ]
+                [ if String.length model.searchWord > 0 then
+                    renderApproveList (Approve.filter model.searchWord model.approves)
+
+                  else
+                    renderApproveList model.approves
+                ]
             , div [ class "col-md-4" ]
                 [ case model.showDetailMode of
                     View ->
@@ -95,12 +103,15 @@ update model msg =
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
 
+        SearchList val ->
+            ( { model | searchWord = val }, Cmd.none )
+
 
 renderHeader : Html.Html Msg
 renderHeader =
     div [ class "row spacing" ]
         [ div [ class "col-md-9" ]
-            [ input [ class "search-input" ] []
+            [ input [ class "search-input", placeholder "Type to search", onInput SearchList ] []
             ]
         , div [ class "col-md-3" ]
             [ button [ class "btn btn-primary new-button", onClick AddApprove ] [ Html.text "New" ]
@@ -199,4 +210,10 @@ decode =
 
 default : Model
 default =
-    { approves = [], year = "", voteType = "", selectedApprove = Approve.initApprove, showDetailMode = View }
+    { approves = []
+    , searchWord = ""
+    , year = ""
+    , voteType = ""
+    , selectedApprove = Approve.initApprove
+    , showDetailMode = View
+    }

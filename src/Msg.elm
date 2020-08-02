@@ -94,11 +94,7 @@ decode model json =
                 Ok regionalAnalysis ->
                     ShowRegionalAnalysis (ShowRegionalAnalysis.RegionalAnalysisReceived regionalAnalysis)
 
-                Err err ->
-                    let
-                        _ =
-                            Debug.log "[RegionalAnalysisLoaded] " err
-                    in
+                Err _ ->
                     IncomingMsgError FailedToLoadRegionalAnalysis
 
         Ok "NationalAnalysisLoaded" ->

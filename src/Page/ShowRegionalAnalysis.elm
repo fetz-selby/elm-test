@@ -22,6 +22,7 @@ type Msg
     | OnPartyChange String
     | OnRegionChange String
     | OnEdit
+    | SearchList String
 
 
 type Field
@@ -52,6 +53,7 @@ type alias Model =
     { regionalAnalysis : List RegionalAnalysis.Model
     , regions : List Region.Model
     , parties : List Party.Model
+    , searchWord : String
     , year : String
     , selectedRegionalAnalysis : RegionalAnalysis.Model
     , showDetailMode : ShowDetailMode
@@ -65,7 +67,11 @@ view model =
         [ renderHeader
         , div [ class "row" ]
             [ div [ class "col-md-8" ]
-                [ renderRegionalList model.regionalAnalysis
+                [ if String.length model.searchWord > 0 then
+                    renderRegionalList (RegionalAnalysis.filter model.searchWord model.regionalAnalysis)
+
+                  else
+                    renderRegionalList model.regionalAnalysis
                 ]
             , div [ class "col-md-4" ]
                 [ case model.showDetailMode of
@@ -121,12 +127,15 @@ update model msg =
         OnEdit ->
             ( { model | showDetailMode = Edit }, Cmd.none )
 
+        SearchList val ->
+            ( { model | searchWord = val }, Cmd.none )
+
 
 renderHeader : Html.Html Msg
 renderHeader =
     div [ class "row spacing" ]
         [ div [ class "col-md-9" ]
-            [ input [ class "search-input" ] []
+            [ input [ class "search-input", placeholder "Type to search", onInput SearchList ] []
             ]
         , div [ class "col-md-3" ]
             [ button [ class "btn btn-primary new-button", onClick AddRegionalAnalysis ] [ Html.text "New" ]
@@ -192,7 +201,7 @@ renderRegionalItem regional =
         [ td [] [ Html.text regional.region.name ]
         , td [] [ Html.text regional.party.name ]
         , td [] [ Html.text regional.candidateType ]
-        , td [] [ Html.text (String.fromInt regional.votes) ]
+        , td [] [ Html.text regional.votes ]
         ]
 
 
@@ -217,7 +226,7 @@ renderDetails model =
         , form [ onSubmit Save ]
             [ renderField "region" model.region.name "eg.Ashanti" False Region
             , renderField "type" model.candidateType "e.g P" False CandidateType
-            , renderField "votes" (String.fromInt model.votes) "e.g 1002" False Votes
+            , renderField "votes" model.votes "e.g 1002" False Votes
             , renderField "party" model.party.name "e.g XXX" False Party
             , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" False Percentage
             , renderField "angle" (String.fromFloat model.angle) "e.g 180" False Angle
@@ -232,7 +241,7 @@ renderEditableDetails model =
     form [ onSubmit Save ]
         [ renderField "region" model.region.name "eg.Ashanti" True Region
         , renderField "type" model.candidateType "e.g P" True CandidateType
-        , renderField "votes" (String.fromInt model.votes) "e.g 1002" True Votes
+        , renderField "votes" model.votes "e.g 1002" True Votes
         , renderField "party" model.party.name "e.g XXX" True Party
         , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" True Percentage
         , renderField "angle" (String.fromFloat model.angle) "e.g 180" True Angle
@@ -278,6 +287,7 @@ default =
     { regionalAnalysis = []
     , regions = []
     , parties = []
+    , searchWord = ""
     , year = ""
     , selectedRegionalAnalysis = RegionalAnalysis.initRegionalAnalysis
     , showDetailMode = View

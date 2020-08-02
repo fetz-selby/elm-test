@@ -1,4 +1,4 @@
-module Data.Constituency exposing (Model, decode, decodeList, default, encode, initConstituency)
+module Data.Constituency exposing (Model, convertModelToLower, decode, decodeList, default, encode, filter, initConstituency)
 
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
@@ -34,6 +34,21 @@ initConstituency =
     , seatWonId = ""
     , totalVotes = 0
     }
+
+
+filter : String -> List Model -> List Model
+filter search list =
+    List.filter (\model -> model |> convertModelToLower |> isFound (String.toLower search)) list
+
+
+isFound : String -> Model -> Bool
+isFound search model =
+    String.contains search model.name
+
+
+convertModelToLower : Model -> Model
+convertModelToLower model =
+    { model | name = String.toLower model.name }
 
 
 encode : Model -> Encode.Value

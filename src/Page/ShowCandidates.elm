@@ -21,6 +21,7 @@ type Msg
     | OnConstituencyChange String
     | OnPartyChange String
     | OnEdit
+    | SearchList String
 
 
 type Field
@@ -52,6 +53,7 @@ type alias Model =
     { candidates : List Candidate.Model
     , constituencies : List Constituency.Model
     , parties : List Party.Model
+    , searchWord : String
     , year : String
     , selectedCandidate : Candidate.Model
     , showDetailMode : ShowDetailMode
@@ -102,6 +104,9 @@ update model msg =
         OnEdit ->
             ( { model | showDetailMode = Edit }, Cmd.none )
 
+        SearchList val ->
+            ( { model | searchWord = val }, Cmd.none )
+
 
 view : Model -> Html.Html Msg
 view model =
@@ -110,7 +115,11 @@ view model =
         [ renderHeader
         , div [ class "row" ]
             [ div [ class "col-md-8" ]
-                [ renderCandidateList model.candidates
+                [ if String.length model.searchWord > 0 then
+                    renderCandidateList (Candidate.filter model.searchWord model.candidates)
+
+                  else
+                    renderCandidateList model.candidates
                 ]
             , div [ class "col-md-4" ]
                 [ case model.showDetailMode of
@@ -131,7 +140,7 @@ renderHeader : Html.Html Msg
 renderHeader =
     div [ class "row spacing" ]
         [ div [ class "col-md-9" ]
-            [ input [ class "search-input" ] []
+            [ input [ class "search-input", placeholder "Type to search", onInput SearchList ] []
             ]
         , div [ class "col-md-3" ]
             [ button [ class "btn btn-primary new-button", onClick AddCandidate ] [ Html.text "New" ]
@@ -196,7 +205,7 @@ renderCandidateItem : Candidate.Model -> Html.Html Msg
 renderCandidateItem candidate =
     tr [ onClick (ShowDetail candidate) ]
         [ td [] [ Html.text candidate.name ]
-        , td [] [ Html.text (String.fromInt candidate.votes) ]
+        , td [] [ Html.text candidate.votes ]
         , td [] [ Html.text candidate.party.name ]
         , td [] [ Html.text candidate.constituency.name ]
         ]
@@ -224,7 +233,7 @@ renderDetails model =
             [ renderField "name" model.name "eg. Smith" False Name
             , renderField "constituency" model.constituency.name "e.g P" False Constituency
             , renderField "type" model.candidateType "e.g P" False CandidateType
-            , renderField "votes" (String.fromInt model.votes) "e.g 1002" False Votes
+            , renderField "votes" model.votes "e.g 1002" False Votes
             , renderField "party" model.party.name "e.g XXX" False Party
             , renderField "avatar path" model.avatarPath "e.g XXX" False AvatarPath
             , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" False Percentage
@@ -240,7 +249,7 @@ renderEditableDetails model =
         [ renderField "name" model.name "eg. Smith" True Name
         , renderField "constituency" model.constituency.name "e.g P" True Constituency
         , renderField "type" model.candidateType "e.g P" True CandidateType
-        , renderField "votes" (String.fromInt model.votes) "e.g 1002" True Votes
+        , renderField "votes" model.votes "e.g 1002" True Votes
         , renderField "party" model.party.name "e.g XXX" True Party
         , renderField "avatar path" model.avatarPath "e.g XXX" True AvatarPath
         , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" True Percentage
@@ -287,6 +296,7 @@ default =
     { candidates = []
     , constituencies = []
     , parties = []
+    , searchWord = ""
     , year = ""
     , selectedCandidate = Candidate.initCandidate
     , showDetailMode = View

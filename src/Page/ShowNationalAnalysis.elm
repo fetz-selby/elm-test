@@ -20,6 +20,7 @@ type Msg
     | DetailMode ShowDetailMode
     | OnPartyChange String
     | OnEdit
+    | SearchList String
 
 
 type Field
@@ -46,6 +47,7 @@ type alias NationalAnalysisData =
 type alias Model =
     { nationalAnalysis : List NationalAnalysis.Model
     , parties : List Party.Model
+    , searchWord : String
     , year : String
     , selectedNationalAnalysis : NationalAnalysis.Model
     , showDetailMode : ShowDetailMode
@@ -59,7 +61,12 @@ view model =
         [ renderHeader
         , div [ class "row" ]
             [ div [ class "col-md-8" ]
-                [ renderNationalList model.nationalAnalysis ]
+                [ if String.length model.searchWord > 0 then
+                    renderNationalList (NationalAnalysis.filter model.searchWord model.nationalAnalysis)
+
+                  else
+                    renderNationalList model.nationalAnalysis
+                ]
             , div [ class "col-md-4" ]
                 [ case model.showDetailMode of
                     View ->
@@ -110,12 +117,15 @@ update model msg =
         OnEdit ->
             ( { model | showDetailMode = Edit }, Cmd.none )
 
+        SearchList val ->
+            ( { model | searchWord = val }, Cmd.none )
+
 
 renderHeader : Html.Html Msg
 renderHeader =
     div [ class "row spacing" ]
         [ div [ class "col-md-9" ]
-            [ input [ class "search-input" ] []
+            [ input [ class "search-input", placeholder "Type to search", onInput SearchList ] []
             ]
         , div [ class "col-md-3" ]
             [ button [ class "btn btn-primary new-button", onClick AddNationalAnalysis ] [ Html.text "New" ]
@@ -163,7 +173,7 @@ renderNationalItem national =
     tr [ onClick (ShowDetail national) ]
         [ td [] [ Html.text national.party.name ]
         , td [] [ Html.text national.candidateType ]
-        , td [] [ Html.text (String.fromInt national.votes) ]
+        , td [] [ Html.text national.votes ]
         ]
 
 
@@ -187,7 +197,7 @@ renderDetails model =
             ]
         , form [ onSubmit Save ]
             [ renderField "party" model.party.name "eg.XXX" False Party
-            , renderField "votes" (String.fromInt model.votes) "e.g 23009" False Votes
+            , renderField "votes" model.votes "e.g 23009" False Votes
             , renderField "type" model.candidateType "e.g X" False CandidateType
             , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" False Percentage
             , renderField "angle" (String.fromFloat model.angle) "e.g 180" False Angle
@@ -200,7 +210,7 @@ renderEditableDetails : NationalAnalysis.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Save ]
         [ renderField "party" model.party.name "eg.XXX" True Party
-        , renderField "votes" (String.fromInt model.votes) "e.g 23009" True Votes
+        , renderField "votes" model.votes "e.g 23009" True Votes
         , renderField "type" model.candidateType "e.g X" True CandidateType
         , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" True Percentage
         , renderField "angle" (String.fromFloat model.angle) "e.g 180" True Angle
@@ -242,6 +252,7 @@ default : Model
 default =
     { nationalAnalysis = []
     , parties = []
+    , searchWord = ""
     , year = ""
     , selectedNationalAnalysis = NationalAnalysis.initNationalAnalysis
     , showDetailMode = View

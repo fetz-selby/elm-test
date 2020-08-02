@@ -32,7 +32,7 @@ export const normalizeRegion = (region) => ({
   ...region,
   id: region && region.id ? region.id.toString() : "0",
   name: region && region.name ? region.name : "Unknown",
-  seats: region && region.seats ? parseInt(region.seats) : 0,
+  seats: region && region.seats ? region.seats.toString() : "0",
 });
 
 export const normalizeParty = (party) => ({
@@ -41,7 +41,7 @@ export const normalizeParty = (party) => ({
   name: party && party.name ? party.name : "Unknown",
   color: party && party.color ? party.color : "Unknown",
   logo_path: party && party.logo_path ? party.logo_path : "Unknown",
-  order_queue: party && party.order_queue ? parseInt(party.order_queue) : 0,
+  order_queue: party && party.order_queue ? party.order_queue.toString() : "0",
 });
 
 export const normalizeConstituency = (constituency) => ({
@@ -81,7 +81,7 @@ export const normalizeCandidate = (candidate) => ({
   ...candidate,
   id: candidate && candidate.id ? candidate.id.toString() : "0",
   name: candidate && candidate.name ? candidate.name : "Unknown",
-  votes: candidate && candidate.votes ? parseInt(candidate.votes) : 0,
+  votes: candidate && candidate.votes ? candidate.votes.toString() : "0",
   year: candidate && candidate.year ? candidate.year.toString() : "",
   party: normalizeParty(candidate.party),
   constituency: normalizeConstituency(candidate.constituency),
@@ -122,6 +122,10 @@ export const normalizeNationalAnalysis = (nationalAnalysis) => ({
     nationalAnalysis && nationalAnalysis.id
       ? nationalAnalysis.id.toString()
       : "",
+  votes:
+    nationalAnalysis && nationalAnalysis.votes
+      ? nationalAnalysis.votes.toString()
+      : "0",
   party: normalizeParty(nationalAnalysis.party),
   year:
     nationalAnalysis && nationalAnalysis.year
@@ -150,8 +154,8 @@ export const normalizeRegionalAnalysis = (regionalAnalysis) => ({
       : "0",
   votes:
     regionalAnalysis && regionalAnalysis.votes
-      ? parseInt(regionalAnalysis.votes)
-      : 0,
+      ? regionalAnalysis.votes.toString()
+      : "0",
   party: normalizeParty(regionalAnalysis.party),
   region: normalizeRegion(regionalAnalysis.region),
   year:
