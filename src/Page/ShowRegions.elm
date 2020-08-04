@@ -2,9 +2,10 @@ module Page.ShowRegions exposing (Model, Msg(..), decode, default, update, view)
 
 import Data.Region as Region
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
+import Ports
 
 
 type Msg
@@ -17,6 +18,7 @@ type Msg
     | DetailMode ShowDetailMode
     | OnEdit
     | SearchList String
+    | OnDelete String
 
 
 type Field
@@ -40,6 +42,7 @@ type alias Model =
     , year : String
     , selectedRegion : Region.Model
     , showDetailMode : ShowDetailMode
+    , isLoading : Bool
     }
 
 
@@ -101,6 +104,9 @@ update model msg =
         SearchList val ->
             ( { model | searchWord = val }, Cmd.none )
 
+        OnDelete id ->
+            ( { model | isLoading = True }, Ports.sendToJs (Ports.DeleteRegion id) )
+
 
 renderHeader : Html.Html Msg
 renderHeader =
@@ -153,6 +159,13 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
+renderBtn : String -> String -> Bool -> Msg -> Html.Html Msg
+renderBtn label className isCustom msg =
+    div [ class "form-group" ]
+        [ button [ classList [ ( className, True ), ( "btn-extra", isCustom ) ], onClick msg ] [ Html.text label ]
+        ]
+
+
 renderDetails : Region.Model -> Html.Html Msg
 renderDetails model =
     div []
@@ -162,6 +175,7 @@ renderDetails model =
         , form [ onSubmit Save ]
             [ renderField "region" model.name "eg.Ashanti" False Name
             , renderField "seat" model.seats "e.g 30" False Seats
+            , renderBtn "Delete" "btn btn-danger" True (OnDelete model.id)
             ]
         ]
 
@@ -207,4 +221,5 @@ default =
     , year = ""
     , selectedRegion = Region.initRegion
     , showDetailMode = View
+    , isLoading = False
     }

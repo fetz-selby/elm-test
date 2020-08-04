@@ -49,6 +49,8 @@ async function create() {
 
     service.configure(feathers.socketio(socket));
     service.configure(feathers.authentication());
+    console.log("action, ", action);
+
     switch (action) {
       case "FetchCandidates": {
         const candidates = getCandidates({
@@ -225,6 +227,13 @@ async function create() {
             },
           },
         });
+
+        break;
+      }
+
+      case "DeleteRegion": {
+        console.log("In JS");
+        console.log("Delete ID, ", payload);
 
         break;
       }

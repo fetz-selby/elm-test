@@ -19,6 +19,14 @@ type OutgoingMsg
     | InitSidebarPoll
     | InitSidebarCandidate
     | InitSidebarConstituency
+    | DeleteRegion String
+    | DeleteConstituency String
+    | DeleteCandidate String
+    | DeleteParty String
+    | DeletePoll String
+    | DeleteApprove String
+    | DeleteRegionSummary String
+    | DeleteNationalSummary String
 
 
 port msgForJs : PortData -> Cmd msg
@@ -76,3 +84,27 @@ toPortData msg =
 
         InitSidebarNationalSummary ->
             { action = "InitNationalSummary", payload = Encode.null }
+
+        DeleteRegion id ->
+            { action = "DeleteRegion", payload = Encode.string id }
+
+        DeleteConstituency id ->
+            { action = "DeleteConstituency", payload = Encode.string id }
+
+        DeleteCandidate id ->
+            { action = "DeleteCandidate", payload = Encode.string id }
+
+        DeleteParty id ->
+            { action = "DeleteParty", payload = Encode.string id }
+
+        DeletePoll id ->
+            { action = "DeletePoll", payload = Encode.string id }
+
+        DeleteApprove id ->
+            { action = "DeleteApprove", payload = Encode.string id }
+
+        DeleteRegionSummary id ->
+            { action = "DeleteRegionSummary", payload = Encode.string id }
+
+        DeleteNationalSummary id ->
+            { action = "DeleteNationalSummary", payload = Encode.string id }

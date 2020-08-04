@@ -25,7 +25,7 @@ update msg model =
                     regMsg
                         |> ShowRegionsPage.update submodel
                         |> Tuple.mapFirst (updateWithRegionsPage model)
-                        |> Tuple.first
+                        |> Tuple.mapSecond (Cmd.map Msg.ShowRegions)
 
                 _ ->
                     ( model, Cmd.none )
@@ -36,7 +36,7 @@ update msg model =
                     canMsg
                         |> ShowCandidatesPage.update submodel
                         |> Tuple.mapFirst (updateWithCandidatesPage model)
-                        |> Tuple.first
+                        |> Tuple.mapSecond (Cmd.map Msg.ShowCandidates)
 
                 _ ->
                     ( model, Cmd.none )
@@ -47,7 +47,7 @@ update msg model =
                     consMsg
                         |> ShowConstituenciesPage.update submodel
                         |> Tuple.mapFirst (updateWithConstituenciesPage model)
-                        |> Tuple.first
+                        |> Tuple.mapSecond (Cmd.map Msg.ShowConstituencies)
 
                 _ ->
                     ( model, Cmd.none )
@@ -58,7 +58,7 @@ update msg model =
                     partyMsg
                         |> ShowPartiesPage.update submodel
                         |> Tuple.mapFirst (updateWithPartiesPage model)
-                        |> Tuple.first
+                        |> Tuple.mapSecond (Cmd.map Msg.ShowParties)
 
                 _ ->
                     ( model, Cmd.none )
@@ -69,7 +69,7 @@ update msg model =
                     pollMsg
                         |> ShowPollsPage.update submodel
                         |> Tuple.mapFirst (updateWithPollsPage model)
-                        |> Tuple.first
+                        |> Tuple.mapSecond (Cmd.map Msg.ShowPolls)
 
                 _ ->
                     ( model, Cmd.none )
@@ -80,7 +80,7 @@ update msg model =
                     approveMsg
                         |> ShowApprovesPage.update submodel
                         |> Tuple.mapFirst (updateWithApprovesPage model)
-                        |> Tuple.first
+                        |> Tuple.mapSecond (Cmd.map Msg.ShowApproves)
 
                 _ ->
                     ( model, Cmd.none )
@@ -91,7 +91,7 @@ update msg model =
                     regionalMsg
                         |> ShowRegionalAnalysisPage.update submodel
                         |> Tuple.mapFirst (updateWithRegionalPage model)
-                        |> Tuple.first
+                        |> Tuple.mapSecond (Cmd.map Msg.ShowRegionalAnalysis)
 
                 _ ->
                     ( model, Cmd.none )
@@ -102,7 +102,7 @@ update msg model =
                     nationalMsg
                         |> ShowNationalAnalysisPage.update submodel
                         |> Tuple.mapFirst (updateWithNationalPage model)
-                        |> Tuple.first
+                        |> Tuple.mapSecond (Cmd.map Msg.ShowNationalAnalysis)
 
                 _ ->
                     ( model, Cmd.none )
@@ -122,44 +122,44 @@ update msg model =
             ( model, Cmd.none )
 
 
-updateWithCandidatesPage : Model -> ShowCandidatesPage.Model -> ( Model, Cmd Msg.Msg )
+updateWithCandidatesPage : Model -> ShowCandidatesPage.Model -> Model
 updateWithCandidatesPage model pageModel =
-    ( { model | pages = Page.ShowCandidates pageModel, pageTitle = "Candidates" }, Cmd.none )
+    { model | pages = Page.ShowCandidates pageModel, pageTitle = "Candidates" }
 
 
-updateWithRegionsPage : Model -> ShowRegionsPage.Model -> ( Model, Cmd Msg.Msg )
+updateWithRegionsPage : Model -> ShowRegionsPage.Model -> Model
 updateWithRegionsPage model pageModel =
-    ( { model | pages = Page.ShowRegions pageModel, pageTitle = "Regions" }, Cmd.none )
+    { model | pages = Page.ShowRegions pageModel, pageTitle = "Regions" }
 
 
-updateWithConstituenciesPage : Model -> ShowConstituenciesPage.Model -> ( Model, Cmd Msg.Msg )
+updateWithConstituenciesPage : Model -> ShowConstituenciesPage.Model -> Model
 updateWithConstituenciesPage model pageModel =
-    ( { model | pages = Page.ShowConstituencies pageModel, pageTitle = "Constituencies" }, Cmd.none )
+    { model | pages = Page.ShowConstituencies pageModel, pageTitle = "Constituencies" }
 
 
-updateWithPartiesPage : Model -> ShowPartiesPage.Model -> ( Model, Cmd Msg.Msg )
+updateWithPartiesPage : Model -> ShowPartiesPage.Model -> Model
 updateWithPartiesPage model pageModel =
-    ( { model | pages = Page.ShowParties pageModel, pageTitle = "Parties" }, Cmd.none )
+    { model | pages = Page.ShowParties pageModel, pageTitle = "Parties" }
 
 
-updateWithPollsPage : Model -> ShowPollsPage.Model -> ( Model, Cmd Msg.Msg )
+updateWithPollsPage : Model -> ShowPollsPage.Model -> Model
 updateWithPollsPage model pageModel =
-    ( { model | pages = Page.ShowPolls pageModel, pageTitle = "Polls" }, Cmd.none )
+    { model | pages = Page.ShowPolls pageModel, pageTitle = "Polls" }
 
 
-updateWithApprovesPage : Model -> ShowApprovesPage.Model -> ( Model, Cmd Msg.Msg )
+updateWithApprovesPage : Model -> ShowApprovesPage.Model -> Model
 updateWithApprovesPage model pageModel =
-    ( { model | pages = Page.ShowApproves pageModel, pageTitle = "Approve" }, Cmd.none )
+    { model | pages = Page.ShowApproves pageModel, pageTitle = "Approve" }
 
 
-updateWithRegionalPage : Model -> ShowRegionalAnalysisPage.Model -> ( Model, Cmd Msg.Msg )
+updateWithRegionalPage : Model -> ShowRegionalAnalysisPage.Model -> Model
 updateWithRegionalPage model pageModel =
-    ( { model | pages = Page.ShowRegionalAnalysis pageModel, pageTitle = "Regional Analysis" }, Cmd.none )
+    { model | pages = Page.ShowRegionalAnalysis pageModel, pageTitle = "Regional Analysis" }
 
 
-updateWithNationalPage : Model -> ShowNationalAnalysisPage.Model -> ( Model, Cmd Msg.Msg )
+updateWithNationalPage : Model -> ShowNationalAnalysisPage.Model -> Model
 updateWithNationalPage model pageModel =
-    ( { model | pages = Page.ShowNationalAnalysis pageModel, pageTitle = "National Analysis" }, Cmd.none )
+    { model | pages = Page.ShowNationalAnalysis pageModel, pageTitle = "National Analysis" }
 
 
 updateWithSidebarView : Model -> GeneralSidebar.Model -> ( Model, Cmd Msg.Msg )
