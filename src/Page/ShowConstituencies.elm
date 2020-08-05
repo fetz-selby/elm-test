@@ -15,6 +15,7 @@ type Msg
     | AddConstituency
     | ShowDetail Constituency.Model
     | ConstituenciesReceived ConstituencyData
+    | AddOne Constituency.Model
     | Form Field
     | Save
     | DetailMode ShowDetailMode
@@ -81,6 +82,9 @@ update model msg =
               }
             , Cmd.none
             )
+
+        AddOne constituency ->
+            ( model, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )

@@ -3,7 +3,7 @@ import { getConstituencies, addConstituency } from "./api/constituencies";
 import { getCandidates, addCandidate } from "./api/candidates";
 import { getParties, addParty } from "./api/parties";
 import { getPolls, addPoll } from "./api/polls";
-import { getRegions } from "./api/regions";
+import { getRegions, deleteRegion } from "./api/regions";
 import { getParentConstituencies } from "./api/parentConstituencies";
 import { getApproves } from "./api/approves";
 import { getNationalAnalysis } from "./api/nationalAnalysis";
@@ -232,8 +232,9 @@ async function create() {
       }
 
       case "DeleteRegion": {
-        console.log("In JS");
         console.log("Delete ID, ", payload);
+        const deleteResp = await deleteRegion({ service, id: payload });
+        console.log("resp, ", deleteResp);
 
         break;
       }
@@ -241,6 +242,63 @@ async function create() {
       default:
         throw new Error(`Received unknown message ${action} from Elm.`);
     }
+
+    // When a model is removed
+    service.service("regions").on("removed", (d, c) => {
+      console.log("region removed");
+    });
+
+    service.service("constituencies").on("removed", (d, c) => {});
+
+    service.service("approve_list").on("removed", (d, c) => {});
+
+    service.service("candidates").on("removed", (d, c) => {});
+
+    service.service("national_analysis").on("removed", (d, c) => {});
+
+    service.service("parent_constituencies").on("removed", (d, c) => {});
+
+    service.service("parties").on("removed", (d, c) => {});
+
+    service.service("regional_analysis").on("removed", (d, c) => {});
+
+    // When a model is created
+    service.service("regions").on("created", (d, c) => {
+      console.log("region created");
+    });
+
+    service.service("constituencies").on("created", (d, c) => {});
+
+    service.service("approve_list").on("created", (d, c) => {});
+
+    service.service("candidates").on("created", (d, c) => {});
+
+    service.service("national_analysis").on("created", (d, c) => {});
+
+    service.service("parent_constituencies").on("created", (d, c) => {});
+
+    service.service("parties").on("created", (d, c) => {});
+
+    service.service("regional_analysis").on("created", (d, c) => {});
+
+    // When a model is updated
+    service.service("regions").on("updated", (d, c) => {
+      console.log("region updated");
+    });
+
+    service.service("constituencies").on("updated", (d, c) => {});
+
+    service.service("approve_list").on("updated", (d, c) => {});
+
+    service.service("candidates").on("updated", (d, c) => {});
+
+    service.service("national_analysis").on("updated", (d, c) => {});
+
+    service.service("parent_constituencies").on("updated", (d, c) => {});
+
+    service.service("parties").on("updated", (d, c) => {});
+
+    service.service("regional_analysis").on("updated", (d, c) => {});
   };
 
   app.ports.msgForJs.subscribe(handlePortMsg);

@@ -12,6 +12,7 @@ type Msg
     | AddParty
     | ShowDetail Party.Model
     | PartiesReceived PartyData
+    | AddOne Party.Model
     | Form Field
     | Save
     | DetailMode ShowDetailMode
@@ -88,6 +89,9 @@ update model msg =
 
         PartiesReceived partyData ->
             ( { model | parties = partyData.parties }, Cmd.none )
+
+        AddOne party ->
+            ( model, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )

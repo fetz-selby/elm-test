@@ -13,6 +13,7 @@ type Msg
     | AddRegion
     | ShowDetail Region.Model
     | RegionsReceived RegionData
+    | AddOne Region.Model
     | Form Field
     | Save
     | DetailMode ShowDetailMode
@@ -88,6 +89,9 @@ update model msg =
 
         RegionsReceived regionData ->
             ( { model | regions = regionData.regions }, Cmd.none )
+
+        AddOne region ->
+            ( model, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )

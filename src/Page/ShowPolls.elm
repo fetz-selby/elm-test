@@ -10,6 +10,7 @@ import Json.Decode as Decode
 type Msg
     = FetchPolls String
     | PollsReceived (List Poll.Model)
+    | AddOne Poll.Model
 
 
 type alias Model =
@@ -29,10 +30,13 @@ view model =
 update : Model -> Msg -> ( Model, Cmd Msg )
 update model msg =
     case msg of
-        FetchPolls constituency ->
+        FetchPolls polls ->
             ( model, Cmd.none )
 
         PollsReceived polls ->
+            ( model, Cmd.none )
+
+        AddOne poll ->
             ( model, Cmd.none )
 
 

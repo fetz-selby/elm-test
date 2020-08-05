@@ -15,6 +15,7 @@ type Msg
     | AddNationalAnalysis
     | ShowDetail NationalAnalysis.Model
     | NationalAnalysisReceived NationalAnalysisData
+    | AddOne NationalAnalysis.Model
     | Form Field
     | Save
     | DetailMode ShowDetailMode
@@ -101,6 +102,9 @@ update model msg =
               }
             , Cmd.none
             )
+
+        AddOne nationalAnalysis ->
+            ( model, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )

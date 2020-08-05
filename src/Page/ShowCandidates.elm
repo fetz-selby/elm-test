@@ -15,6 +15,7 @@ type Msg
     | AddCandidate
     | ShowDetail Candidate.Model
     | CandidatesReceived CandidateData
+    | AddOne Candidate.Model
     | Form Field
     | Save
     | DetailMode ShowDetailMode
@@ -85,6 +86,9 @@ update model msg =
               }
             , Cmd.none
             )
+
+        AddOne candidate ->
+            ( model, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )

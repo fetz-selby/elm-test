@@ -1,6 +1,15 @@
-import { URL } from "../constants";
+const addCandidate = ({ service, payload }) => {
+  const candidate = {
+    name: payload.name,
+    partyId: payload.partyId,
+    constituencyId: payload.constituencyId,
+    year: payload.year,
+    votes: payload.votes,
+    avatarPath: payload.avatarPath,
+  };
 
-const addCandidate = ({ service, app, payload }) => {};
+  service.service("candidates").create(candidate);
+};
 
 const getCandidates = async ({ service, payload }) => {
   const { year, constituencyId } = payload;

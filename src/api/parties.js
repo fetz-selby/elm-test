@@ -1,5 +1,3 @@
-import { URL } from "../constants";
-
 const addParty = async ({ app, payload }) => {};
 
 const getParties = async ({ service }) =>

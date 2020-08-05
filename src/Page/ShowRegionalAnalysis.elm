@@ -16,6 +16,7 @@ type Msg
     | AddRegionalAnalysis
     | ShowDetail RegionalAnalysis.Model
     | RegionalAnalysisReceived RegionalAnalysisData
+    | AddOne RegionalAnalysis.Model
     | Form Field
     | Save
     | DetailMode ShowDetailMode
@@ -108,6 +109,9 @@ update model msg =
               }
             , Cmd.none
             )
+
+        AddOne regionalAnalysis ->
+            ( model, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )

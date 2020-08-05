@@ -12,6 +12,7 @@ type Msg
     | AddApprove
     | ShowDetail Approve.Model
     | ApprovesReceived ApproveData
+    | AddOne Approve.Model
     | Form Field
     | Save
     | DetailMode ShowDetailMode
@@ -93,6 +94,9 @@ update model msg =
 
         ApprovesReceived approveData ->
             ( { model | approves = approveData.approves }, Cmd.none )
+
+        AddOne approve ->
+            ( model, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )

@@ -1,5 +1,13 @@
-module Msg exposing (Msg(..), decode)
+module Msg exposing (IncomingAppError, Msg(..), decode)
 
+import Data.Approve as Approve
+import Data.Candidate as Candidate
+import Data.Constituency as Constituency
+import Data.NationalAnalysis as NationalAnalysis
+import Data.Party as Party
+import Data.Poll as Poll
+import Data.Region as Region
+import Data.RegionalAnalysis as RegionalAnalysis
 import Json.Decode as Decode
 import Model as Model
 import Page.ShowApproves as ShowApproves
@@ -91,8 +99,8 @@ decode model json =
 
         Ok "RegionalAnalysisLoaded" ->
             case decodePayload ShowRegionalAnalysis.decode json of
-                Ok regionalAnalysis ->
-                    ShowRegionalAnalysis (ShowRegionalAnalysis.RegionalAnalysisReceived regionalAnalysis)
+                Ok regionalAnalysisData ->
+                    ShowRegionalAnalysis (ShowRegionalAnalysis.RegionalAnalysisReceived regionalAnalysisData)
 
                 Err _ ->
                     IncomingMsgError FailedToLoadRegionalAnalysis
@@ -101,6 +109,71 @@ decode model json =
             case decodePayload ShowNationalAnalysis.decode json of
                 Ok nationalAnalysisData ->
                     ShowNationalAnalysis (ShowNationalAnalysis.NationalAnalysisReceived nationalAnalysisData)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadNationalAnalysis
+
+        -- Add single
+        Ok "OneCandidateAdded" ->
+            case decodePayload Candidate.decode json of
+                Ok candidate ->
+                    ShowCandidates (ShowCandidates.AddOne candidate)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadCandidates
+
+        Ok "OneConstituencyAdd" ->
+            case decodePayload Constituency.decode json of
+                Ok constituency ->
+                    ShowConstituencies (ShowConstituencies.AddOne constituency)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadConstituencies
+
+        Ok "OnePollAdded" ->
+            case decodePayload Poll.decode json of
+                Ok poll ->
+                    ShowPolls (ShowPolls.AddOne poll)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadPolls
+
+        Ok "OnePartyAdded" ->
+            case decodePayload Party.decode json of
+                Ok party ->
+                    ShowParties (ShowParties.AddOne party)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadParties
+
+        Ok "OneRegionAdded" ->
+            case decodePayload Region.decode json of
+                Ok region ->
+                    ShowRegions (ShowRegions.AddOne region)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadRegions
+
+        Ok "OneApproveAdded" ->
+            case decodePayload Approve.decode json of
+                Ok approve ->
+                    ShowApproves (ShowApproves.AddOne approve)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadApproves
+
+        Ok "OneRegionalAnalysisAdded" ->
+            case decodePayload RegionalAnalysis.decode json of
+                Ok regionalAnalysis ->
+                    ShowRegionalAnalysis (ShowRegionalAnalysis.AddOne regionalAnalysis)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadRegionalAnalysis
+
+        Ok "OneNationalAnalysisAdded" ->
+            case decodePayload NationalAnalysis.decode json of
+                Ok nationalAnalysis ->
+                    ShowNationalAnalysis (ShowNationalAnalysis.AddOne nationalAnalysis)
 
                 Err _ ->
                     IncomingMsgError FailedToLoadNationalAnalysis
