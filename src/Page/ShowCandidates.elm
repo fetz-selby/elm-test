@@ -88,7 +88,7 @@ update model msg =
             )
 
         AddOne candidate ->
-            ( model, Cmd.none )
+            ( { model | candidates = addToCandidates candidate model.candidates }, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )
@@ -288,6 +288,11 @@ showDetailState mode model =
 
         New ->
             { model | showDetailMode = New, selectedCandidate = Candidate.initCandidate }
+
+
+addToCandidates : Candidate.Model -> List Candidate.Model -> List Candidate.Model
+addToCandidates candidate list =
+    candidate :: list
 
 
 decode : Decode.Decoder CandidateData

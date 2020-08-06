@@ -91,7 +91,7 @@ update model msg =
             ( { model | parties = partyData.parties }, Cmd.none )
 
         AddOne party ->
-            ( model, Cmd.none )
+            ( { model | parties = addToParties party model.parties }, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )
@@ -207,6 +207,11 @@ showDetailState mode model =
 
         New ->
             { model | showDetailMode = New, selectedParty = Party.initParty }
+
+
+addToParties : Party.Model -> List Party.Model -> List Party.Model
+addToParties party list =
+    party :: list
 
 
 decode : Decode.Decoder PartyData

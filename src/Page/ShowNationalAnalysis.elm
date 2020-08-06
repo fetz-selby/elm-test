@@ -104,7 +104,7 @@ update model msg =
             )
 
         AddOne nationalAnalysis ->
-            ( model, Cmd.none )
+            ( { model | nationalAnalysis = addToNationalAnalysis nationalAnalysis model.nationalAnalysis }, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )
@@ -245,6 +245,11 @@ showDetailState mode model =
 
         New ->
             { model | showDetailMode = New, selectedNationalAnalysis = NationalAnalysis.initNationalAnalysis }
+
+
+addToNationalAnalysis : NationalAnalysis.Model -> List NationalAnalysis.Model -> List NationalAnalysis.Model
+addToNationalAnalysis nationalAnalysis list =
+    nationalAnalysis :: list
 
 
 decode : Decode.Decoder NationalAnalysisData

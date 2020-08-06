@@ -37,7 +37,12 @@ update model msg =
             ( model, Cmd.none )
 
         AddOne poll ->
-            ( model, Cmd.none )
+            ( { model | polls = addToPolls poll model.polls }, Cmd.none )
+
+
+addToPolls : Poll.Model -> List Poll.Model -> List Poll.Model
+addToPolls poll list =
+    poll :: list
 
 
 decode : Decode.Decoder (List Poll.Model)

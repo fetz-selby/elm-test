@@ -111,7 +111,7 @@ update model msg =
             )
 
         AddOne regionalAnalysis ->
-            ( model, Cmd.none )
+            ( { model | regionalAnalysis = addToRegionalAnalysis regionalAnalysis model.regionalAnalysis }, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )
@@ -279,6 +279,11 @@ showDetailState mode model =
 
         New ->
             { model | showDetailMode = New, selectedRegionalAnalysis = RegionalAnalysis.initRegionalAnalysis }
+
+
+addToRegionalAnalysis : RegionalAnalysis.Model -> List RegionalAnalysis.Model -> List RegionalAnalysis.Model
+addToRegionalAnalysis regionalAnalysis list =
+    regionalAnalysis :: list
 
 
 decode : Decode.Decoder RegionalAnalysisData

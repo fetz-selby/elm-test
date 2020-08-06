@@ -84,7 +84,7 @@ update model msg =
             )
 
         AddOne constituency ->
-            ( model, Cmd.none )
+            ( { model | constituencies = addToConstituencies constituency model.constituencies }, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )
@@ -326,6 +326,11 @@ showDetailState mode model =
 
         New ->
             { model | showDetailMode = New, selectedConstituency = Constituency.initConstituency }
+
+
+addToConstituencies : Constituency.Model -> List Constituency.Model -> List Constituency.Model
+addToConstituencies constituency list =
+    constituency :: list
 
 
 decode : Decode.Decoder ConstituencyData

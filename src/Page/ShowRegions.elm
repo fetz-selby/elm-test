@@ -91,7 +91,7 @@ update model msg =
             ( { model | regions = regionData.regions }, Cmd.none )
 
         AddOne region ->
-            ( model, Cmd.none )
+            ( { model | regions = addToRegions region model.regions }, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )
@@ -211,6 +211,11 @@ showDetailState mode model =
 
         New ->
             { model | showDetailMode = New, selectedRegion = Region.initRegion }
+
+
+addToRegions : Region.Model -> List Region.Model -> List Region.Model
+addToRegions region list =
+    region :: list
 
 
 decode : Decode.Decoder RegionData

@@ -96,7 +96,7 @@ update model msg =
             ( { model | approves = approveData.approves }, Cmd.none )
 
         AddOne approve ->
-            ( model, Cmd.none )
+            ( { model | approves = addToApproves approve model.approves }, Cmd.none )
 
         Form field ->
             ( model, Cmd.none )
@@ -205,6 +205,11 @@ showDetailState mode model =
 
         New ->
             { model | showDetailMode = New, selectedApprove = Approve.initApprove }
+
+
+addToApproves : Approve.Model -> List Approve.Model -> List Approve.Model
+addToApproves approve list =
+    approve :: list
 
 
 decode : Decode.Decoder ApproveData
