@@ -1,4 +1,4 @@
-module Data.Poll exposing (Model, decode, decodeList, encode, filter, initPoll)
+module Data.Poll exposing (Model, convertModelToLower, decode, decodeList, encode, filter, initPoll)
 
 import Data.Constituency as Constituency
 import Json.Decode as Decode

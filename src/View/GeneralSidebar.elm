@@ -8,6 +8,7 @@ import Html.Events exposing (onClick)
 type Msg
     = Constituencies
     | Regions
+    | Agents
     | Candidates
     | Parties
     | Polls
@@ -27,6 +28,7 @@ view model =
     div
         [ class "row" ]
         [ menu "Regions" Regions
+        , menu "Agents" Agents
         , menu "Constituency" Constituencies
         , menu "Candidates" Candidates
         , menu "Parties" Parties
@@ -42,6 +44,9 @@ update model msg =
     case msg of
         Regions ->
             ( { model | current = Regions }, Cmd.none )
+
+        Agents ->
+            ( { model | current = Agents }, Cmd.none )
 
         Constituencies ->
             ( { model | current = Constituencies }, Cmd.none )

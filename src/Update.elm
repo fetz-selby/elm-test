@@ -3,6 +3,7 @@ module Update exposing (update)
 import Model exposing (Model)
 import Msg as Msg
 import Page as Page
+import Page.ShowAgents as ShowAgentsPage
 import Page.ShowApproves as ShowApprovesPage
 import Page.ShowCandidates as ShowCandidatesPage
 import Page.ShowConstituencies as ShowConstituenciesPage
@@ -37,6 +38,17 @@ update msg model =
                         |> ShowCandidatesPage.update submodel
                         |> Tuple.mapFirst (updateWithCandidatesPage model)
                         |> Tuple.mapSecond (Cmd.map Msg.ShowCandidates)
+
+                _ ->
+                    ( model, Cmd.none )
+
+        Msg.ShowAgents agentMsg ->
+            case model.pages of
+                Page.ShowAgents submodel ->
+                    agentMsg
+                        |> ShowAgentsPage.update submodel
+                        |> Tuple.mapFirst (updateWithAgentsPage model)
+                        |> Tuple.mapSecond (Cmd.map Msg.ShowAgents)
 
                 _ ->
                     ( model, Cmd.none )
@@ -127,6 +139,11 @@ updateWithCandidatesPage model pageModel =
     { model | pages = Page.ShowCandidates pageModel, pageTitle = "Candidates" }
 
 
+updateWithAgentsPage : Model -> ShowAgentsPage.Model -> Model
+updateWithAgentsPage model pageModel =
+    { model | pages = Page.ShowAgents pageModel, pageTitle = "Agents" }
+
+
 updateWithRegionsPage : Model -> ShowRegionsPage.Model -> Model
 updateWithRegionsPage model pageModel =
     { model | pages = Page.ShowRegions pageModel, pageTitle = "Regions" }
@@ -187,6 +204,14 @@ updateWithSidebarView model viewModel =
                 , pages = Page.ShowCandidates ShowCandidatesPage.default
               }
             , Ports.sendToJs Ports.InitSidebarCandidate
+            )
+
+        GeneralSidebar.Agents ->
+            ( { model
+                | sidebar = Sidebar.GeneralSidebar viewModel
+                , pages = Page.ShowAgents ShowAgentsPage.default
+              }
+            , Ports.sendToJs Ports.InitSidebarAgent
             )
 
         GeneralSidebar.Parties ->

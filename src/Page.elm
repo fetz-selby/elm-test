@@ -1,5 +1,6 @@
 module Page exposing (Page(..), default)
 
+import Page.ShowAgents as ShowAgents
 import Page.ShowApproves as ShowApproves
 import Page.ShowCandidates as ShowCandidates
 import Page.ShowConstituencies as ShowConstituencies
@@ -13,6 +14,7 @@ import Page.ShowRegions as ShowRegions
 type Page
     = ShowConstituencies ShowConstituencies.Model
     | ShowCandidates ShowCandidates.Model
+    | ShowAgents ShowAgents.Model
     | ShowPolls ShowPolls.Model
     | ShowParties ShowParties.Model
     | ShowRegions ShowRegions.Model

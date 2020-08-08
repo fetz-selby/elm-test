@@ -35,12 +35,19 @@ filter search list =
 
 isFound : String -> Model -> Bool
 isFound search model =
-    String.contains search model.name || String.contains search model.msisdn
+    String.contains search model.name
+        || String.contains search model.msisdn
+        || String.contains search model.constituency.name
+        || String.contains search model.poll.name
 
 
 convertModelToLower : Model -> Model
 convertModelToLower model =
-    { model | name = String.toLower model.name }
+    { model
+        | name = String.toLower model.name
+        , constituency = Constituency.convertModelToLower model.constituency
+        , poll = Poll.convertModelToLower model.poll
+    }
 
 
 encode : Model -> Encode.Value

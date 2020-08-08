@@ -1,5 +1,6 @@
 module Msg exposing (IncomingAppError, Msg(..), decode)
 
+import Data.Agent as Agent
 import Data.Approve as Approve
 import Data.Candidate as Candidate
 import Data.Constituency as Constituency
@@ -10,6 +11,7 @@ import Data.Region as Region
 import Data.RegionalAnalysis as RegionalAnalysis
 import Json.Decode as Decode
 import Model as Model
+import Page.ShowAgents as ShowAgents
 import Page.ShowApproves as ShowApproves
 import Page.ShowCandidates as ShowCandidates
 import Page.ShowConstituencies as ShowConstituencies
@@ -24,6 +26,7 @@ import View.GeneralSidebar as GeneralSidebar
 type Msg
     = ShowConstituencies ShowConstituencies.Msg
     | ShowCandidates ShowCandidates.Msg
+    | ShowAgents ShowAgents.Msg
     | ShowParties ShowParties.Msg
     | ShowPolls ShowPolls.Msg
     | ShowRegions ShowRegions.Msg
@@ -43,6 +46,7 @@ type IncomingAppError
     | FailedToLoadApproves
     | FailedToLoadRegionalAnalysis
     | FailedToLoadNationalAnalysis
+    | FailedToLoadAgents
     | NoDecoderMatchFound
 
 
@@ -57,12 +61,20 @@ decode model json =
                 Err _ ->
                     IncomingMsgError FailedToLoadCandidates
 
+        Ok "AgentsLoaded" ->
+            case decodePayload ShowAgents.decode json of
+                Ok agentData ->
+                    ShowAgents (ShowAgents.AgentsReceived agentData)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadAgents
+
         Ok "ConstituenciesLoaded" ->
             case decodePayload ShowConstituencies.decode json of
                 Ok constituencyData ->
                     ShowConstituencies (ShowConstituencies.ConstituenciesReceived constituencyData)
 
-                Err err ->
+                Err _ ->
                     IncomingMsgError FailedToLoadConstituencies
 
         Ok "PollsLoaded" ->
@@ -70,11 +82,7 @@ decode model json =
                 Ok polls ->
                     ShowPolls (ShowPolls.PollsReceived polls)
 
-                Err err ->
-                    let
-                        _ =
-                            Debug.log "polls[Err]" err
-                    in
+                Err _ ->
                     IncomingMsgError FailedToLoadPolls
 
         Ok "PartiesLoaded" ->

@@ -5,6 +5,7 @@ import Html.Attributes exposing (class)
 import Model
 import Msg exposing (Msg(..))
 import Page exposing (Page(..))
+import Page.ShowAgents
 import Page.ShowApproves
 import Page.ShowCandidates
 import Page.ShowConstituencies
@@ -55,6 +56,11 @@ pageView { pages } =
             model
                 |> Page.ShowConstituencies.view
                 |> Html.map Msg.ShowConstituencies
+
+        Page.ShowAgents model ->
+            model
+                |> Page.ShowAgents.view
+                |> Html.map Msg.ShowAgents
 
         Page.ShowCandidates model ->
             model

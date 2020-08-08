@@ -21,6 +21,7 @@ import {
   normalizeParties,
   normalizeRegions,
   normalizePolls,
+  normalizeAgents,
 } from "./api/helper";
 import io from "socket.io-client";
 import feathers from "@feathersjs/client";
@@ -107,11 +108,23 @@ async function create() {
       }
 
       case "InitAgents": {
-        const regions = await getAgents({ service, year });
+        const agents = await getAgents({ service, year, regionId });
+        const constituencies = await getConstituencies({
+          service,
+          year,
+          regionId,
+        });
+        const polls = await getPolls({ service, year, regionId });
 
         app.ports.msgForElm.send({
-          type: "RegionsLoaded",
-          payload: { regionData: { regions: normalizeRegions(regions) } },
+          type: "AgentsLoaded",
+          payload: {
+            agentData: {
+              agents: normalizeAgents(agents),
+              constituencies: normalizeConstituencies(constituencies),
+              polls: normalizePolls(polls),
+            },
+          },
         });
 
         break;

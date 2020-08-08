@@ -300,3 +300,8 @@ export const normalizePolls = (polls) =>
         .map((poll) => normalizePoll(poll))
         .sort((a, b) => sort(a.constituency, b.constituency))
     : [];
+
+export const normalizeAgents = (agents) =>
+  agents && agents.length
+    ? agents.map((agent) => normalizeAgent(agent)).sort((a, b) => sort(a, b))
+    : [];
