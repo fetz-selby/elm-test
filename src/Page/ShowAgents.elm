@@ -257,7 +257,7 @@ renderNewDetails model =
         , renderField "msisdn" "" "eg. +491763500232450" True Msisdn
         , renderField "pin" "" "e.g 0000" True Pin
         , renderConstituencies "constituency" model.constituencies
-        , renderPolls "party" model.polls
+        , renderPolls "poll" model.polls
         ]
 
 
