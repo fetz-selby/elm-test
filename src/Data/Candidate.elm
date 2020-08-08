@@ -16,9 +16,9 @@ type alias Model =
     , votes : String
     , candidateType : String
     , avatarPath : String
-    , angle : Float
-    , percentage : Float
-    , barRatio : Float
+    , angle : String
+    , percentage : String
+    , barRatio : String
     }
 
 
@@ -32,9 +32,9 @@ initCandidate =
     , votes = "0"
     , candidateType = ""
     , avatarPath = ""
-    , angle = 0.0
-    , percentage = 0.0
-    , barRatio = 0.0
+    , angle = "0.0"
+    , percentage = "0.0"
+    , barRatio = "0.0"
     }
 
 
@@ -60,22 +60,27 @@ convertModelToLower model =
     }
 
 
-encode : Model -> Encode.Value
-encode candidate =
-    Encode.object
-        [ ( "name", Encode.string candidate.name )
-        , ( "constituency_id", Encode.string candidate.constituency.id )
-        , ( "party_id", Encode.string candidate.party.id )
-        , ( "year", Encode.string candidate.year )
-        , ( "type", Encode.string candidate.candidateType )
-        , ( "votes", Encode.string candidate.votes )
-        ]
-
-
 couldBeNull : Decode.Decoder String
 couldBeNull =
     Decode.oneOf
         [ Decode.string, Decode.null "" ]
+
+
+encode : Model -> Encode.Value
+encode candidate =
+    Encode.object
+        [ ( "id", Encode.string candidate.id )
+        , ( "name", Encode.string candidate.name )
+        , ( "constituency_id", Encode.string candidate.constituency.id )
+        , ( "party_id", Encode.string candidate.party.id )
+        , ( "votes", Encode.string candidate.votes )
+        , ( "year", Encode.string candidate.year )
+        , ( "type", Encode.string candidate.candidateType )
+        , ( "avatar_path", Encode.string candidate.avatarPath )
+        , ( "angle", Encode.string candidate.angle )
+        , ( "percentage", Encode.string candidate.percentage )
+        , ( "bar_ratio", Encode.string candidate.barRatio )
+        ]
 
 
 decode : Decode.Decoder Model
@@ -89,9 +94,9 @@ decode =
         |> JDP.required "votes" Decode.string
         |> JDP.required "group_type" Decode.string
         |> JDP.required "avatar_path" couldBeNull
-        |> JDP.required "angle" Decode.float
-        |> JDP.required "percentage" Decode.float
-        |> JDP.required "bar_ratio" Decode.float
+        |> JDP.required "angle" Decode.string
+        |> JDP.required "percentage" Decode.string
+        |> JDP.required "bar_ratio" Decode.string
 
 
 decodeList : Decode.Decoder (List Model)

@@ -204,8 +204,8 @@ renderConstituencyItem : Constituency.Model -> Html.Html Msg
 renderConstituencyItem constituency =
     tr [ onClick (ShowDetail constituency) ]
         [ td [] [ Html.text constituency.name ]
-        , td [] [ Html.text "XXX" ]
-        , td [] [ Html.text (String.fromInt constituency.totalVotes) ]
+        , td [] [ Html.text constituency.party.name ]
+        , td [] [ Html.text constituency.totalVotes ]
         ]
 
 
@@ -229,11 +229,11 @@ renderDetails model =
             ]
         , form [ onSubmit Save ]
             [ renderField "constituency" model.name "eg.Bekwai" False Constituency
-            , renderField "seat won by" model.seatWonId "eg.XXX" False SeatWonId
-            , renderField "casted votes" (String.fromInt model.castedVotes) "e.g P" False CastedVotes
-            , renderField "reg votes" (String.fromInt model.regVotes) "e.g 432" False RegVotes
-            , renderField "rejected votes" (String.fromInt model.rejectVotes) "e.g 180" False RejectVotes
-            , renderField "total votes" (String.fromInt model.totalVotes) "e.g 234" False TotalVotes
+            , renderField "seat won by" model.party.name "eg.XXX" False SeatWonId
+            , renderField "casted votes" model.castedVotes "e.g P" False CastedVotes
+            , renderField "reg votes" model.regVotes "e.g 432" False RegVotes
+            , renderField "rejected votes" model.rejectVotes "e.g 180" False RejectVotes
+            , renderField "total votes" model.totalVotes "e.g 234" False TotalVotes
             , renderField "is declared"
                 (if model.isDeclared then
                     "Yes"
@@ -264,10 +264,10 @@ renderEditableDetails model =
     form [ onSubmit Save ]
         [ renderField "constituency" model.name "eg.Bekwai" True Constituency
         , renderField "seat won by" model.seatWonId "eg.XXX" True SeatWonId
-        , renderField "casted votes" (String.fromInt model.castedVotes) "e.g P" True CastedVotes
-        , renderField "reg votes" (String.fromInt model.regVotes) "e.g 432" True RegVotes
-        , renderField "rejected votes" (String.fromInt model.rejectVotes) "e.g 180" True RejectVotes
-        , renderField "total votes" (String.fromInt model.totalVotes) "e.g 234" True TotalVotes
+        , renderField "casted votes" model.castedVotes "e.g P" True CastedVotes
+        , renderField "reg votes" model.regVotes "e.g 432" True RegVotes
+        , renderField "rejected votes" model.rejectVotes "e.g 180" True RejectVotes
+        , renderField "total votes" model.totalVotes "e.g 234" True TotalVotes
         , renderField "is declared"
             (if model.isDeclared then
                 "Yes"

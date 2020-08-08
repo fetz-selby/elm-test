@@ -62,7 +62,7 @@ decode model json =
                 Ok constituencyData ->
                     ShowConstituencies (ShowConstituencies.ConstituenciesReceived constituencyData)
 
-                Err _ ->
+                Err err ->
                     IncomingMsgError FailedToLoadConstituencies
 
         Ok "PollsLoaded" ->
@@ -70,7 +70,11 @@ decode model json =
                 Ok polls ->
                     ShowPolls (ShowPolls.PollsReceived polls)
 
-                Err _ ->
+                Err err ->
+                    let
+                        _ =
+                            Debug.log "polls[Err]" err
+                    in
                     IncomingMsgError FailedToLoadPolls
 
         Ok "PartiesLoaded" ->

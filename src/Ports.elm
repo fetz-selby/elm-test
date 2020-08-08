@@ -1,5 +1,15 @@
 port module Ports exposing (OutgoingMsg(..), PortData, msgForElm, msgForJs, sendToJs, toPortData)
 
+import Data.Agent as Agent
+import Data.Approve as Approve
+import Data.Candidate as Candidate
+import Data.Constituency as Constituency
+import Data.NationalAnalysis as NationalAnalysis
+import Data.ParentConstituency as ParentConstituency
+import Data.Party as Party
+import Data.Poll as Poll
+import Data.Region as Region
+import Data.RegionalAnalysis as RegionalAnalysis
 import Json.Encode as Encode
 import View.CandidatesFilter as CandidateFilter
 import View.ConstituenciesFilter as ConstituencyFilter
@@ -11,6 +21,7 @@ type OutgoingMsg
     | FetchConstituencies ConstituencyFilter.Model
     | FetchPolls PollFilter.Model
     | InitApp
+    | InitSidebarAgent
     | InitSidebarApprove
     | InitSidebarRegionalSummary
     | InitSidebarNationalSummary
@@ -19,6 +30,7 @@ type OutgoingMsg
     | InitSidebarPoll
     | InitSidebarCandidate
     | InitSidebarConstituency
+    | DeleteAgent String
     | DeleteRegion String
     | DeleteConstituency String
     | DeleteCandidate String
@@ -27,6 +39,15 @@ type OutgoingMsg
     | DeleteApprove String
     | DeleteRegionSummary String
     | DeleteNationalSummary String
+    | SaveAgent Agent.Model
+    | SaveRegion Region.Model
+    | SaveConstituency Constituency.Model
+    | SaveParentConstituency ParentConstituency.Model
+    | SaveCandidate Candidate.Model
+    | SaveParty Party.Model
+    | SavePoll Poll.Model
+    | SaveRegionSummary RegionalAnalysis.Model
+    | SaveNationalSummary NationalAnalysis.Model
 
 
 port msgForJs : PortData -> Cmd msg
@@ -61,6 +82,9 @@ toPortData msg =
         InitApp ->
             { action = "InitApp", payload = Encode.null }
 
+        InitSidebarAgent ->
+            { action = "InitAgents", payload = Encode.null }
+
         InitSidebarRegion ->
             { action = "InitRegions", payload = Encode.null }
 
@@ -85,6 +109,9 @@ toPortData msg =
         InitSidebarNationalSummary ->
             { action = "InitNationalSummary", payload = Encode.null }
 
+        DeleteAgent id ->
+            { action = "DeleteAgent", payload = Encode.string id }
+
         DeleteRegion id ->
             { action = "DeleteRegion", payload = Encode.string id }
 
@@ -108,3 +135,30 @@ toPortData msg =
 
         DeleteNationalSummary id ->
             { action = "DeleteNationalSummary", payload = Encode.string id }
+
+        SaveAgent agent ->
+            { action = "SaveAgent", payload = Agent.encode agent }
+
+        SaveRegion region ->
+            { action = "SaveRegion", payload = Region.encode region }
+
+        SaveConstituency constituency ->
+            { action = "SaveConstituency", payload = Constituency.encode constituency }
+
+        SaveParentConstituency parentConstituency ->
+            { action = "SaveParentConstituency", payload = ParentConstituency.encode parentConstituency }
+
+        SaveCandidate candidate ->
+            { action = "SaveCandidate", payload = Candidate.encode candidate }
+
+        SaveParty party ->
+            { action = "SaveParty", payload = Party.encode party }
+
+        SavePoll poll ->
+            { action = "SavePoll", payload = Poll.encode poll }
+
+        SaveRegionSummary regionalAnalysis ->
+            { action = "SaveRegionSummary", payload = RegionalAnalysis.encode regionalAnalysis }
+
+        SaveNationalSummary nationalAnalysis ->
+            { action = "SaveNationalSummary", payload = NationalAnalysis.encode nationalAnalysis }

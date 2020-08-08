@@ -24,8 +24,14 @@ export const normalizePoll = (poll) => ({
   id: poll && poll.id ? poll.id.toString() : "0",
   name: poll && poll.name ? poll.name : "Unknown",
   year: poll && poll.year ? poll.year.toString() : "",
+  rejected_votes:
+    poll && poll.rejected_votes ? poll.rejected_votes.toString() : "0",
+  valid_votes: poll && poll.valid_votes ? poll.valid_votes.toString() : "0",
   total_voters: poll && poll.total_voters ? poll.total_voters.toString() : "0",
-  constituency: normalizeConstituency(poll.constituency),
+  constituency:
+    poll && poll.constituency
+      ? normalizeConstituency(poll.constituency)
+      : normalizeConstituency({}),
 });
 
 export const normalizeRegion = (region) => ({
@@ -44,38 +50,50 @@ export const normalizeParty = (party) => ({
   order_queue: party && party.order_queue ? party.order_queue.toString() : "0",
 });
 
-export const normalizeConstituency = (constituency) => ({
-  ...constituency,
-  id: constituency && constituency.id ? constituency.id.toString() : "0",
-  name: constituency && constituency.name ? constituency.name : "Unknown",
-  year: constituency && constituency.year.toString() ? constituency.year : "",
-  casted_votes:
-    constituency && constituency.casted_votes
-      ? parseInt(constituency.casted_votes)
-      : 0,
-  parent_id:
-    constituency && constituency.parent_id ? constituency.parent_id : "0",
-  reg_votes:
-    constituency && constituency.reg_votes
-      ? parseInt(constituency.reg_votes)
-      : 0,
-  reject_votes:
-    constituency && constituency.reject_votes
-      ? parseInt(constituency.reg_votes)
-      : 0,
-  seat_won_id:
-    constituency && constituency.seat_won_id ? constituency.seat_won_id : "",
-  total_votes:
-    constituency && constituency.total_votes
-      ? parseInt(constituency.total_votes)
-      : 0,
-  is_declared: !!(
-    constituency && constituency.is_declared.toLowerCase() === "y"
-  ),
-  auto_compute: !!(
-    constituency && constituency.auto_compute.toLowerCase() === "t"
-  ),
-});
+export const normalizeConstituency = (constituency) => {
+  return {
+    ...constituency,
+    id: constituency && constituency.id ? constituency.id.toString() : "0",
+    name: constituency && constituency.name ? constituency.name : "Unknown",
+    year: constituency && constituency.year ? constituency.year.toString() : "",
+    casted_votes:
+      constituency && constituency.casted_votes
+        ? constituency.casted_votes.toString()
+        : "0",
+    parent_id:
+      constituency && constituency.parent_id ? constituency.parent_id : "0",
+    reg_votes:
+      constituency && constituency.reg_votes
+        ? constituency.reg_votes.toString()
+        : "0",
+    reject_votes:
+      constituency && constituency.reject_votes
+        ? constituency.reg_votes.toString()
+        : "0",
+    seat_won_id:
+      constituency && constituency.seat_won_id
+        ? constituency.seat_won_id.toString()
+        : "0",
+    total_votes:
+      constituency && constituency.total_votes
+        ? constituency.total_votes.toString()
+        : "0",
+    is_declared: !!(
+      constituency &&
+      constituency.is_declared &&
+      constituency.is_declared.toLowerCase() === "y"
+    ),
+    auto_compute: !!(
+      constituency &&
+      constituency.auto_compute &&
+      constituency.auto_compute.toLowerCase() === "t"
+    ),
+    party:
+      constituency && constituency.party
+        ? normalizeParty(constituency.party)
+        : normalizeParty({}),
+  };
+};
 
 export const normalizeCandidate = (candidate) => ({
   ...candidate,
@@ -83,35 +101,56 @@ export const normalizeCandidate = (candidate) => ({
   name: candidate && candidate.name ? candidate.name : "Unknown",
   votes: candidate && candidate.votes ? candidate.votes.toString() : "0",
   year: candidate && candidate.year ? candidate.year.toString() : "",
-  party: normalizeParty(candidate.party),
-  constituency: normalizeConstituency(candidate.constituency),
+  party:
+    candidate && candidate.party
+      ? normalizeParty(candidate.party)
+      : normalizeParty({}),
+  constituency:
+    candidate && candidate.constituency
+      ? normalizeConstituency(candidate.constituency)
+      : normalizeConstituency({}),
   group_type: candidate && candidate.group_type ? candidate.group_type : "",
   avatar_path: candidate && candidate.avatar_path ? candidate.avatar_path : "",
   bar_ratio:
-    candidate && candidate.bar_ratio ? parseFloat(candidate.bar_ratio) : 0.0,
+    candidate && candidate.bar_ratio ? candidate.bar_ratio.toString() : "0.0",
   percentage:
-    candidate && candidate.percentage ? parseFloat(candidate.percentage) : 0.0,
-  angle: candidate && candidate.angle ? parseFloat(candidate.angle) : 0.0,
+    candidate && candidate.percentage ? candidate.percentage.toString() : "0.0",
+  angle: candidate && candidate.angle ? candidate.angle.toString() : "0.0",
 });
 
 export const normalizeAgent = (agent) => ({
   ...agent,
   id: agent && agent.id ? agent.id.toString() : "0",
   name: agent && agent.name ? agent.name : "Unknown",
-  msisdn: agent && agent.msisdn ? agent.msisdn : "+000000000",
+  msisdn: agent && agent.msisdn ? agent.msisdn.toString() : "+000000000",
+  pin: agent && agent.pin ? agent.pin.toString() : "0000",
+  constituency:
+    agent && agent.constituency
+      ? normalizeConstituency(agent.constituency)
+      : normalizeConstituency({}),
+  poll: agent && agent.poll ? normalizePoll(agent.poll) : normalizePoll({}),
 });
 
 export const normalizeApprove = (approve) => ({
   ...approve,
   id: approve && approve.id ? approve.id.toString() : "",
   message: approve && approve.message ? approve.message : "No Message",
-  constituency: normalizeConstituency(approve.constituency),
-  region: normalizeRegion(approve.region),
+  constituency:
+    approve && approve.constituency
+      ? normalizeConstituency(approve.constituency)
+      : normalizeConstituency({}),
+  region:
+    approve && approve.region
+      ? normalizeRegion(approve.region)
+      : normalizeRegion({}),
   poll: normalizePoll(approve.poll),
-  agent: normalizeAgent(approve.agent),
+  agent:
+    approve && approve.agent
+      ? normalizeAgent(approve.agent)
+      : normalizeAgent({}),
   year: approve && approve.year ? approve.year.toString() : "",
   type: approve && approve.type ? approve.type : "",
-  msisdn: approve && approve.msisdn ? approve.msisdn : "+000000000",
+  msisdn: approve && approve.msisdn ? approve.msisdn.toString() : "+000000000",
   posted_ts: approve && approve.posted_ts ? approve.posted_ts : "",
   status: approve && approve.status ? approve.status : "D",
 });
@@ -126,7 +165,10 @@ export const normalizeNationalAnalysis = (nationalAnalysis) => ({
     nationalAnalysis && nationalAnalysis.votes
       ? nationalAnalysis.votes.toString()
       : "0",
-  party: normalizeParty(nationalAnalysis.party),
+  party:
+    nationalAnalysis && nationalAnalysis.party
+      ? normalizeParty(nationalAnalysis.party)
+      : normalizeParty({}),
   year:
     nationalAnalysis && nationalAnalysis.year
       ? nationalAnalysis.year.toString()
@@ -134,16 +176,16 @@ export const normalizeNationalAnalysis = (nationalAnalysis) => ({
   type: nationalAnalysis && nationalAnalysis.type ? nationalAnalysis.type : "",
   percentage:
     nationalAnalysis && nationalAnalysis.percentage
-      ? parseFloat(nationalAnalysis.percentage)
-      : 0.0,
+      ? nationalAnalysis.percentage.toString()
+      : "0.0",
   angle:
     nationalAnalysis && nationalAnalysis.angle
-      ? parseFloat(nationalAnalysis.angle)
-      : 0.0,
+      ? nationalAnalysis.angle.toString()
+      : "0.0",
   bar:
     nationalAnalysis && nationalAnalysis.bar
-      ? parseFloat(nationalAnalysis.bar)
-      : 0.0,
+      ? nationalAnalysis.bar.toString()
+      : "0.0",
 });
 
 export const normalizeRegionalAnalysis = (regionalAnalysis) => ({
@@ -156,7 +198,10 @@ export const normalizeRegionalAnalysis = (regionalAnalysis) => ({
     regionalAnalysis && regionalAnalysis.votes
       ? regionalAnalysis.votes.toString()
       : "0",
-  party: normalizeParty(regionalAnalysis.party),
+  party:
+    regionalAnalysis && regionalAnalysis.party
+      ? normalizeParty(regionalAnalysis.party)
+      : normalizeParty({}),
   region: normalizeRegion(regionalAnalysis.region),
   year:
     regionalAnalysis && regionalAnalysis.year
@@ -165,16 +210,16 @@ export const normalizeRegionalAnalysis = (regionalAnalysis) => ({
   type: regionalAnalysis && regionalAnalysis.type ? regionalAnalysis.type : "",
   percentage:
     regionalAnalysis && regionalAnalysis.percentage
-      ? parseFloat(regionalAnalysis.percentage)
-      : 0.0,
+      ? regionalAnalysis.percentage.toString()
+      : "0.0",
   angle:
     regionalAnalysis && regionalAnalysis.angle
-      ? parseFloat(regionalAnalysis.angle)
-      : 0.0,
+      ? regionalAnalysis.angle.toString()
+      : "0.0",
   bar:
     regionalAnalysis && regionalAnalysis.bar
-      ? parseFloat(regionalAnalysis.bar)
-      : 0.0,
+      ? regionalAnalysis.bar.toString()
+      : "0.0",
   status:
     regionalAnalysis && regionalAnalysis.status ? regionalAnalysis.status : "",
 });
@@ -184,11 +229,15 @@ export const normalizeParentConstituency = (parentConstituency) => ({
   id:
     parentConstituency && parentConstituency.id
       ? parentConstituency.id.toString()
-      : "",
+      : "0",
   name:
     parentConstituency && parentConstituency.name
       ? parentConstituency.name
       : "",
+  region:
+    parentConstituency && parentConstituency.region
+      ? normalizeRegion(parentConstituency.region)
+      : normalizeRegion({}),
 });
 
 export const normalizeApproves = (apporoves) =>
@@ -243,4 +292,11 @@ export const normalizeRegions = (regions) =>
     ? regions
         .map((region) => normalizeRegion(region))
         .sort((a, b) => sort(a, b))
+    : [];
+
+export const normalizePolls = (polls) =>
+  polls && polls.length
+    ? polls
+        .map((poll) => normalizePoll(poll))
+        .sort((a, b) => sort(a.constituency, b.constituency))
     : [];

@@ -1,8 +1,7 @@
-import { URL } from "../constants";
+const addConstituency = async ({ service, constituency }) =>
+  await service.service("constituencies").create(constituency);
 
-const addConstituency = async ({ app, payload }) => {};
-
-const getConstituencies = async ({ service, year }) =>
-  await service.service("constituencies").find({ query: { year } });
+const getConstituencies = async ({ service, regionId, year }) =>
+  await service.service("constituencies").find({ query: { year, regionId } });
 
 export { addConstituency, getConstituencies };

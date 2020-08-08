@@ -1,5 +1,6 @@
 module Data.ParentConstituency exposing (Model, convertModelToLower, decode, decodeList, encode, filter, initParentConstituency)
 
+import Data.Region as Region
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
 import Json.Encode as Encode
@@ -8,12 +9,13 @@ import Json.Encode as Encode
 type alias Model =
     { id : String
     , name : String
+    , region : Region.Model
     }
 
 
 initParentConstituency : Model
 initParentConstituency =
-    { id = "", name = "" }
+    { id = "", name = "", region = Region.initRegion }
 
 
 filter : String -> List Model -> List Model
@@ -34,9 +36,11 @@ convertModelToLower model =
 
 
 encode : Model -> Encode.Value
-encode agent =
+encode parentConstituency =
     Encode.object
-        [ ( "name", Encode.string agent.name )
+        [ ( "id", Encode.string parentConstituency.id )
+        , ( "name", Encode.string parentConstituency.name )
+        , ( "region_id", Encode.string parentConstituency.region.id )
         ]
 
 
@@ -45,6 +49,7 @@ decode =
     Decode.succeed Model
         |> JDP.required "id" Decode.string
         |> JDP.required "name" Decode.string
+        |> JDP.required "region" Region.decode
 
 
 decodeList : Decode.Decoder (List Model)

@@ -232,9 +232,9 @@ renderDetails model =
             , renderField "type" model.candidateType "e.g P" False CandidateType
             , renderField "votes" model.votes "e.g 1002" False Votes
             , renderField "party" model.party.name "e.g XXX" False Party
-            , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" False Percentage
-            , renderField "angle" (String.fromFloat model.angle) "e.g 180" False Angle
-            , renderField "bar" (String.fromFloat model.bar) "e.g 234" False Bar
+            , renderField "percentage" model.percentage "e.g 45.4" False Percentage
+            , renderField "angle" model.angle "e.g 180" False Angle
+            , renderField "bar" model.bar "e.g 234" False Bar
             , renderField "status" model.status "e.g A/D" False Status
             ]
         ]
@@ -247,9 +247,9 @@ renderEditableDetails model =
         , renderField "type" model.candidateType "e.g P" True CandidateType
         , renderField "votes" model.votes "e.g 1002" True Votes
         , renderField "party" model.party.name "e.g XXX" True Party
-        , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" True Percentage
-        , renderField "angle" (String.fromFloat model.angle) "e.g 180" True Angle
-        , renderField "bar" (String.fromFloat model.bar) "e.g 234" True Bar
+        , renderField "percentage" model.percentage "e.g 45.4" True Percentage
+        , renderField "angle" model.angle "e.g 180" True Angle
+        , renderField "bar" model.bar "e.g 234" True Bar
         , renderField "status" model.status "e.g A/D" True Status
         ]
 

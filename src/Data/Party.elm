@@ -44,9 +44,11 @@ convertModelToLower model =
 encode : Model -> Encode.Value
 encode party =
     Encode.object
-        [ ( "name", Encode.string party.name )
+        [ ( "id", Encode.string party.id )
+        , ( "name", Encode.string party.name )
         , ( "color", Encode.string party.color )
         , ( "logo_path", Encode.string party.logoPath )
+        , ( "order_queue", Encode.string party.orderQueue )
         ]
 
 

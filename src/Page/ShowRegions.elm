@@ -20,6 +20,7 @@ type Msg
     | OnEdit
     | SearchList String
     | OnDelete String
+    | OnAdd
 
 
 type Field
@@ -82,7 +83,7 @@ update model msg =
             ( model, Cmd.none )
 
         AddRegion ->
-            ( { model | showDetailMode = New }, Cmd.none )
+            ( { model | showDetailMode = New, selectedRegion = Region.initRegion }, Cmd.none )
 
         ShowDetail region ->
             ( { model | showDetailMode = View, selectedRegion = region }, Cmd.none )
@@ -94,7 +95,12 @@ update model msg =
             ( { model | regions = addToRegions region model.regions }, Cmd.none )
 
         Form field ->
-            ( model, Cmd.none )
+            case field of
+                Name name ->
+                    ( { model | selectedRegion = Region.modifyName name model.selectedRegion }, Cmd.none )
+
+                Seats seat ->
+                    ( { model | selectedRegion = Region.modifySeat seat model.selectedRegion }, Cmd.none )
 
         Save ->
             ( model, Cmd.none )
@@ -110,6 +116,9 @@ update model msg =
 
         OnDelete id ->
             ( { model | isLoading = True }, Ports.sendToJs (Ports.DeleteRegion id) )
+
+        OnAdd ->
+            ( model, Cmd.none )
 
 
 renderHeader : Html.Html Msg
@@ -197,6 +206,7 @@ renderNewDetails =
     form [ onSubmit Save ]
         [ renderField "region" "" "eg.Ashanti" True Name
         , renderField "seat" "" "e.g 30" True Seats
+        , renderBtn "Add" "btn btn-primary" True OnAdd
         ]
 
 

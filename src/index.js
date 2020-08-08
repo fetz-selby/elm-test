@@ -1,4 +1,5 @@
 import Elm from "./Main.elm";
+import { getAgents, addAgent } from "./api/agents";
 import { getConstituencies, addConstituency } from "./api/constituencies";
 import { getCandidates, addCandidate } from "./api/candidates";
 import { getParties, addParty } from "./api/parties";
@@ -19,6 +20,7 @@ import {
   normalizeParentConstituencies,
   normalizeParties,
   normalizeRegions,
+  normalizePolls,
 } from "./api/helper";
 import io from "socket.io-client";
 import feathers from "@feathersjs/client";
@@ -29,7 +31,7 @@ async function create() {
   console.log("Loaded!");
 
   // init and show the app
-  let [regions, parentConstituencies] = [[], []];
+  // let [regions, parentConstituencies] = [[], []];
   let setup = {
     constituencyId: "",
     regionId: "1",
@@ -98,14 +100,25 @@ async function create() {
       }
 
       case "InitApp": {
-        regions = await getRegions({ service, app });
-        parentConstituencies = await getParentConstituencies({ service });
+        const regions = await getRegions({ service, app });
+        const parentConstituencies = await getParentConstituencies({ service });
+
+        break;
+      }
+
+      case "InitAgents": {
+        const regions = await getAgents({ service, year });
+
+        app.ports.msgForElm.send({
+          type: "RegionsLoaded",
+          payload: { regionData: { regions: normalizeRegions(regions) } },
+        });
 
         break;
       }
 
       case "InitRegions": {
-        regions = role === ADMIN ? await getRegions({ service, app }) : [];
+        const regions = await getRegions({ service });
 
         app.ports.msgForElm.send({
           type: "RegionsLoaded",
@@ -116,15 +129,16 @@ async function create() {
       }
 
       case "InitConstituencies": {
-        const constituencies =
-          role === ADMIN
-            ? await getConstituencies({
-                service,
-                year,
-              })
-            : [];
+        const constituencies = await getConstituencies({
+          service,
+          year,
+          regionId,
+        });
 
-        const parentConstituencies = await getParentConstituencies({ service });
+        const parentConstituencies = await getParentConstituencies({
+          service,
+          regionId,
+        });
         const parties = await getParties({ service });
 
         app.ports.msgForElm.send({
@@ -144,11 +158,12 @@ async function create() {
       }
 
       case "InitCandidates": {
-        const candidates =
-          role === ADMIN
-            ? await getCandidates({ service, payload: { year } })
-            : await getCandidates({ service, payload: { constituencyId } });
-        const constituencies = await getConstituencies({ service, year });
+        const candidates = await getCandidates({ service, year, regionId });
+        const constituencies = await getConstituencies({
+          service,
+          year,
+          regionId,
+        });
         const parties = await getParties({ service });
 
         app.ports.msgForElm.send({
@@ -177,9 +192,21 @@ async function create() {
       }
 
       case "InitPolls": {
+        const constituencies = await getConstituencies({
+          service,
+          year,
+          regionId,
+        });
+        const polls = await getPolls({ service, year, regionId });
+
         app.ports.msgForElm.send({
           type: "PollsLoaded",
-          payload: null,
+          payload: {
+            pollData: {
+              polls: normalizePolls(polls),
+              constituencies: normalizeConstituencies(constituencies),
+            },
+          },
         });
 
         break;
@@ -244,6 +271,9 @@ async function create() {
     }
 
     // When a model is removed
+    service.service("agents").on("removed", (d, c) => {
+      console.log("agent removed");
+    });
     service.service("regions").on("removed", (d, c) => {
       console.log("region removed");
     });
@@ -263,6 +293,11 @@ async function create() {
     service.service("regional_analysis").on("removed", (d, c) => {});
 
     // When a model is created
+
+    service.service("agents").on("created", (d, c) => {
+      console.log("agent created");
+    });
+
     service.service("regions").on("created", (d, c) => {
       console.log("region created");
     });
@@ -282,6 +317,9 @@ async function create() {
     service.service("regional_analysis").on("created", (d, c) => {});
 
     // When a model is updated
+    service.service("agents").on("updated", (d, c) => {
+      console.log("agent updated");
+    });
     service.service("regions").on("updated", (d, c) => {
       console.log("region updated");
     });

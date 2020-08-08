@@ -1,11 +1,5 @@
-const addRegion = ({ service, payload }) => {
-  const region = {
-    name: payload.name,
-    seats: payload.seats,
-  };
-
-  service.service("regions").create(region);
-};
+const addRegion = async ({ service, region }) =>
+  await service.service("regions").create(region);
 
 const getRegions = async ({ service }) =>
   await service.service("regions").find();

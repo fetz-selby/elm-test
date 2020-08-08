@@ -240,9 +240,9 @@ renderDetails model =
             , renderField "votes" model.votes "e.g 1002" False Votes
             , renderField "party" model.party.name "e.g XXX" False Party
             , renderField "avatar path" model.avatarPath "e.g XXX" False AvatarPath
-            , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" False Percentage
-            , renderField "angle" (String.fromFloat model.angle) "e.g 180" False Angle
-            , renderField "bar" (String.fromFloat model.barRatio) "e.g 234" False BarRatio
+            , renderField "percentage" model.percentage "e.g 45.4" False Percentage
+            , renderField "angle" model.angle "e.g 180" False Angle
+            , renderField "bar" model.barRatio "e.g 234" False BarRatio
             ]
         ]
 
@@ -256,9 +256,9 @@ renderEditableDetails model =
         , renderField "votes" model.votes "e.g 1002" True Votes
         , renderField "party" model.party.name "e.g XXX" True Party
         , renderField "avatar path" model.avatarPath "e.g XXX" True AvatarPath
-        , renderField "percentage" (String.fromFloat model.percentage) "e.g 45.4" True Percentage
-        , renderField "angle" (String.fromFloat model.angle) "e.g 180" True Angle
-        , renderField "bar" (String.fromFloat model.barRatio) "e.g 234" True BarRatio
+        , renderField "percentage" model.percentage "e.g 45.4" True Percentage
+        , renderField "angle" model.angle "e.g 180" True Angle
+        , renderField "bar" model.barRatio "e.g 234" True BarRatio
         ]
 
 

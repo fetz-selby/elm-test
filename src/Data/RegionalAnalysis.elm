@@ -11,9 +11,9 @@ type alias Model =
     { id : String
     , votes : String
     , candidateType : String
-    , percentage : Float
-    , angle : Float
-    , bar : Float
+    , percentage : String
+    , angle : String
+    , bar : String
     , party : Party.Model
     , region : Region.Model
     , status : String
@@ -25,9 +25,9 @@ initRegionalAnalysis =
     { id = ""
     , votes = "0"
     , candidateType = ""
-    , percentage = 0.0
-    , angle = 0.0
-    , bar = 0.0
+    , percentage = "0.0"
+    , angle = "0.0"
+    , bar = "0.0"
     , party = Party.initParty
     , region = Region.initRegion
     , status = ""
@@ -59,8 +59,14 @@ convertModelToLower model =
 encode : Model -> Encode.Value
 encode regional =
     Encode.object
-        [ ( "name", Encode.string regional.candidateType )
-        , ( "msisdn", Encode.float regional.bar )
+        [ ( "id", Encode.string regional.id )
+        , ( "votes", Encode.string regional.votes )
+        , ( "type", Encode.string regional.candidateType )
+        , ( "region_id", Encode.string regional.region.id )
+        , ( "party_id", Encode.string regional.party.id )
+        , ( "percentage", Encode.string regional.percentage )
+        , ( "angle", Encode.string regional.angle )
+        , ( "bar_ratio", Encode.string regional.bar )
         ]
 
 
@@ -70,9 +76,9 @@ decode =
         |> JDP.required "id" Decode.string
         |> JDP.required "votes" Decode.string
         |> JDP.required "type" Decode.string
-        |> JDP.required "percentage" Decode.float
-        |> JDP.required "angle" Decode.float
-        |> JDP.required "bar" Decode.float
+        |> JDP.required "percentage" Decode.string
+        |> JDP.required "angle" Decode.string
+        |> JDP.required "bar" Decode.string
         |> JDP.required "party" Party.decode
         |> JDP.required "region" Region.decode
         |> JDP.required "status" Decode.string

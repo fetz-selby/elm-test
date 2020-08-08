@@ -1,5 +1,6 @@
 module Data.Constituency exposing (Model, convertModelToLower, decode, decodeList, default, encode, filter, initConstituency)
 
+import Data.Party as Party
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
 import Json.Encode as Encode
@@ -10,13 +11,14 @@ type alias Model =
     , name : String
     , year : String
     , autoCompute : Bool
-    , castedVotes : Int
+    , castedVotes : String
     , isDeclared : Bool
     , parentId : String
-    , regVotes : Int
-    , rejectVotes : Int
+    , regVotes : String
+    , rejectVotes : String
     , seatWonId : String
-    , totalVotes : Int
+    , totalVotes : String
+    , party : Party.Model
     }
 
 
@@ -26,13 +28,14 @@ initConstituency =
     , name = ""
     , year = ""
     , autoCompute = False
-    , castedVotes = 0
+    , castedVotes = "0"
     , isDeclared = False
     , parentId = ""
-    , regVotes = 0
-    , rejectVotes = 0
+    , regVotes = "0"
+    , rejectVotes = "0"
     , seatWonId = ""
-    , totalVotes = 0
+    , totalVotes = "0"
+    , party = Party.initParty
     }
 
 
@@ -51,11 +54,28 @@ convertModelToLower model =
     { model | name = String.toLower model.name }
 
 
+convertBoolToString : Bool -> String
+convertBoolToString state =
+    if state then
+        "T"
+
+    else
+        "F"
+
+
 encode : Model -> Encode.Value
 encode constituency =
     Encode.object
-        [ ( "name", Encode.string constituency.name )
+        [ ( "id", Encode.string constituency.id )
+        , ( "name", Encode.string constituency.name )
         , ( "year", Encode.string constituency.year )
+        , ( "auto_compute", Encode.string (convertBoolToString constituency.autoCompute) )
+        , ( "casted_votes", Encode.string constituency.castedVotes )
+        , ( "is_declared", Encode.string (convertBoolToString constituency.isDeclared) )
+        , ( "parent_id", Encode.string constituency.parentId )
+        , ( "reg_votes", Encode.string constituency.regVotes )
+        , ( "seat_won_id", Encode.string constituency.seatWonId )
+        , ( "total_votes", Encode.string constituency.totalVotes )
         ]
 
 
@@ -66,13 +86,14 @@ decode =
         |> JDP.required "name" Decode.string
         |> JDP.required "year" Decode.string
         |> JDP.required "auto_compute" Decode.bool
-        |> JDP.required "casted_votes" Decode.int
+        |> JDP.required "casted_votes" Decode.string
         |> JDP.required "is_declared" Decode.bool
         |> JDP.required "parent_id" Decode.string
-        |> JDP.required "reg_votes" Decode.int
-        |> JDP.required "reject_votes" Decode.int
+        |> JDP.required "reg_votes" Decode.string
+        |> JDP.required "reject_votes" Decode.string
         |> JDP.required "seat_won_id" Decode.string
-        |> JDP.required "total_votes" Decode.int
+        |> JDP.required "total_votes" Decode.string
+        |> JDP.required "party" Party.decode
 
 
 decodeList : Decode.Decoder (List Model)
