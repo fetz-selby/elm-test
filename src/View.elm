@@ -14,6 +14,7 @@ import Page.ShowParties
 import Page.ShowPolls
 import Page.ShowRegionalAnalysis
 import Page.ShowRegions
+import Page.ShowUsers
 import Sidebar exposing (Sidebar(..))
 import View.GeneralSidebar
 
@@ -91,3 +92,8 @@ pageView { pages } =
             model
                 |> Page.ShowNationalAnalysis.view
                 |> Html.map Msg.ShowNationalAnalysis
+
+        Page.ShowUsers model ->
+            model
+                |> Page.ShowUsers.view
+                |> Html.map Msg.ShowUsers

@@ -30,6 +30,7 @@ type OutgoingMsg
     | InitSidebarPoll
     | InitSidebarCandidate
     | InitSidebarConstituency
+    | InitSidebarUser
     | DeleteAgent String
     | DeleteRegion String
     | DeleteConstituency String
@@ -87,6 +88,9 @@ toPortData msg =
 
         InitSidebarRegion ->
             { action = "InitRegions", payload = Encode.null }
+
+        InitSidebarUser ->
+            { action = "InitUsers", payload = Encode.null }
 
         InitSidebarConstituency ->
             { action = "InitConstituencies", payload = Encode.null }

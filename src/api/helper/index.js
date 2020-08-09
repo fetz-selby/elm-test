@@ -131,6 +131,17 @@ export const normalizeAgent = (agent) => ({
   poll: agent && agent.poll ? normalizePoll(agent.poll) : normalizePoll({}),
 });
 
+export const normalizeUser = (user) => ({
+  ...user,
+  id: user && user.id ? user.id.toString() : "0",
+  name: user && user.name ? user.name : "Unknown",
+  msisdn: user && user.msisdn ? user.msisdn.toString() : "+000000000",
+  level: user && user.level ? user.level.toString() : "U",
+  year: user && user.year ? user.year.toString() : "U",
+  region:
+    user && user.region ? normalizeRegion(user.region) : normalizeRegion({}),
+});
+
 export const normalizeApprove = (approve) => ({
   ...approve,
   id: approve && approve.id ? approve.id.toString() : "",
@@ -304,4 +315,9 @@ export const normalizePolls = (polls) =>
 export const normalizeAgents = (agents) =>
   agents && agents.length
     ? agents.map((agent) => normalizeAgent(agent)).sort((a, b) => sort(a, b))
+    : [];
+
+export const normalizeUsers = (users) =>
+  users && users.length
+    ? users.map((user) => normalizeUser(user)).sort((a, b) => sort(a, b))
     : [];

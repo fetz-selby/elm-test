@@ -12,6 +12,7 @@ import Page.ShowParties as ShowPartiesPage
 import Page.ShowPolls as ShowPollsPage
 import Page.ShowRegionalAnalysis as ShowRegionalAnalysisPage
 import Page.ShowRegions as ShowRegionsPage
+import Page.ShowUsers as ShowUsersPage
 import Ports
 import Sidebar as Sidebar
 import View.GeneralSidebar as GeneralSidebar
@@ -49,6 +50,17 @@ update msg model =
                         |> ShowAgentsPage.update submodel
                         |> Tuple.mapFirst (updateWithAgentsPage model)
                         |> Tuple.mapSecond (Cmd.map Msg.ShowAgents)
+
+                _ ->
+                    ( model, Cmd.none )
+
+        Msg.ShowUsers userMsg ->
+            case model.pages of
+                Page.ShowUsers submodel ->
+                    userMsg
+                        |> ShowUsersPage.update submodel
+                        |> Tuple.mapFirst (updateWithUsersPage model)
+                        |> Tuple.mapSecond (Cmd.map Msg.ShowUsers)
 
                 _ ->
                     ( model, Cmd.none )
@@ -179,6 +191,11 @@ updateWithNationalPage model pageModel =
     { model | pages = Page.ShowNationalAnalysis pageModel, pageTitle = "National Analysis" }
 
 
+updateWithUsersPage : Model -> ShowUsersPage.Model -> Model
+updateWithUsersPage model pageModel =
+    { model | pages = Page.ShowUsers pageModel, pageTitle = "Users" }
+
+
 updateWithSidebarView : Model -> GeneralSidebar.Model -> ( Model, Cmd Msg.Msg )
 updateWithSidebarView model viewModel =
     case viewModel.current of
@@ -204,6 +221,14 @@ updateWithSidebarView model viewModel =
                 , pages = Page.ShowCandidates ShowCandidatesPage.default
               }
             , Ports.sendToJs Ports.InitSidebarCandidate
+            )
+
+        GeneralSidebar.Users ->
+            ( { model
+                | sidebar = Sidebar.GeneralSidebar viewModel
+                , pages = Page.ShowUsers ShowUsersPage.default
+              }
+            , Ports.sendToJs Ports.InitSidebarUser
             )
 
         GeneralSidebar.Agents ->

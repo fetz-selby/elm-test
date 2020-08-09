@@ -1,5 +1,6 @@
 import Elm from "./Main.elm";
 import { getAgents, addAgent } from "./api/agents";
+import { getUsers, addUser } from "./api/users";
 import { getConstituencies, addConstituency } from "./api/constituencies";
 import { getCandidates, addCandidate } from "./api/candidates";
 import { getParties, addParty } from "./api/parties";
@@ -22,6 +23,7 @@ import {
   normalizeRegions,
   normalizePolls,
   normalizeAgents,
+  normalizeUsers,
 } from "./api/helper";
 import io from "socket.io-client";
 import feathers from "@feathersjs/client";
@@ -186,6 +188,26 @@ async function create() {
               candidates: normalizeCandidates(candidates),
               constituencies: normalizeConstituencies(constituencies),
               parties: normalizeParties(parties),
+            },
+          },
+        });
+
+        break;
+      }
+
+      case "InitUsers": {
+        const users = await getUsers({ service });
+        const regions = await getRegions({ service });
+
+        console.log("users, ", users);
+        console.log("regions, ", regions);
+
+        app.ports.msgForElm.send({
+          type: "UsersLoaded",
+          payload: {
+            userData: {
+              users: normalizeUsers(users),
+              regions: normalizeRegions(regions),
             },
           },
         });
