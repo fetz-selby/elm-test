@@ -3,10 +3,11 @@ module Page.ShowUsers exposing (Model, Msg(..), decode, default, initShowUserMod
 import Data.Region as Region
 import Data.User as User
 import Html exposing (button, div, form, input, label, option, select, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
+import Ports
 
 
 type Msg
@@ -103,21 +104,13 @@ update model msg =
                     ( { model | selectedUser = User.setRegionId regionId model.selectedUser }, Cmd.none )
 
         Save ->
-            let
-                _ =
-                    Debug.log "Saving" ""
-            in
-            ( model, Cmd.none )
+            ( model, Cmd.batch [ Ports.sendToJs (Ports.SaveUser model.selectedUser) ] )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
 
         OnRegionChange val ->
-            let
-                _ =
-                    Debug.log "Region Changed" val
-            in
-            ( model, Cmd.none )
+            ( { model | selectedUser = User.setRegionId val model.selectedUser }, Cmd.none )
 
         OnEdit ->
             ( { model | showDetailMode = Edit }, Cmd.none )
@@ -226,6 +219,13 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
+renderBtn : String -> String -> Bool -> Html.Html Msg
+renderBtn label className isCustom =
+    div [ class "form-group" ]
+        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        ]
+
+
 renderPasswordField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
 renderPasswordField fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
@@ -244,7 +244,7 @@ renderDetails model =
         [ div [ class "col-md-12 spacing-bottom" ]
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
-        , form [ onSubmit Save ]
+        , form []
             [ renderField "name" model.name "eg. Smith" False Name
             , renderField "msisdn" model.msisdn "e.g +491763500232450" False Msisdn
             , renderField "level" model.level "e.g 0000" False Level
@@ -274,6 +274,7 @@ renderNewDetails model userModel =
         , renderField "level" userModel.level "e.g 0000" True Level
         , renderField "year" userModel.year "e.g 0000" True Year
         , renderRegions "region" model.regions
+        , renderBtn "Save" "btn btn-danger" True
         ]
 
 

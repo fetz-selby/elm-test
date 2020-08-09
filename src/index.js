@@ -294,8 +294,9 @@ async function create() {
       }
 
       case "SaveUser": {
-        const addUser = await addUser({ service, payload });
-        console.log("[AddUser], ", addUser);
+        const user = payload;
+        const addUserResp = await addUser({ service, user });
+        console.log("[AddUser], ", addUserResp);
 
         break;
       }
