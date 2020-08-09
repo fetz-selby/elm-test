@@ -1,5 +1,25 @@
-module Data.Constituency exposing (Model, convertModelToLower, decode, decodeList, default, encode, filter, initConstituency)
+module Data.Constituency exposing
+    ( Model
+    , convertModelToLower
+    , decode
+    , decodeList
+    , default
+    , encode
+    , filter
+    , initConstituency
+    , setAutoCompute
+    , setCastedVotes
+    , setId
+    , setIsDeclared
+    , setName
+    , setParentId
+    , setRegVotes
+    , setRejectVotes
+    , setSeatWonId
+    , setTotalVotes
+    )
 
+import Data.ParentConstituency as ParentConstituency
 import Data.Party as Party
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
@@ -9,16 +29,14 @@ import Json.Encode as Encode
 type alias Model =
     { id : String
     , name : String
-    , year : String
     , autoCompute : Bool
     , castedVotes : String
     , isDeclared : Bool
-    , parentId : String
+    , parent : ParentConstituency.Model
     , regVotes : String
     , rejectVotes : String
-    , seatWonId : String
+    , seatWonId : Party.Model
     , totalVotes : String
-    , party : Party.Model
     }
 
 
@@ -26,16 +44,14 @@ initConstituency : Model
 initConstituency =
     { id = ""
     , name = ""
-    , year = ""
     , autoCompute = False
     , castedVotes = "0"
     , isDeclared = False
-    , parentId = ""
+    , parent = ParentConstituency.initParentConstituency
     , regVotes = "0"
     , rejectVotes = "0"
-    , seatWonId = ""
+    , seatWonId = Party.initParty
     , totalVotes = "0"
-    , party = Party.initParty
     }
 
 
@@ -63,18 +79,67 @@ convertBoolToString state =
         "F"
 
 
+setId : String -> Model -> Model
+setId id model =
+    { model | id = id }
+
+
+setName : String -> Model -> Model
+setName name model =
+    { model | name = name }
+
+
+setAutoCompute : Bool -> Model -> Model
+setAutoCompute autoCompute model =
+    { model | autoCompute = autoCompute }
+
+
+setCastedVotes : String -> Model -> Model
+setCastedVotes castedVotes model =
+    { model | castedVotes = castedVotes }
+
+
+setIsDeclared : Bool -> Model -> Model
+setIsDeclared isDeclared model =
+    { model | isDeclared = isDeclared }
+
+
+setParentId : String -> Model -> Model
+setParentId parentId model =
+    { model | parent = ParentConstituency.setId parentId model.parent }
+
+
+setRegVotes : String -> Model -> Model
+setRegVotes regVotes model =
+    { model | regVotes = regVotes }
+
+
+setRejectVotes : String -> Model -> Model
+setRejectVotes rejectVotes model =
+    { model | rejectVotes = rejectVotes }
+
+
+setSeatWonId : String -> Model -> Model
+setSeatWonId seatWonId model =
+    { model | seatWonId = Party.setId seatWonId model.seatWonId }
+
+
+setTotalVotes : String -> Model -> Model
+setTotalVotes totalVotes model =
+    { model | totalVotes = totalVotes }
+
+
 encode : Model -> Encode.Value
 encode constituency =
     Encode.object
         [ ( "id", Encode.string constituency.id )
         , ( "name", Encode.string constituency.name )
-        , ( "year", Encode.string constituency.year )
         , ( "auto_compute", Encode.string (convertBoolToString constituency.autoCompute) )
         , ( "casted_votes", Encode.string constituency.castedVotes )
         , ( "is_declared", Encode.string (convertBoolToString constituency.isDeclared) )
-        , ( "parent_id", Encode.string constituency.parentId )
+        , ( "parent_id", Encode.string constituency.parent.id )
         , ( "reg_votes", Encode.string constituency.regVotes )
-        , ( "seat_won_id", Encode.string constituency.seatWonId )
+        , ( "seat_won_id", Encode.string constituency.seatWonId.id )
         , ( "total_votes", Encode.string constituency.totalVotes )
         ]
 
@@ -84,16 +149,14 @@ decode =
     Decode.succeed Model
         |> JDP.required "id" Decode.string
         |> JDP.required "name" Decode.string
-        |> JDP.required "year" Decode.string
         |> JDP.required "auto_compute" Decode.bool
         |> JDP.required "casted_votes" Decode.string
         |> JDP.required "is_declared" Decode.bool
-        |> JDP.required "parent_id" Decode.string
+        |> JDP.required "parent" ParentConstituency.decode
         |> JDP.required "reg_votes" Decode.string
         |> JDP.required "reject_votes" Decode.string
-        |> JDP.required "seat_won_id" Decode.string
+        |> JDP.required "seat_won_id" Party.decode
         |> JDP.required "total_votes" Decode.string
-        |> JDP.required "party" Party.decode
 
 
 decodeList : Decode.Decoder (List Model)

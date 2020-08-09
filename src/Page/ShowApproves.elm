@@ -168,13 +168,11 @@ renderDetails model =
         , form [ onSubmit Save ]
             [ renderField "message" model.message "eg.XXXX" False Message
             , renderField "agent" model.agent.name "eg.Smith" False Agent
-            , renderField "region" model.region.name "eg.Ashanti" False Region
             , renderField "constituency" model.constituency.name "e.g Bekwai" False Constituency
             , renderField "poll station" model.poll.name "e.g XXX" False Poll
             , renderField "type" model.candidateType "e.g 45.4" False CandidateType
             , renderField "msisdn" model.msisdn "e.g +XXX XXXX" False Msisdn
             , renderField "posted ts" model.postedTs "e.g 12.01.2020 16:54 32" False PostedTs
-            , renderField "status" model.status "e.g A/D" False Status
             ]
         ]
 
@@ -184,13 +182,11 @@ renderEditableDetails model =
     form [ onSubmit Save ]
         [ renderField "message" model.message "eg.XXXX" True Message
         , renderField "agent" model.agent.name "eg.Smith" True Agent
-        , renderField "region" model.region.name "eg.Ashanti" True Region
         , renderField "constituency" model.constituency.name "e.g Bekwai" True Constituency
         , renderField "poll station" model.poll.name "e.g XXX" True Poll
         , renderField "type" model.candidateType "e.g 45.4" True CandidateType
         , renderField "msisdn" model.msisdn "e.g +XXX XXXX" True Msisdn
         , renderField "posted ts" model.postedTs "e.g 12.01.2020 16:54 32" True PostedTs
-        , renderField "status" model.status "e.g A/D" True Status
         ]
 
 

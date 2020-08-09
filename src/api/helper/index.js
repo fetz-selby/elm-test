@@ -60,8 +60,10 @@ export const normalizeConstituency = (constituency) => {
       constituency && constituency.casted_votes
         ? constituency.casted_votes.toString()
         : "0",
-    parent_id:
-      constituency && constituency.parent_id ? constituency.parent_id : "0",
+    parent:
+      constituency && constituency.parent_constituency
+        ? normalizeParentConstituency(constituency.parent_constituency)
+        : normalizeParentConstituency({}),
     reg_votes:
       constituency && constituency.reg_votes
         ? constituency.reg_votes.toString()
@@ -71,9 +73,9 @@ export const normalizeConstituency = (constituency) => {
         ? constituency.reg_votes.toString()
         : "0",
     seat_won_id:
-      constituency && constituency.seat_won_id
-        ? constituency.seat_won_id.toString()
-        : "0",
+      constituency && constituency.party
+        ? normalizeParty(constituency.party)
+        : normalizeParty({}),
     total_votes:
       constituency && constituency.total_votes
         ? constituency.total_votes.toString()
@@ -88,10 +90,6 @@ export const normalizeConstituency = (constituency) => {
       constituency.auto_compute &&
       constituency.auto_compute.toLowerCase() === "t"
     ),
-    party:
-      constituency && constituency.party
-        ? normalizeParty(constituency.party)
-        : normalizeParty({}),
   };
 };
 

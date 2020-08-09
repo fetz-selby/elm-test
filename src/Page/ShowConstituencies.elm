@@ -204,7 +204,7 @@ renderConstituencyItem : Constituency.Model -> Html.Html Msg
 renderConstituencyItem constituency =
     tr [ onClick (ShowDetail constituency) ]
         [ td [] [ Html.text constituency.name ]
-        , td [] [ Html.text constituency.party.name ]
+        , td [] [ Html.text constituency.seatWonId.name ]
         , td [] [ Html.text constituency.totalVotes ]
         ]
 
@@ -229,7 +229,7 @@ renderDetails model =
             ]
         , form [ onSubmit Save ]
             [ renderField "constituency" model.name "eg.Bekwai" False Constituency
-            , renderField "seat won by" model.party.name "eg.XXX" False SeatWonId
+            , renderField "seat won by" model.seatWonId.name "eg.XXX" False SeatWonId
             , renderField "casted votes" model.castedVotes "e.g P" False CastedVotes
             , renderField "reg votes" model.regVotes "e.g 432" False RegVotes
             , renderField "rejected votes" model.rejectVotes "e.g 180" False RejectVotes
@@ -254,7 +254,6 @@ renderDetails model =
                 "e.g No"
                 False
                 AutoCompute
-            , renderField "parent id" model.parentId "e.g 1001" False ParentId
             ]
         ]
 
@@ -263,7 +262,7 @@ renderEditableDetails : Constituency.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Save ]
         [ renderField "constituency" model.name "eg.Bekwai" True Constituency
-        , renderField "seat won by" model.seatWonId "eg.XXX" True SeatWonId
+        , renderField "seat won by" model.seatWonId.name "eg.XXX" True SeatWonId
         , renderField "casted votes" model.castedVotes "e.g P" True CastedVotes
         , renderField "reg votes" model.regVotes "e.g 432" True RegVotes
         , renderField "rejected votes" model.rejectVotes "e.g 180" True RejectVotes
@@ -288,7 +287,7 @@ renderEditableDetails model =
             "e.g No"
             True
             AutoCompute
-        , renderField "parent id" model.parentId "e.g 1001" True ParentId
+        , renderField "parent id" model.parent.name "e.g Bantama" True ParentId
         ]
 
 

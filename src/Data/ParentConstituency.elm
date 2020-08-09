@@ -1,4 +1,15 @@
-module Data.ParentConstituency exposing (Model, convertModelToLower, decode, decodeList, encode, filter, initParentConstituency)
+module Data.ParentConstituency exposing
+    ( Model
+    , convertModelToLower
+    , decode
+    , decodeList
+    , encode
+    , filter
+    , initParentConstituency
+    , setId
+    , setName
+    , setRegionId
+    )
 
 import Data.Region as Region
 import Json.Decode as Decode
@@ -33,6 +44,21 @@ convertModelToLower model =
     { model
         | name = String.toLower model.name
     }
+
+
+setId : String -> Model -> Model
+setId id model =
+    { model | id = id }
+
+
+setName : String -> Model -> Model
+setName name model =
+    { model | name = name }
+
+
+setRegionId : String -> Model -> Model
+setRegionId regionId model =
+    { model | region = Region.setId regionId model.region }
 
 
 encode : Model -> Encode.Value

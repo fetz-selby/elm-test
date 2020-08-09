@@ -293,6 +293,13 @@ async function create() {
         break;
       }
 
+      case "SaveUser": {
+        const addUser = await addUser({ service, payload });
+        console.log("[AddUser], ", addUser);
+
+        break;
+      }
+
       case "DeleteRegion": {
         console.log("Delete ID, ", payload);
         const deleteResp = await deleteRegion({ service, id: payload });
@@ -331,6 +338,10 @@ async function create() {
 
     service.service("agents").on("created", (d, c) => {
       console.log("agent created");
+    });
+
+    service.service("users").on("created", (d, c) => {
+      console.log("user created");
     });
 
     service.service("regions").on("created", (d, c) => {

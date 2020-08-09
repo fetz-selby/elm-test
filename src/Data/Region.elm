@@ -1,4 +1,17 @@
-module Data.Region exposing (Model, convertModelToLower, decode, decodeList, encode, filter, initRegion, modifyName, modifySeat)
+module Data.Region exposing
+    ( Model
+    , convertModelToLower
+    , decode
+    , decodeList
+    , encode
+    , filter
+    , initRegion
+    , modifyName
+    , modifySeat
+    , setId
+    , setName
+    , setSeats
+    )
 
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
@@ -48,6 +61,21 @@ modifyName name model =
 
 modifySeat : String -> Model -> Model
 modifySeat seats model =
+    { model | seats = seats }
+
+
+setId : String -> Model -> Model
+setId id model =
+    { model | id = id }
+
+
+setName : String -> Model -> Model
+setName name model =
+    { model | name = name }
+
+
+setSeats : String -> Model -> Model
+setSeats seats model =
     { model | seats = seats }
 
 

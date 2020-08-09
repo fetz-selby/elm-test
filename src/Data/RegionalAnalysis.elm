@@ -1,4 +1,20 @@
-module Data.RegionalAnalysis exposing (Model, convertModelToLower, decode, decodeList, encode, filter, initRegionalAnalysis)
+module Data.RegionalAnalysis exposing
+    ( Model
+    , convertModelToLower
+    , decode
+    , decodeList
+    , encode
+    , filter
+    , initRegionalAnalysis
+    , setAngle
+    , setBar
+    , setCandidateType
+    , setId
+    , setParty
+    , setPercentage
+    , setRegion
+    , setVotes
+    )
 
 import Data.Party as Party
 import Data.Region as Region exposing (convertModelToLower)
@@ -54,6 +70,46 @@ convertModelToLower model =
         , candidateType = String.toLower model.candidateType
         , region = Region.convertModelToLower model.region
     }
+
+
+setId : String -> Model -> Model
+setId id model =
+    { model | id = id }
+
+
+setVotes : String -> Model -> Model
+setVotes votes model =
+    { model | votes = votes }
+
+
+setCandidateType : String -> Model -> Model
+setCandidateType candidateType model =
+    { model | candidateType = candidateType }
+
+
+setPercentage : String -> Model -> Model
+setPercentage percentage model =
+    { model | percentage = percentage }
+
+
+setAngle : String -> Model -> Model
+setAngle angle model =
+    { model | angle = angle }
+
+
+setBar : String -> Model -> Model
+setBar bar model =
+    { model | bar = bar }
+
+
+setParty : String -> Model -> Model
+setParty partyId model =
+    { model | party = Party.setId partyId model.party }
+
+
+setRegion : String -> Model -> Model
+setRegion regionId model =
+    { model | region = Region.setId regionId model.region }
 
 
 encode : Model -> Encode.Value

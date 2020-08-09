@@ -25,6 +25,7 @@ type Msg
 
 type Field
     = Name String
+    | Password String
     | Msisdn String
     | Level String
     | Year String
@@ -65,7 +66,7 @@ update model msg =
             ( model, Cmd.none )
 
         AddUser ->
-            ( { model | showDetailMode = New }, Cmd.none )
+            ( { model | showDetailMode = New, selectedUser = User.initUser }, Cmd.none )
 
         ShowDetail user ->
             ( { model | showDetailMode = View, selectedUser = user }, Cmd.none )
@@ -82,15 +83,40 @@ update model msg =
             ( { model | users = addToUsers user model.users }, Cmd.none )
 
         Form field ->
-            ( model, Cmd.none )
+            case field of
+                Name name ->
+                    ( { model | selectedUser = User.setName name model.selectedUser }, Cmd.none )
+
+                Msisdn msisdn ->
+                    ( { model | selectedUser = User.setMsisdn msisdn model.selectedUser }, Cmd.none )
+
+                Password password ->
+                    ( { model | selectedUser = User.setPassword password model.selectedUser }, Cmd.none )
+
+                Level level ->
+                    ( { model | selectedUser = User.setLevel level model.selectedUser }, Cmd.none )
+
+                Year year ->
+                    ( { model | selectedUser = User.setYear year model.selectedUser }, Cmd.none )
+
+                Region regionId ->
+                    ( { model | selectedUser = User.setRegionId regionId model.selectedUser }, Cmd.none )
 
         Save ->
+            let
+                _ =
+                    Debug.log "Saving" ""
+            in
             ( model, Cmd.none )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
 
         OnRegionChange val ->
+            let
+                _ =
+                    Debug.log "Region Changed" val
+            in
             ( model, Cmd.none )
 
         OnEdit ->
@@ -122,7 +148,7 @@ view model =
                         renderEditableDetails model.selectedUser
 
                     New ->
-                        renderNewDetails model
+                        renderNewDetails model model.selectedUser
                 ]
             ]
         ]
@@ -200,6 +226,18 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
+renderPasswordField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
+renderPasswordField fieldLabel fieldValue fieldPlaceholder isEditable field =
+    div [ class "form-group" ]
+        [ label [] [ Html.text fieldLabel ]
+        , if isEditable then
+            input [ class "form-control", type_ "password", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+
+          else
+            input [ class "form-control", type_ "password", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
+        ]
+
+
 renderDetails : User.Model -> Html.Html Msg
 renderDetails model =
     div []
@@ -227,13 +265,14 @@ renderEditableDetails model =
         ]
 
 
-renderNewDetails : Model -> Html.Html Msg
-renderNewDetails model =
+renderNewDetails : Model -> User.Model -> Html.Html Msg
+renderNewDetails model userModel =
     form [ onSubmit Save ]
-        [ renderField "name" "" "eg. Smith" True Name
-        , renderField "msisdn" "" "eg. +491763500232450" True Msisdn
-        , renderField "level" "" "e.g 0000" True Level
-        , renderField "year" "" "e.g 0000" True Year
+        [ renderField "name" userModel.name "eg. Smith" True Name
+        , renderPasswordField "password" userModel.password "eg. password" True Password
+        , renderField "msisdn" userModel.msisdn "eg. +491763500232450" True Msisdn
+        , renderField "level" userModel.level "e.g 0000" True Level
+        , renderField "year" userModel.year "e.g 0000" True Year
         , renderRegions "region" model.regions
         ]
 

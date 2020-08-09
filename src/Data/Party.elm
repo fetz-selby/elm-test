@@ -1,4 +1,17 @@
-module Data.Party exposing (Model, convertModelToLower, decode, decodeList, encode, filter, initParty)
+module Data.Party exposing
+    ( Model
+    , convertModelToLower
+    , decode
+    , decodeList
+    , encode
+    , filter
+    , initParty
+    , setColor
+    , setId
+    , setLogoPath
+    , setName
+    , setOrderQueue
+    )
 
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
@@ -39,6 +52,31 @@ convertModelToLower model =
         , color = String.toLower model.color
         , logoPath = String.toLower model.logoPath
     }
+
+
+setId : String -> Model -> Model
+setId id model =
+    { model | id = id }
+
+
+setName : String -> Model -> Model
+setName name model =
+    { model | name = name }
+
+
+setLogoPath : String -> Model -> Model
+setLogoPath logoPath model =
+    { model | logoPath = logoPath }
+
+
+setColor : String -> Model -> Model
+setColor color model =
+    { model | color = color }
+
+
+setOrderQueue : String -> Model -> Model
+setOrderQueue orderQueue model =
+    { model | orderQueue = orderQueue }
 
 
 encode : Model -> Encode.Value

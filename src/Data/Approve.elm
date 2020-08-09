@@ -1,4 +1,19 @@
-module Data.Approve exposing (Model, convertModelToLower, decode, decodeList, encode, filter, initApprove)
+module Data.Approve exposing
+    ( Model
+    , convertModelToLower
+    , decode
+    , decodeList
+    , encode
+    , filter
+    , initApprove
+    , setAgent
+    , setCandidateType
+    , setConstituency
+    , setId
+    , setMessage
+    , setMsisdn
+    , setPoll
+    )
 
 import Data.Agent as Agent
 import Data.Constituency as Constituency
@@ -62,6 +77,41 @@ convertModelToLower model =
         , agent = Agent.convertModelToLower model.agent
         , candidateType = String.toLower model.candidateType
     }
+
+
+setId : String -> Model -> Model
+setId id model =
+    { model | id = id }
+
+
+setMessage : String -> Model -> Model
+setMessage message model =
+    { model | message = message }
+
+
+setConstituency : String -> Model -> Model
+setConstituency constituencyId model =
+    { model | constituency = Constituency.setId constituencyId model.constituency }
+
+
+setPoll : String -> Model -> Model
+setPoll pollId model =
+    { model | poll = Poll.setId pollId model.poll }
+
+
+setAgent : String -> Model -> Model
+setAgent agentId model =
+    { model | agent = Agent.setId agentId model.agent }
+
+
+setCandidateType : String -> Model -> Model
+setCandidateType candidateType model =
+    { model | candidateType = candidateType }
+
+
+setMsisdn : String -> Model -> Model
+setMsisdn msisdn model =
+    { model | msisdn = msisdn }
 
 
 encode : Model -> Encode.Value

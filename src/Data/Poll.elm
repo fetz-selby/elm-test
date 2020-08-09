@@ -1,4 +1,18 @@
-module Data.Poll exposing (Model, convertModelToLower, decode, decodeList, encode, filter, initPoll)
+module Data.Poll exposing
+    ( Model
+    , convertModelToLower
+    , decode
+    , decodeList
+    , encode
+    , filter
+    , initPoll
+    , setConstituency
+    , setId
+    , setName
+    , setRejectedVotes
+    , setTotalVotes
+    , setValidVotes
+    )
 
 import Data.Constituency as Constituency
 import Json.Decode as Decode
@@ -49,6 +63,36 @@ convertModelToLower model =
         | name = String.toLower model.name
         , constituency = Constituency.convertModelToLower model.constituency
     }
+
+
+setId : String -> Model -> Model
+setId id model =
+    { model | id = id }
+
+
+setName : String -> Model -> Model
+setName name model =
+    { model | name = name }
+
+
+setRejectedVotes : String -> Model -> Model
+setRejectedVotes rejectedVotes model =
+    { model | rejectedVotes = rejectedVotes }
+
+
+setValidVotes : String -> Model -> Model
+setValidVotes validVotes model =
+    { model | validVotes = validVotes }
+
+
+setTotalVotes : String -> Model -> Model
+setTotalVotes totalVoters model =
+    { model | totalVoters = totalVoters }
+
+
+setConstituency : String -> Model -> Model
+setConstituency constituencyId model =
+    { model | constituency = Constituency.setId constituencyId model.constituency }
 
 
 encode : Model -> Encode.Value

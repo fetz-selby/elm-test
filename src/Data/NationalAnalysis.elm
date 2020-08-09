@@ -1,4 +1,19 @@
-module Data.NationalAnalysis exposing (Model, convertModelToLower, decode, decodeList, encode, filter, initNationalAnalysis)
+module Data.NationalAnalysis exposing
+    ( Model
+    , convertModelToLower
+    , decode
+    , decodeList
+    , encode
+    , filter
+    , initNationalAnalysis
+    , setAngle
+    , setBar
+    , setCandidateType
+    , setId
+    , setPartyId
+    , setPercentage
+    , setVotes
+    )
 
 import Data.Party as Party exposing (convertModelToLower)
 import Json.Decode as Decode
@@ -44,6 +59,41 @@ isFound search model =
 convertModelToLower : Model -> Model
 convertModelToLower model =
     { model | party = Party.convertModelToLower model.party, candidateType = String.toLower model.candidateType }
+
+
+setId : String -> Model -> Model
+setId id model =
+    { model | id = id }
+
+
+setVotes : String -> Model -> Model
+setVotes votes model =
+    { model | votes = votes }
+
+
+setCandidateType : String -> Model -> Model
+setCandidateType candidateType model =
+    { model | candidateType = candidateType }
+
+
+setPercentage : String -> Model -> Model
+setPercentage percentage model =
+    { model | percentage = percentage }
+
+
+setAngle : String -> Model -> Model
+setAngle angle model =
+    { model | angle = angle }
+
+
+setBar : String -> Model -> Model
+setBar bar model =
+    { model | bar = bar }
+
+
+setPartyId : String -> Model -> Model
+setPartyId partyId model =
+    { model | party = Party.setId partyId model.party }
 
 
 encode : Model -> Encode.Value

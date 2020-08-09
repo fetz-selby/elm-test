@@ -1,4 +1,22 @@
-module Data.Candidate exposing (Model, convertModelToLower, decode, decodeList, encode, filter, initCandidate)
+module Data.Candidate exposing
+    ( Model
+    , convertModelToLower
+    , decode
+    , decodeList
+    , encode
+    , filter
+    , initCandidate
+    , setAngle
+    , setAvatarPath
+    , setBarRatio
+    , setCandidateType
+    , setConstituency
+    , setId
+    , setName
+    , setParty
+    , setPercentage
+    , setVotes
+    )
 
 import Data.Constituency as Constituency
 import Data.Party as Party
@@ -12,7 +30,6 @@ type alias Model =
     , name : String
     , constituency : Constituency.Model
     , party : Party.Model
-    , year : String
     , votes : String
     , candidateType : String
     , avatarPath : String
@@ -28,7 +45,6 @@ initCandidate =
     , name = ""
     , constituency = Constituency.initConstituency
     , party = Party.initParty
-    , year = ""
     , votes = "0"
     , candidateType = ""
     , avatarPath = ""
@@ -66,6 +82,56 @@ couldBeNull =
         [ Decode.string, Decode.null "" ]
 
 
+setId : String -> Model -> Model
+setId id model =
+    { model | id = id }
+
+
+setName : String -> Model -> Model
+setName name model =
+    { model | name = name }
+
+
+setConstituency : String -> Model -> Model
+setConstituency constituencyId model =
+    { model | constituency = Constituency.setId constituencyId model.constituency }
+
+
+setParty : String -> Model -> Model
+setParty partyId model =
+    { model | party = Party.setId partyId model.party }
+
+
+setVotes : String -> Model -> Model
+setVotes votes model =
+    { model | votes = votes }
+
+
+setCandidateType : String -> Model -> Model
+setCandidateType candidateType model =
+    { model | candidateType = candidateType }
+
+
+setAvatarPath : String -> Model -> Model
+setAvatarPath avatarPath model =
+    { model | avatarPath = avatarPath }
+
+
+setAngle : String -> Model -> Model
+setAngle angle model =
+    { model | angle = angle }
+
+
+setPercentage : String -> Model -> Model
+setPercentage percentage model =
+    { model | percentage = percentage }
+
+
+setBarRatio : String -> Model -> Model
+setBarRatio barRatio model =
+    { model | barRatio = barRatio }
+
+
 encode : Model -> Encode.Value
 encode candidate =
     Encode.object
@@ -74,7 +140,6 @@ encode candidate =
         , ( "constituency_id", Encode.string candidate.constituency.id )
         , ( "party_id", Encode.string candidate.party.id )
         , ( "votes", Encode.string candidate.votes )
-        , ( "year", Encode.string candidate.year )
         , ( "type", Encode.string candidate.candidateType )
         , ( "avatar_path", Encode.string candidate.avatarPath )
         , ( "angle", Encode.string candidate.angle )
@@ -90,7 +155,6 @@ decode =
         |> JDP.required "name" Decode.string
         |> JDP.required "constituency" Constituency.decode
         |> JDP.required "party" Party.decode
-        |> JDP.required "year" Decode.string
         |> JDP.required "votes" Decode.string
         |> JDP.required "group_type" Decode.string
         |> JDP.required "avatar_path" couldBeNull

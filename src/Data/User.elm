@@ -1,4 +1,19 @@
-module Data.User exposing (Model, convertModelToLower, decode, decodeList, encode, filter, initUser)
+module Data.User exposing
+    ( Model
+    , convertModelToLower
+    , decode
+    , decodeList
+    , encode
+    , filter
+    , initUser
+    , setId
+    , setLevel
+    , setMsisdn
+    , setName
+    , setPassword
+    , setRegionId
+    , setYear
+    )
 
 import Data.Region as Region
 import Json.Decode as Decode
@@ -12,6 +27,7 @@ type alias Model =
     , msisdn : String
     , level : String
     , year : String
+    , password : String
     , region : Region.Model
     }
 
@@ -23,6 +39,7 @@ initUser =
     , msisdn = ""
     , level = ""
     , year = ""
+    , password = ""
     , region = Region.initRegion
     }
 
@@ -49,6 +66,41 @@ convertModelToLower model =
     }
 
 
+setId : String -> Model -> Model
+setId id model =
+    { model | id = id }
+
+
+setName : String -> Model -> Model
+setName name model =
+    { model | name = name }
+
+
+setMsisdn : String -> Model -> Model
+setMsisdn msisdn model =
+    { model | msisdn = msisdn }
+
+
+setLevel : String -> Model -> Model
+setLevel level model =
+    { model | level = level }
+
+
+setYear : String -> Model -> Model
+setYear year model =
+    { model | year = year }
+
+
+setPassword : String -> Model -> Model
+setPassword password model =
+    { model | password = password }
+
+
+setRegionId : String -> Model -> Model
+setRegionId regionId model =
+    { model | region = Region.setId regionId model.region }
+
+
 encode : Model -> Encode.Value
 encode user =
     Encode.object
@@ -58,6 +110,7 @@ encode user =
         , ( "level", Encode.string user.level )
         , ( "year", Encode.string user.year )
         , ( "region_id", Encode.string user.region.id )
+        , ( "password", Encode.string user.region.id )
         ]
 
 
@@ -69,6 +122,7 @@ decode =
         |> JDP.required "msisdn" Decode.string
         |> JDP.required "level" Decode.string
         |> JDP.required "year" Decode.string
+        |> JDP.required "id" Decode.string
         |> JDP.required "region" Region.decode
 
 

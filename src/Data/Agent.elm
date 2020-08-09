@@ -1,4 +1,18 @@
-module Data.Agent exposing (Model, convertModelToLower, decode, decodeList, encode, filter, initAgent)
+module Data.Agent exposing
+    ( Model
+    , convertModelToLower
+    , decode
+    , decodeList
+    , encode
+    , filter
+    , initAgent
+    , setConstituency
+    , setId
+    , setMsisdn
+    , setName
+    , setPin
+    , setPoll
+    )
 
 import Data.Constituency as Constituency
 import Data.Poll as Poll
@@ -48,6 +62,36 @@ convertModelToLower model =
         , constituency = Constituency.convertModelToLower model.constituency
         , poll = Poll.convertModelToLower model.poll
     }
+
+
+setId : String -> Model -> Model
+setId id model =
+    { model | id = id }
+
+
+setName : String -> Model -> Model
+setName name model =
+    { model | name = name }
+
+
+setMsisdn : String -> Model -> Model
+setMsisdn msisdn model =
+    { model | msisdn = msisdn }
+
+
+setPin : String -> Model -> Model
+setPin pin model =
+    { model | pin = pin }
+
+
+setConstituency : String -> Model -> Model
+setConstituency constituencyId model =
+    { model | constituency = Constituency.setId constituencyId model.constituency }
+
+
+setPoll : String -> Model -> Model
+setPoll pollId model =
+    { model | poll = Poll.setId pollId model.poll }
 
 
 encode : Model -> Encode.Value

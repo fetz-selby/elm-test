@@ -1,7 +1,6 @@
 port module Ports exposing (OutgoingMsg(..), PortData, msgForElm, msgForJs, sendToJs, toPortData)
 
 import Data.Agent as Agent
-import Data.Approve as Approve
 import Data.Candidate as Candidate
 import Data.Constituency as Constituency
 import Data.NationalAnalysis as NationalAnalysis
@@ -10,6 +9,7 @@ import Data.Party as Party
 import Data.Poll as Poll
 import Data.Region as Region
 import Data.RegionalAnalysis as RegionalAnalysis
+import Data.User as User
 import Json.Encode as Encode
 import View.CandidatesFilter as CandidateFilter
 import View.ConstituenciesFilter as ConstituencyFilter
@@ -41,6 +41,7 @@ type OutgoingMsg
     | DeleteRegionSummary String
     | DeleteNationalSummary String
     | SaveAgent Agent.Model
+    | SaveUser User.Model
     | SaveRegion Region.Model
     | SaveConstituency Constituency.Model
     | SaveParentConstituency ParentConstituency.Model
@@ -142,6 +143,9 @@ toPortData msg =
 
         SaveAgent agent ->
             { action = "SaveAgent", payload = Agent.encode agent }
+
+        SaveUser user ->
+            { action = "SaveUser", payload = User.encode user }
 
         SaveRegion region ->
             { action = "SaveRegion", payload = Region.encode region }
