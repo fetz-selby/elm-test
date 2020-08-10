@@ -2,9 +2,10 @@ module Page.ShowApproves exposing (Model, Msg(..), decode, default, update, view
 
 import Data.Approve as Approve
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
+import Ports
 
 
 type Msg
@@ -14,7 +15,9 @@ type Msg
     | ApprovesReceived ApproveData
     | AddOne Approve.Model
     | Form Field
-    | Save
+    | OnEdit
+    | Update
+    | Reject
     | DetailMode ShowDetailMode
     | SearchList String
 
@@ -22,13 +25,11 @@ type Msg
 type Field
     = Message String
     | Constituency String
-    | Region String
     | Poll String
     | Agent String
     | CandidateType String
     | Msisdn String
     | PostedTs String
-    | Status String
 
 
 type ShowDetailMode
@@ -101,8 +102,21 @@ update model msg =
         Form field ->
             ( model, Cmd.none )
 
-        Save ->
-            ( model, Cmd.none )
+        Update ->
+            let
+                updatedModel =
+                    { model | selectedApprove = Approve.setIsApproved True model.selectedApprove }
+            in
+            ( updatedModel
+            , Cmd.batch [ Ports.sendToJs (Ports.UpdateApprove updatedModel.selectedApprove) ]
+            )
+
+        Reject ->
+            -- Show warning before proceeding
+            ( model, Cmd.batch [ Ports.sendToJs (Ports.DeleteApprove model.selectedApprove.id) ] )
+
+        OnEdit ->
+            ( { model | showDetailMode = Edit }, Cmd.none )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
@@ -159,13 +173,20 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
+renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn label className isCustom =
+    div [ class "form-group" ]
+        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        ]
+
+
 renderDetails : Approve.Model -> Html.Html Msg
 renderDetails model =
     div []
         [ div [ class "col-md-12 spacing-bottom" ]
-            [ div [ class "pull-right edit-style" ] [ Html.text "edit" ]
+            [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
-        , form [ onSubmit Save ]
+        , form [ onSubmit Reject ]
             [ renderField "message" model.message "eg.XXXX" False Message
             , renderField "agent" model.agent.name "eg.Smith" False Agent
             , renderField "constituency" model.constituency.name "e.g Bekwai" False Constituency
@@ -173,20 +194,22 @@ renderDetails model =
             , renderField "type" model.candidateType "e.g 45.4" False CandidateType
             , renderField "msisdn" model.msisdn "e.g +XXX XXXX" False Msisdn
             , renderField "posted ts" model.postedTs "e.g 12.01.2020 16:54 32" False PostedTs
+            , renderSubmitBtn "Reject" "btn btn-danger" True
             ]
         ]
 
 
 renderEditableDetails : Approve.Model -> Html.Html Msg
 renderEditableDetails model =
-    form [ onSubmit Save ]
-        [ renderField "message" model.message "eg.XXXX" True Message
-        , renderField "agent" model.agent.name "eg.Smith" True Agent
-        , renderField "constituency" model.constituency.name "e.g Bekwai" True Constituency
-        , renderField "poll station" model.poll.name "e.g XXX" True Poll
-        , renderField "type" model.candidateType "e.g 45.4" True CandidateType
-        , renderField "msisdn" model.msisdn "e.g +XXX XXXX" True Msisdn
-        , renderField "posted ts" model.postedTs "e.g 12.01.2020 16:54 32" True PostedTs
+    form [ onSubmit Update ]
+        [ renderField "message" model.message "eg.XXXX" False Message
+        , renderField "agent" model.agent.name "eg.Smith" False Agent
+        , renderField "constituency" model.constituency.name "e.g Bekwai" False Constituency
+        , renderField "poll station" model.poll.name "e.g XXX" False Poll
+        , renderField "type" model.candidateType "e.g 45.4" False CandidateType
+        , renderField "msisdn" model.msisdn "e.g +XXX XXXX" False Msisdn
+        , renderField "posted ts" model.postedTs "e.g 12.01.2020 16:54 32" False PostedTs
+        , renderSubmitBtn "Approve" "btn btn-danger" True
         ]
 
 

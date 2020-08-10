@@ -19,7 +19,6 @@ type Msg
     | Form Field
     | Save
     | DetailMode ShowDetailMode
-    | OnRegionChange String
     | OnEdit
     | SearchList String
 
@@ -109,9 +108,6 @@ update model msg =
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
 
-        OnRegionChange val ->
-            ( { model | selectedUser = User.setRegionId val model.selectedUser }, Cmd.none )
-
         OnEdit ->
             ( { model | showDetailMode = Edit }, Cmd.none )
 
@@ -159,13 +155,13 @@ renderHeader =
         ]
 
 
-renderRegions : String -> List Region.Model -> Html.Html Msg
-renderRegions fieldLabel regionList =
+renderRegions : String -> (String -> Field) -> List Region.Model -> Html.Html Msg
+renderRegions fieldLabel field regionList =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , select
             [ class "form-control"
-            , onChange OnRegionChange
+            , onChange (Form << field)
             ]
             (List.map regionItem regionList)
         ]
@@ -219,8 +215,8 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
-renderBtn : String -> String -> Bool -> Html.Html Msg
-renderBtn label className isCustom =
+renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn label className isCustom =
     div [ class "form-group" ]
         [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
         ]
@@ -273,8 +269,8 @@ renderNewDetails model userModel =
         , renderField "msisdn" userModel.msisdn "eg. +491763500232450" True Msisdn
         , renderField "level" userModel.level "e.g 0000" True Level
         , renderField "year" userModel.year "e.g 0000" True Year
-        , renderRegions "region" model.regions
-        , renderBtn "Save" "btn btn-danger" True
+        , renderRegions "region" Region model.regions
+        , renderSubmitBtn "Save" "btn btn-danger" True
         ]
 
 

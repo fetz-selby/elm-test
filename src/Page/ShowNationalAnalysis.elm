@@ -3,11 +3,11 @@ module Page.ShowNationalAnalysis exposing (Model, Msg(..), decode, default, upda
 import Data.NationalAnalysis as NationalAnalysis
 import Data.Party as Party
 import Html exposing (button, div, form, input, label, option, select, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
-import Page.ShowConstituencies exposing (Msg(..))
+import Ports
 
 
 type Msg
@@ -19,7 +19,6 @@ type Msg
     | Form Field
     | Save
     | DetailMode ShowDetailMode
-    | OnPartyChange String
     | OnEdit
     | SearchList String
 
@@ -77,7 +76,7 @@ view model =
                         renderEditableDetails model.selectedNationalAnalysis
 
                     New ->
-                        renderNewDetails model
+                        renderNewDetails model model.selectedNationalAnalysis
                 ]
             ]
         ]
@@ -107,16 +106,30 @@ update model msg =
             ( { model | nationalAnalysis = addToNationalAnalysis nationalAnalysis model.nationalAnalysis }, Cmd.none )
 
         Form field ->
-            ( model, Cmd.none )
+            case field of
+                Party partyId ->
+                    ( { model | selectedNationalAnalysis = NationalAnalysis.setPartyId partyId model.selectedNationalAnalysis }, Cmd.none )
+
+                Votes votes ->
+                    ( { model | selectedNationalAnalysis = NationalAnalysis.setVotes votes model.selectedNationalAnalysis }, Cmd.none )
+
+                CandidateType candidateType ->
+                    ( { model | selectedNationalAnalysis = NationalAnalysis.setCandidateType candidateType model.selectedNationalAnalysis }, Cmd.none )
+
+                Percentage percentage ->
+                    ( { model | selectedNationalAnalysis = NationalAnalysis.setPercentage percentage model.selectedNationalAnalysis }, Cmd.none )
+
+                Angle angle ->
+                    ( { model | selectedNationalAnalysis = NationalAnalysis.setAngle angle model.selectedNationalAnalysis }, Cmd.none )
+
+                Bar bar ->
+                    ( { model | selectedNationalAnalysis = NationalAnalysis.setBar bar model.selectedNationalAnalysis }, Cmd.none )
 
         Save ->
-            ( model, Cmd.none )
+            ( model, Cmd.batch [ Ports.sendToJs (Ports.SaveNationalSummary model.selectedNationalAnalysis) ] )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
-
-        OnPartyChange val ->
-            ( model, Cmd.none )
 
         OnEdit ->
             ( { model | showDetailMode = Edit }, Cmd.none )
@@ -137,13 +150,13 @@ renderHeader =
         ]
 
 
-renderParties : String -> List Party.Model -> Html.Html Msg
-renderParties fieldLabel partyList =
+renderParties : String -> (String -> Field) -> List Party.Model -> Html.Html Msg
+renderParties fieldLabel field partyList =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , select
             [ class "form-control"
-            , onChange OnPartyChange
+            , onChange (Form << field)
             ]
             (List.map partyItem partyList)
         ]
@@ -193,6 +206,13 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
+renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn label className isCustom =
+    div [ class "form-group" ]
+        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        ]
+
+
 renderDetails : NationalAnalysis.Model -> Html.Html Msg
 renderDetails model =
     div []
@@ -222,15 +242,16 @@ renderEditableDetails model =
         ]
 
 
-renderNewDetails : Model -> Html.Html Msg
-renderNewDetails model =
+renderNewDetails : Model -> NationalAnalysis.Model -> Html.Html Msg
+renderNewDetails model nationalAnalysis =
     form [ onSubmit Save ]
-        [ renderParties "party" model.parties
-        , renderField "votes" "" "e.g 23009" True Votes
-        , renderField "type" "" "e.g X" True CandidateType
-        , renderField "percentage" "" "e.g 45.4" True Percentage
-        , renderField "angle" "" "e.g 180" True Angle
-        , renderField "bar" "" "e.g 234" True Bar
+        [ renderParties "party" Party model.parties
+        , renderField "votes" nationalAnalysis.votes "e.g 23009" True Votes
+        , renderField "type" nationalAnalysis.candidateType "e.g X" True CandidateType
+        , renderField "percentage" nationalAnalysis.percentage "e.g 45.4" True Percentage
+        , renderField "angle" nationalAnalysis.angle "e.g 180" True Angle
+        , renderField "bar" nationalAnalysis.bar "e.g 234" True Bar
+        , renderSubmitBtn "Save" "btn btn-danger" True
         ]
 
 

@@ -4,11 +4,11 @@ import Data.Party as Party
 import Data.Region as Region
 import Data.RegionalAnalysis as RegionalAnalysis
 import Html exposing (button, div, form, input, label, option, select, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
-import Page.ShowConstituencies exposing (Msg(..))
+import Ports
 
 
 type Msg
@@ -20,8 +20,6 @@ type Msg
     | Form Field
     | Save
     | DetailMode ShowDetailMode
-    | OnPartyChange String
-    | OnRegionChange String
     | OnEdit
     | SearchList String
 
@@ -83,7 +81,7 @@ view model =
                         renderEditableDetails model.selectedRegionalAnalysis
 
                     New ->
-                        renderNewDetails model
+                        renderNewDetails model model.selectedRegionalAnalysis
                 ]
             ]
         ]
@@ -114,19 +112,36 @@ update model msg =
             ( { model | regionalAnalysis = addToRegionalAnalysis regionalAnalysis model.regionalAnalysis }, Cmd.none )
 
         Form field ->
-            ( model, Cmd.none )
+            case field of
+                Region regionId ->
+                    ( { model | selectedRegionalAnalysis = RegionalAnalysis.setRegion regionId model.selectedRegionalAnalysis }, Cmd.none )
+
+                Votes votes ->
+                    ( { model | selectedRegionalAnalysis = RegionalAnalysis.setVotes votes model.selectedRegionalAnalysis }, Cmd.none )
+
+                CandidateType candidateType ->
+                    ( { model | selectedRegionalAnalysis = RegionalAnalysis.setCandidateType candidateType model.selectedRegionalAnalysis }, Cmd.none )
+
+                Percentage percentage ->
+                    ( { model | selectedRegionalAnalysis = RegionalAnalysis.setPercentage percentage model.selectedRegionalAnalysis }, Cmd.none )
+
+                Angle angle ->
+                    ( { model | selectedRegionalAnalysis = RegionalAnalysis.setAngle angle model.selectedRegionalAnalysis }, Cmd.none )
+
+                Bar bar ->
+                    ( { model | selectedRegionalAnalysis = RegionalAnalysis.setBar bar model.selectedRegionalAnalysis }, Cmd.none )
+
+                Party partyId ->
+                    ( { model | selectedRegionalAnalysis = RegionalAnalysis.setParty partyId model.selectedRegionalAnalysis }, Cmd.none )
+
+                Status status ->
+                    ( { model | selectedRegionalAnalysis = RegionalAnalysis.setStatus status model.selectedRegionalAnalysis }, Cmd.none )
 
         Save ->
-            ( model, Cmd.none )
+            ( model, Cmd.batch [ Ports.sendToJs (Ports.SaveRegionSummary model.selectedRegionalAnalysis) ] )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
-
-        OnRegionChange val ->
-            ( model, Cmd.none )
-
-        OnPartyChange val ->
-            ( model, Cmd.none )
 
         OnEdit ->
             ( { model | showDetailMode = Edit }, Cmd.none )
@@ -147,13 +162,13 @@ renderHeader =
         ]
 
 
-renderRegions : String -> List Region.Model -> Html.Html Msg
-renderRegions fieldLabel regionList =
+renderRegions : String -> (String -> Field) -> List Region.Model -> Html.Html Msg
+renderRegions fieldLabel field regionList =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , select
             [ class "form-control"
-            , onChange OnRegionChange
+            , onChange (Form << field)
             ]
             (List.map regionItem regionList)
         ]
@@ -164,13 +179,13 @@ regionItem item =
     option [ value item.id ] [ Html.text item.name ]
 
 
-renderParties : String -> List Party.Model -> Html.Html Msg
-renderParties fieldLabel partyList =
+renderParties : String -> (String -> Field) -> List Party.Model -> Html.Html Msg
+renderParties fieldLabel field partyList =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , select
             [ class "form-control"
-            , onChange OnPartyChange
+            , onChange (Form << field)
             ]
             (List.map partyItem partyList)
         ]
@@ -221,6 +236,13 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
+renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn label className isCustom =
+    div [ class "form-group" ]
+        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        ]
+
+
 renderDetails : RegionalAnalysis.Model -> Html.Html Msg
 renderDetails model =
     div []
@@ -254,17 +276,18 @@ renderEditableDetails model =
         ]
 
 
-renderNewDetails : Model -> Html.Html Msg
-renderNewDetails model =
+renderNewDetails : Model -> RegionalAnalysis.Model -> Html.Html Msg
+renderNewDetails model selectedRegionalAnalysis =
     form [ onSubmit Save ]
-        [ renderRegions "region" model.regions
-        , renderParties "party" model.parties
-        , renderField "type" "" "e.g P" True CandidateType
-        , renderField "votes" "" "e.g 1002" True Votes
-        , renderField "percentage" "" "e.g 45.4" True Percentage
-        , renderField "angle" "" "e.g 180" True Angle
-        , renderField "bar" "" "e.g 234" True Bar
-        , renderField "status" "" "e.g A/D" True Status
+        [ renderRegions "region" Region model.regions
+        , renderParties "party" Party model.parties
+        , renderField "type" selectedRegionalAnalysis.candidateType "e.g P" True CandidateType
+        , renderField "votes" selectedRegionalAnalysis.votes "e.g 1002" True Votes
+        , renderField "percentage" selectedRegionalAnalysis.percentage "e.g 45.4" True Percentage
+        , renderField "angle" selectedRegionalAnalysis.angle "e.g 180" True Angle
+        , renderField "bar" selectedRegionalAnalysis.bar "e.g 234" True Bar
+        , renderField "status" selectedRegionalAnalysis.status "e.g A/D" True Status
+        , renderSubmitBtn "Save" "btn btn-danger" True
         ]
 
 

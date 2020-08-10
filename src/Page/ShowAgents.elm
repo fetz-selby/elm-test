@@ -4,10 +4,11 @@ import Data.Agent as Agent
 import Data.Constituency as Constituency
 import Data.Poll as Poll
 import Html exposing (button, div, form, input, label, option, select, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
+import Ports
 
 
 type Msg
@@ -19,8 +20,6 @@ type Msg
     | Form Field
     | Save
     | DetailMode ShowDetailMode
-    | OnConstituencyChange String
-    | OnPollChange String
     | OnEdit
     | SearchList String
 
@@ -69,7 +68,7 @@ update model msg =
             ( model, Cmd.none )
 
         AddAgent ->
-            ( { model | showDetailMode = New }, Cmd.none )
+            ( { model | showDetailMode = New, selectedAgent = Agent.initAgent }, Cmd.none )
 
         ShowDetail agent ->
             ( { model | showDetailMode = View, selectedAgent = agent }, Cmd.none )
@@ -87,19 +86,27 @@ update model msg =
             ( { model | agents = addToAgents agent model.agents }, Cmd.none )
 
         Form field ->
-            ( model, Cmd.none )
+            case field of
+                Name name ->
+                    ( { model | selectedAgent = Agent.setName name model.selectedAgent }, Cmd.none )
+
+                Constituency constituencyId ->
+                    ( { model | selectedAgent = Agent.setConstituency constituencyId model.selectedAgent }, Cmd.none )
+
+                Poll pollId ->
+                    ( { model | selectedAgent = Agent.setPoll pollId model.selectedAgent }, Cmd.none )
+
+                Msisdn msisdn ->
+                    ( { model | selectedAgent = Agent.setMsisdn msisdn model.selectedAgent }, Cmd.none )
+
+                Pin pin ->
+                    ( { model | selectedAgent = Agent.setPin pin model.selectedAgent }, Cmd.none )
 
         Save ->
-            ( model, Cmd.none )
+            ( model, Cmd.batch [ Ports.sendToJs (Ports.SaveAgent model.selectedAgent) ] )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
-
-        OnConstituencyChange val ->
-            ( model, Cmd.none )
-
-        OnPollChange val ->
-            ( model, Cmd.none )
 
         OnEdit ->
             ( { model | showDetailMode = Edit }, Cmd.none )
@@ -130,7 +137,7 @@ view model =
                         renderEditableDetails model.selectedAgent
 
                     New ->
-                        renderNewDetails model
+                        renderNewDetails model model.selectedAgent
                 ]
             ]
         ]
@@ -148,13 +155,13 @@ renderHeader =
         ]
 
 
-renderPolls : String -> List Poll.Model -> Html.Html Msg
-renderPolls fieldLabel pollList =
+renderPolls : String -> (String -> Field) -> List Poll.Model -> Html.Html Msg
+renderPolls fieldLabel field pollList =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , select
             [ class "form-control"
-            , onChange OnPollChange
+            , onChange (Form << field)
             ]
             (List.map pollItem pollList)
         ]
@@ -165,13 +172,13 @@ pollItem item =
     option [ value item.id ] [ Html.text item.name ]
 
 
-renderConstituencies : String -> List Constituency.Model -> Html.Html Msg
-renderConstituencies fieldLabel constituencyList =
+renderConstituencies : String -> (String -> Field) -> List Constituency.Model -> Html.Html Msg
+renderConstituencies fieldLabel field constituencyList =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , select
             [ class "form-control"
-            , onChange OnConstituencyChange
+            , onChange (Form << field)
             ]
             (List.map constituencyItem constituencyList)
         ]
@@ -223,6 +230,13 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
+renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn label className isCustom =
+    div [ class "form-group" ]
+        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        ]
+
+
 renderDetails : Agent.Model -> Html.Html Msg
 renderDetails model =
     div []
@@ -250,14 +264,15 @@ renderEditableDetails model =
         ]
 
 
-renderNewDetails : Model -> Html.Html Msg
-renderNewDetails model =
+renderNewDetails : Model -> Agent.Model -> Html.Html Msg
+renderNewDetails model selectedAgent =
     form [ onSubmit Save ]
-        [ renderField "name" "" "eg. Smith" True Name
-        , renderField "msisdn" "" "eg. +491763500232450" True Msisdn
-        , renderField "pin" "" "e.g 0000" True Pin
-        , renderConstituencies "constituency" model.constituencies
-        , renderPolls "poll" model.polls
+        [ renderField "name" selectedAgent.name "eg. Smith" True Name
+        , renderField "msisdn" selectedAgent.msisdn "eg. +491763500232450" True Msisdn
+        , renderField "pin" selectedAgent.pin "e.g 0000" True Pin
+        , renderConstituencies "constituency" Constituency model.constituencies
+        , renderPolls "poll" Poll model.polls
+        , renderSubmitBtn "Save" "btn btn-danger" True
         ]
 
 

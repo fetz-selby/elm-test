@@ -2,9 +2,10 @@ module Page.ShowParties exposing (Model, Msg(..), decode, default, update, view)
 
 import Data.Party as Party
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
+import Ports
 
 
 type Msg
@@ -69,7 +70,7 @@ view model =
                         renderEditableDetails model.selectedParty
 
                     New ->
-                        renderNewDetails
+                        renderNewDetails model.selectedParty
                 ]
             ]
         ]
@@ -94,10 +95,21 @@ update model msg =
             ( { model | parties = addToParties party model.parties }, Cmd.none )
 
         Form field ->
-            ( model, Cmd.none )
+            case field of
+                Party name ->
+                    ( { model | selectedParty = Party.setName name model.selectedParty }, Cmd.none )
+
+                Color color ->
+                    ( { model | selectedParty = Party.setColor color model.selectedParty }, Cmd.none )
+
+                LogoPath logo ->
+                    ( { model | selectedParty = Party.setLogoPath logo model.selectedParty }, Cmd.none )
+
+                OrderQueue orderQueue ->
+                    ( { model | selectedParty = Party.setOrderQueue orderQueue model.selectedParty }, Cmd.none )
 
         Save ->
-            ( model, Cmd.none )
+            ( model, Cmd.batch [ Ports.sendToJs (Ports.SaveParty model.selectedParty) ] )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
@@ -161,6 +173,13 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
+renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn label className isCustom =
+    div [ class "form-group" ]
+        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        ]
+
+
 renderDetails : Party.Model -> Html.Html Msg
 renderDetails model =
     div []
@@ -186,13 +205,14 @@ renderEditableDetails model =
         ]
 
 
-renderNewDetails : Html.Html Msg
-renderNewDetails =
+renderNewDetails : Party.Model -> Html.Html Msg
+renderNewDetails selectedParty =
     form [ onSubmit Save ]
-        [ renderField "party" "" "eg.XXX" True Party
-        , renderField "color" "" "e.g P" True Color
-        , renderField "logo path" "" "e.g #F33e345" True LogoPath
-        , renderField "order queue" "" "e.g 12" True OrderQueue
+        [ renderField "party" selectedParty.name "eg.XXX" True Party
+        , renderField "color" selectedParty.color "e.g P" True Color
+        , renderField "logo path" selectedParty.logoPath "e.g #F33e345" True LogoPath
+        , renderField "order queue" selectedParty.orderQueue "e.g 12" True OrderQueue
+        , renderSubmitBtn "Save" "btn btn-danger" True
         ]
 
 

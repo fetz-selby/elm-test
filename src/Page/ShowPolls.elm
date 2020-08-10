@@ -3,10 +3,11 @@ module Page.ShowPolls exposing (Model, Msg(..), decode, default, initShowCandida
 import Data.Constituency as Constituency
 import Data.Poll as Poll
 import Html exposing (button, div, form, input, label, option, select, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
+import Ports
 
 
 type Msg
@@ -18,7 +19,6 @@ type Msg
     | Form Field
     | Save
     | DetailMode ShowDetailMode
-    | OnConstituencyChange String
     | OnEdit
     | SearchList String
 
@@ -82,16 +82,27 @@ update model msg =
             ( { model | polls = addToPolls poll model.polls }, Cmd.none )
 
         Form field ->
-            ( model, Cmd.none )
+            case field of
+                Name name ->
+                    ( { model | selectedPoll = Poll.setName name model.selectedPoll }, Cmd.none )
+
+                Constituency constituencyId ->
+                    ( { model | selectedPoll = Poll.setConstituency constituencyId model.selectedPoll }, Cmd.none )
+
+                TotalVoters totalVotes ->
+                    ( { model | selectedPoll = Poll.setTotalVotes totalVotes model.selectedPoll }, Cmd.none )
+
+                RejectedVotes rejectedVotes ->
+                    ( { model | selectedPoll = Poll.setRejectedVotes rejectedVotes model.selectedPoll }, Cmd.none )
+
+                ValidVotes validVotes ->
+                    ( { model | selectedPoll = Poll.setValidVotes validVotes model.selectedPoll }, Cmd.none )
 
         Save ->
-            ( model, Cmd.none )
+            ( model, Cmd.batch [ Ports.sendToJs (Ports.SavePoll model.selectedPoll) ] )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
-
-        OnConstituencyChange val ->
-            ( model, Cmd.none )
 
         OnEdit ->
             ( { model | showDetailMode = Edit }, Cmd.none )
@@ -122,7 +133,7 @@ view model =
                         renderEditableDetails model.selectedPoll
 
                     New ->
-                        renderNewDetails model
+                        renderNewDetails model model.selectedPoll
                 ]
             ]
         ]
@@ -140,13 +151,13 @@ renderHeader =
         ]
 
 
-renderConstituencies : String -> List Constituency.Model -> Html.Html Msg
-renderConstituencies fieldLabel constituencyList =
+renderConstituencies : String -> (String -> Field) -> List Constituency.Model -> Html.Html Msg
+renderConstituencies fieldLabel field constituencyList =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , select
             [ class "form-control"
-            , onChange OnConstituencyChange
+            , onChange (Form << field)
             ]
             (List.map constituencyItem constituencyList)
         ]
@@ -200,6 +211,13 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
+renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn label className isCustom =
+    div [ class "form-group" ]
+        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        ]
+
+
 renderDetails : Poll.Model -> Html.Html Msg
 renderDetails model =
     div []
@@ -227,14 +245,15 @@ renderEditableDetails model =
         ]
 
 
-renderNewDetails : Model -> Html.Html Msg
-renderNewDetails model =
+renderNewDetails : Model -> Poll.Model -> Html.Html Msg
+renderNewDetails model selectedPoll =
     form [ onSubmit Save ]
-        [ renderField "name" "" "eg. Smith" True Name
-        , renderConstituencies "constituency" model.constituencies
-        , renderField "rejected" "" "e.g 12" True RejectedVotes
-        , renderField "valid" "" "e.g 1002" True ValidVotes
-        , renderField "total" "" "e.g 9088" True TotalVoters
+        [ renderField "name" selectedPoll.name "eg. Smith" True Name
+        , renderConstituencies "constituency" Constituency model.constituencies
+        , renderField "rejected" selectedPoll.rejectedVotes "e.g 12" True RejectedVotes
+        , renderField "valid" selectedPoll.validVotes "e.g 1002" True ValidVotes
+        , renderField "total" selectedPoll.totalVoters "e.g 9088" True TotalVoters
+        , renderSubmitBtn "Save" "btn btn-danger" True
         ]
 
 

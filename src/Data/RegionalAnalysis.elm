@@ -13,6 +13,7 @@ module Data.RegionalAnalysis exposing
     , setParty
     , setPercentage
     , setRegion
+    , setStatus
     , setVotes
     )
 
@@ -110,6 +111,11 @@ setParty partyId model =
 setRegion : String -> Model -> Model
 setRegion regionId model =
     { model | region = Region.setId regionId model.region }
+
+
+setStatus : String -> Model -> Model
+setStatus status model =
+    { model | status = status }
 
 
 encode : Model -> Encode.Value

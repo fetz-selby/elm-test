@@ -10,6 +10,7 @@ module Data.Approve exposing
     , setCandidateType
     , setConstituency
     , setId
+    , setIsApproved
     , setMessage
     , setMsisdn
     , setPoll
@@ -31,6 +32,7 @@ type alias Model =
     , region : Region.Model
     , poll : Poll.Model
     , agent : Agent.Model
+    , isApproved : Bool
     , year : String
     , candidateType : String
     , msisdn : String
@@ -47,6 +49,7 @@ initApprove =
     , region = Region.initRegion
     , poll = Poll.initPoll
     , agent = Agent.initAgent
+    , isApproved = False
     , year = ""
     , candidateType = ""
     , msisdn = ""
@@ -114,13 +117,25 @@ setMsisdn msisdn model =
     { model | msisdn = msisdn }
 
 
+setIsApproved : Bool -> Model -> Model
+setIsApproved isApproved model =
+    { model | isApproved = isApproved }
+
+
+convertIsApproveToString : Bool -> String
+convertIsApproveToString val =
+    if val then
+        "Y"
+
+    else
+        "N"
+
+
 encode : Model -> Encode.Value
 encode approve =
     Encode.object
-        [ ( "message", Encode.string approve.message )
-        , ( "constituency_id", Encode.string approve.constituency.id )
-        , ( "year", Encode.string approve.year )
-        , ( "type", Encode.string approve.candidateType )
+        [ ( "id", Encode.string approve.id )
+        , ( "is_approved", Encode.string (convertIsApproveToString approve.isApproved) )
         ]
 
 
@@ -133,6 +148,7 @@ decode =
         |> JDP.required "region" Region.decode
         |> JDP.required "poll" Poll.decode
         |> JDP.required "agent" Agent.decode
+        |> JDP.required "is_approved" Decode.bool
         |> JDP.required "year" Decode.string
         |> JDP.required "type" Decode.string
         |> JDP.required "msisdn" Decode.string

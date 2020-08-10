@@ -301,10 +301,91 @@ async function create() {
         break;
       }
 
+      case "SaveAgent": {
+        const agent = { ...payload, year };
+        console.log("Agent,", agent);
+        // const addAgentResp = await addAgent({ service, agent });
+        // console.log("[AddAgent], ", addAgentResp);
+
+        break;
+      }
+
+      case "SaveCandidate": {
+        const candidate = { ...payload, year };
+        console.log("Candidate,", candidate);
+        // const addCandidateResp = await addCandidate({ service, candidate });
+        // console.log("[AddAgent], ", addAgentResp);
+
+        break;
+      }
+
+      case "SaveConstituency": {
+        const constituency = { ...payload, year };
+        console.log("Constituency,", constituency);
+        // const addCandidateResp = await addCandidate({ service, candidate });
+        // console.log("[AddAgent], ", addAgentResp);
+
+        break;
+      }
+
+      case "SaveNationalSummary": {
+        const nationalAnalysis = { ...payload, year };
+        console.log("NationalAnalysis,", nationalAnalysis);
+        // const addCandidateResp = await addCandidate({ service, candidate });
+        // console.log("[AddAgent], ", addAgentResp);
+
+        break;
+      }
+
+      case "SaveRegionalSummary": {
+        const regionalAnalysis = { ...payload, year };
+        console.log("RegionalAnalysis,", regionalAnalysis);
+        // const addCandidateResp = await addCandidate({ service, candidate });
+        // console.log("[AddAgent], ", addAgentResp);
+
+        break;
+      }
+
+      case "SaveParty": {
+        const party = { ...payload, year };
+        console.log("Party,", party);
+        // const addCandidateResp = await addCandidate({ service, candidate });
+        // console.log("[AddAgent], ", addAgentResp);
+
+        break;
+      }
+
+      case "SavePoll": {
+        const poll = { ...payload, year };
+        console.log("Poll,", poll);
+        // const addCandidateResp = await addCandidate({ service, candidate });
+        // console.log("[AddAgent], ", addAgentResp);
+
+        break;
+      }
+
+      case "UpdateApprove": {
+        console.log("[Update Approve], ", payload);
+
+        break;
+      }
+
+      case "UpdateCandidate": {
+        console.log("[Update Candidate], ", payload);
+
+        break;
+      }
+
       case "DeleteRegion": {
         console.log("Delete ID, ", payload);
         const deleteResp = await deleteRegion({ service, id: payload });
         console.log("resp, ", deleteResp);
+
+        break;
+      }
+
+      case "DeleteApprove": {
+        console.log("[Approve Id], ", payload);
 
         break;
       }

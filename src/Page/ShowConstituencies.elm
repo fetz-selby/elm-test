@@ -4,10 +4,11 @@ import Data.Constituency as Constituency
 import Data.ParentConstituency as ParentConstituency
 import Data.Party as Party
 import Html exposing (button, div, form, input, label, option, select, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
+import Ports
 
 
 type Msg
@@ -19,8 +20,6 @@ type Msg
     | Form Field
     | Save
     | DetailMode ShowDetailMode
-    | OnParentConstituencyChange String
-    | OnPartyChange String
     | OnEdit
     | SearchList String
 
@@ -87,19 +86,39 @@ update model msg =
             ( { model | constituencies = addToConstituencies constituency model.constituencies }, Cmd.none )
 
         Form field ->
-            ( model, Cmd.none )
+            case field of
+                Constituency constituencyName ->
+                    ( { model | selectedConstituency = Constituency.setName constituencyName model.selectedConstituency }, Cmd.none )
+
+                CastedVotes castedVotes ->
+                    ( { model | selectedConstituency = Constituency.setCastedVotes castedVotes model.selectedConstituency }, Cmd.none )
+
+                IsDeclared isDeclared ->
+                    ( { model | selectedConstituency = Constituency.setIsDeclared False model.selectedConstituency }, Cmd.none )
+
+                ParentId parentId ->
+                    ( { model | selectedConstituency = Constituency.setParentId parentId model.selectedConstituency }, Cmd.none )
+
+                RegVotes regVotes ->
+                    ( { model | selectedConstituency = Constituency.setRegVotes regVotes model.selectedConstituency }, Cmd.none )
+
+                RejectVotes rejectVotes ->
+                    ( { model | selectedConstituency = Constituency.setRejectVotes rejectVotes model.selectedConstituency }, Cmd.none )
+
+                SeatWonId seatWonId ->
+                    ( { model | selectedConstituency = Constituency.setSeatWonId seatWonId model.selectedConstituency }, Cmd.none )
+
+                TotalVotes totalVotes ->
+                    ( { model | selectedConstituency = Constituency.setTotalVotes totalVotes model.selectedConstituency }, Cmd.none )
+
+                AutoCompute autoCompute ->
+                    ( { model | selectedConstituency = Constituency.setAutoCompute False model.selectedConstituency }, Cmd.none )
 
         Save ->
-            ( model, Cmd.none )
+            ( model, Cmd.batch [ Ports.sendToJs (Ports.SaveConstituency model.selectedConstituency) ] )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
-
-        OnParentConstituencyChange val ->
-            ( model, Cmd.none )
-
-        OnPartyChange val ->
-            ( model, Cmd.none )
 
         OnEdit ->
             ( { model | showDetailMode = Edit }, Cmd.none )
@@ -130,19 +149,19 @@ view model =
                         renderEditableDetails model.selectedConstituency
 
                     New ->
-                        renderNewDetails model
+                        renderNewDetails model model.selectedConstituency
                 ]
             ]
         ]
 
 
-renderParentConstituencies : String -> List ParentConstituency.Model -> Html.Html Msg
-renderParentConstituencies fieldLabel parentConstituencyList =
+renderParentConstituencies : String -> (String -> Field) -> List ParentConstituency.Model -> Html.Html Msg
+renderParentConstituencies fieldLabel field parentConstituencyList =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , select
             [ class "form-control"
-            , onChange OnParentConstituencyChange
+            , onChange (Form << field)
             ]
             (List.map parentConstituencyItem parentConstituencyList)
         ]
@@ -153,13 +172,13 @@ parentConstituencyItem item =
     option [ value item.id ] [ Html.text item.name ]
 
 
-renderParties : String -> List Party.Model -> Html.Html Msg
-renderParties fieldLabel partyList =
+renderParties : String -> (String -> Field) -> List Party.Model -> Html.Html Msg
+renderParties fieldLabel field partyList =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , select
             [ class "form-control"
-            , onChange OnPartyChange
+            , onChange (Form << field)
             ]
             (List.map partyItem partyList)
         ]
@@ -218,6 +237,13 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
 
           else
             input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
+        ]
+
+
+renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn label className isCustom =
+    div [ class "form-group" ]
+        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
         ]
 
 
@@ -291,16 +317,16 @@ renderEditableDetails model =
         ]
 
 
-renderNewDetails : Model -> Html.Html Msg
-renderNewDetails model =
+renderNewDetails : Model -> Constituency.Model -> Html.Html Msg
+renderNewDetails model constituencyModel =
     form [ onSubmit Save ]
-        [ renderParentConstituencies "parent constituency" model.parentConstituencies
-        , renderParties "seat won by" model.parties
-        , renderField "constituency" "" "eg.Bekwai" True Constituency
-        , renderField "casted votes" "" "e.g P" True CastedVotes
-        , renderField "reg votes" "" "e.g 432" True RegVotes
-        , renderField "rejected votes" "" "e.g 180" True RejectVotes
-        , renderField "total votes" "" "e.g 234" True TotalVotes
+        [ renderParentConstituencies "parent constituency" ParentId model.parentConstituencies
+        , renderParties "seat won by" SeatWonId model.parties
+        , renderField "constituency" constituencyModel.name "eg.Bekwai" True Constituency
+        , renderField "casted votes" constituencyModel.castedVotes "e.g P" True CastedVotes
+        , renderField "reg votes" constituencyModel.regVotes "e.g 432" True RegVotes
+        , renderField "rejected votes" constituencyModel.rejectVotes "e.g 180" True RejectVotes
+        , renderField "total votes" constituencyModel.totalVotes "e.g 234" True TotalVotes
         , renderField "is declared"
             "No"
             "e.g Yes"
@@ -311,6 +337,7 @@ renderNewDetails model =
             "e.g No"
             True
             AutoCompute
+        , renderSubmitBtn "Save" "btn btn-danger" True
         ]
 
 

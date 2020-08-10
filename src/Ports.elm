@@ -1,6 +1,7 @@
 port module Ports exposing (OutgoingMsg(..), PortData, msgForElm, msgForJs, sendToJs, toPortData)
 
 import Data.Agent as Agent
+import Data.Approve as Approve
 import Data.Candidate as Candidate
 import Data.Constituency as Constituency
 import Data.NationalAnalysis as NationalAnalysis
@@ -50,6 +51,8 @@ type OutgoingMsg
     | SavePoll Poll.Model
     | SaveRegionSummary RegionalAnalysis.Model
     | SaveNationalSummary NationalAnalysis.Model
+    | UpdateApprove Approve.Model
+    | UpdateCandidate Candidate.Model
 
 
 port msgForJs : PortData -> Cmd msg
@@ -166,7 +169,13 @@ toPortData msg =
             { action = "SavePoll", payload = Poll.encode poll }
 
         SaveRegionSummary regionalAnalysis ->
-            { action = "SaveRegionSummary", payload = RegionalAnalysis.encode regionalAnalysis }
+            { action = "SaveRegionalSummary", payload = RegionalAnalysis.encode regionalAnalysis }
 
         SaveNationalSummary nationalAnalysis ->
             { action = "SaveNationalSummary", payload = NationalAnalysis.encode nationalAnalysis }
+
+        UpdateApprove approve ->
+            { action = "UpdateApprove", payload = Approve.encode approve }
+
+        UpdateCandidate candidate ->
+            { action = "UpdateApprove", payload = Candidate.encode candidate }

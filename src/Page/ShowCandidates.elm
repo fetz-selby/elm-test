@@ -4,10 +4,11 @@ import Data.Candidate as Candidate
 import Data.Constituency as Constituency
 import Data.Party as Party
 import Html exposing (button, div, form, input, label, option, select, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
+import Ports
 
 
 type Msg
@@ -18,9 +19,8 @@ type Msg
     | AddOne Candidate.Model
     | Form Field
     | Save
+    | Update
     | DetailMode ShowDetailMode
-    | OnConstituencyChange String
-    | OnPartyChange String
     | OnEdit
     | SearchList String
 
@@ -73,7 +73,7 @@ update model msg =
             ( model, Cmd.none )
 
         AddCandidate ->
-            ( { model | showDetailMode = New }, Cmd.none )
+            ( { model | showDetailMode = New, selectedCandidate = Candidate.initCandidate }, Cmd.none )
 
         ShowDetail candidate ->
             ( { model | showDetailMode = View, selectedCandidate = candidate }, Cmd.none )
@@ -91,19 +91,42 @@ update model msg =
             ( { model | candidates = addToCandidates candidate model.candidates }, Cmd.none )
 
         Form field ->
-            ( model, Cmd.none )
+            case field of
+                Name name ->
+                    ( { model | selectedCandidate = Candidate.setName name model.selectedCandidate }, Cmd.none )
+
+                CandidateType candidateType ->
+                    ( { model | selectedCandidate = Candidate.setCandidateType candidateType model.selectedCandidate }, Cmd.none )
+
+                Votes votes ->
+                    ( { model | selectedCandidate = Candidate.setVotes votes model.selectedCandidate }, Cmd.none )
+
+                AvatarPath avatarPath ->
+                    ( { model | selectedCandidate = Candidate.setAvatarPath avatarPath model.selectedCandidate }, Cmd.none )
+
+                Angle angle ->
+                    ( { model | selectedCandidate = Candidate.setAngle angle model.selectedCandidate }, Cmd.none )
+
+                Percentage percentage ->
+                    ( { model | selectedCandidate = Candidate.setPercentage percentage model.selectedCandidate }, Cmd.none )
+
+                BarRatio barRatio ->
+                    ( { model | selectedCandidate = Candidate.setBarRatio barRatio model.selectedCandidate }, Cmd.none )
+
+                Party partyId ->
+                    ( { model | selectedCandidate = Candidate.setParty partyId model.selectedCandidate }, Cmd.none )
+
+                Constituency constituencyId ->
+                    ( { model | selectedCandidate = Candidate.setConstituency constituencyId model.selectedCandidate }, Cmd.none )
 
         Save ->
-            ( model, Cmd.none )
+            ( model, Cmd.batch [ Ports.sendToJs (Ports.SaveCandidate model.selectedCandidate) ] )
+
+        Update ->
+            ( model, Cmd.batch [ Ports.sendToJs (Ports.UpdateCandidate model.selectedCandidate) ] )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
-
-        OnConstituencyChange val ->
-            ( model, Cmd.none )
-
-        OnPartyChange val ->
-            ( model, Cmd.none )
 
         OnEdit ->
             ( { model | showDetailMode = Edit }, Cmd.none )
@@ -134,7 +157,7 @@ view model =
                         renderEditableDetails model.selectedCandidate
 
                     New ->
-                        renderNewDetails model
+                        renderNewDetails model model.selectedCandidate
                 ]
             ]
         ]
@@ -152,13 +175,13 @@ renderHeader =
         ]
 
 
-renderParties : String -> List Party.Model -> Html.Html Msg
-renderParties fieldLabel partyList =
+renderParties : String -> (String -> Field) -> List Party.Model -> Html.Html Msg
+renderParties fieldLabel field partyList =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , select
             [ class "form-control"
-            , onChange OnPartyChange
+            , onChange (Form << field)
             ]
             (List.map partyItem partyList)
         ]
@@ -169,13 +192,13 @@ partyItem item =
     option [ value item.id ] [ Html.text item.name ]
 
 
-renderConstituencies : String -> List Constituency.Model -> Html.Html Msg
-renderConstituencies fieldLabel constituencyList =
+renderConstituencies : String -> (String -> Field) -> List Constituency.Model -> Html.Html Msg
+renderConstituencies fieldLabel field constituencyList =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , select
             [ class "form-control"
-            , onChange OnConstituencyChange
+            , onChange (Form << field)
             ]
             (List.map constituencyItem constituencyList)
         ]
@@ -227,6 +250,13 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
+renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn label className isCustom =
+    div [ class "form-group" ]
+        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        ]
+
+
 renderDetails : Candidate.Model -> Html.Html Msg
 renderDetails model =
     div []
@@ -249,7 +279,7 @@ renderDetails model =
 
 renderEditableDetails : Candidate.Model -> Html.Html Msg
 renderEditableDetails model =
-    form [ onSubmit Save ]
+    form [ onSubmit Update ]
         [ renderField "name" model.name "eg. Smith" True Name
         , renderField "constituency" model.constituency.name "e.g P" True Constituency
         , renderField "type" model.candidateType "e.g P" True CandidateType
@@ -259,21 +289,23 @@ renderEditableDetails model =
         , renderField "percentage" model.percentage "e.g 45.4" True Percentage
         , renderField "angle" model.angle "e.g 180" True Angle
         , renderField "bar" model.barRatio "e.g 234" True BarRatio
+        , renderSubmitBtn "Update" "btn btn-danger" True
         ]
 
 
-renderNewDetails : Model -> Html.Html Msg
-renderNewDetails model =
+renderNewDetails : Model -> Candidate.Model -> Html.Html Msg
+renderNewDetails model selectedUser =
     form [ onSubmit Save ]
-        [ renderField "name" "" "eg. Smith" True Name
-        , renderConstituencies "constituency" model.constituencies
-        , renderParties "party" model.parties
-        , renderField "type" "" "e.g P" True CandidateType
-        , renderField "votes" "" "e.g 1002" True Votes
-        , renderField "avatar path" "" "e.g XXX" True AvatarPath
-        , renderField "percentage" "" "e.g 45.4" True Percentage
-        , renderField "angle" "" "e.g 180" True Angle
-        , renderField "bar" "" "e.g 234" True BarRatio
+        [ renderField "name" selectedUser.name "eg. Smith" True Name
+        , renderConstituencies "constituency" Constituency model.constituencies
+        , renderParties "party" Party model.parties
+        , renderField "type" selectedUser.candidateType "e.g P" True CandidateType
+        , renderField "votes" selectedUser.votes "e.g 1002" True Votes
+        , renderField "avatar path" selectedUser.avatarPath "e.g XXX" True AvatarPath
+        , renderField "percentage" selectedUser.percentage "e.g 45.4" True Percentage
+        , renderField "angle" selectedUser.angle "e.g 180" True Angle
+        , renderField "bar" selectedUser.barRatio "e.g 234" True BarRatio
+        , renderSubmitBtn "Save" "btn btn-danger" True
         ]
 
 

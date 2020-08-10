@@ -157,6 +157,11 @@ export const normalizeApprove = (approve) => ({
     approve && approve.agent
       ? normalizeAgent(approve.agent)
       : normalizeAgent({}),
+  is_approved: !!(
+    approve &&
+    approve.is_approved &&
+    approve.is_approved.toString().trim().toLowerCase() === "y"
+  ),
   year: approve && approve.year ? approve.year.toString() : "",
   type: approve && approve.type ? approve.type : "",
   msisdn: approve && approve.msisdn ? approve.msisdn.toString() : "+000000000",
