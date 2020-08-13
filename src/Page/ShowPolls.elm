@@ -226,7 +226,7 @@ renderDetails model =
             ]
         , form [ onSubmit Save ]
             [ renderField "name" model.name "eg. Smith" False Name
-            , renderField "constituency" model.constituency.name "e.g P" False Constituency
+            , renderField "constituency" model.constituency.name "e.g Bantama" False Constituency
             , renderField "rejected" model.rejectedVotes "e.g 12" False RejectedVotes
             , renderField "valid" model.validVotes "e.g 1002" False ValidVotes
             , renderField "total" model.totalVoters "e.g 9088" False TotalVoters

@@ -6,6 +6,7 @@ module Data.NationalAnalysis exposing
     , encode
     , filter
     , initNationalAnalysis
+    , isIdExist
     , setAngle
     , setBar
     , setCandidateType
@@ -15,6 +16,7 @@ module Data.NationalAnalysis exposing
     , setVotes
     )
 
+import Array
 import Data.Party as Party exposing (convertModelToLower)
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
@@ -42,6 +44,16 @@ initNationalAnalysis =
     , bar = "0.0"
     , party = Party.initParty
     }
+
+
+isIdExist : Model -> List Model -> Bool
+isIdExist nationalAnalysis list =
+    list |> getOnlyIds |> List.member nationalAnalysis.id
+
+
+getOnlyIds : List Model -> List String
+getOnlyIds list =
+    list |> Array.fromList |> Array.map (\n -> n.id) |> Array.toList
 
 
 filter : String -> List Model -> List Model

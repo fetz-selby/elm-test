@@ -133,6 +133,7 @@ export const normalizeUser = (user) => ({
   ...user,
   id: user && user.id ? user.id.toString() : "0",
   name: user && user.name ? user.name : "Unknown",
+  email: user && user.email ? user.email : "election@code.arbeitet.com",
   msisdn: user && user.msisdn ? user.msisdn.toString() : "+000000000",
   level: user && user.level ? user.level.toString() : "U",
   year: user && user.year ? user.year.toString() : "U",

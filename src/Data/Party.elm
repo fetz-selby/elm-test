@@ -6,6 +6,7 @@ module Data.Party exposing
     , encode
     , filter
     , initParty
+    , isIdExist
     , setColor
     , setId
     , setLogoPath
@@ -13,6 +14,7 @@ module Data.Party exposing
     , setOrderQueue
     )
 
+import Array
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
 import Json.Encode as Encode
@@ -30,6 +32,16 @@ type alias Model =
 initParty : Model
 initParty =
     { id = "", name = "", color = "", logoPath = "", orderQueue = "0" }
+
+
+isIdExist : Model -> List Model -> Bool
+isIdExist party list =
+    list |> getOnlyIds |> List.member party.id
+
+
+getOnlyIds : List Model -> List String
+getOnlyIds list =
+    list |> Array.fromList |> Array.map (\n -> n.id) |> Array.toList
 
 
 filter : String -> List Model -> List Model

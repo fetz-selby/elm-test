@@ -194,6 +194,28 @@ renderNationalItem national =
         ]
 
 
+renderGenericList : String -> (String -> Field) -> List { id : String, name : String } -> Html.Html Msg
+renderGenericList fieldLabel field itemsList =
+    div [ class "form-group" ]
+        [ label [] [ Html.text fieldLabel ]
+        , select
+            [ class "form-control"
+            , onChange (Form << field)
+            ]
+            (List.map genericItem itemsList)
+        ]
+
+
+genericItem : { id : String, name : String } -> Html.Html msg
+genericItem item =
+    option [ value item.id ] [ Html.text item.name ]
+
+
+getTypeList : List { id : String, name : String }
+getTypeList =
+    [ { id = "0", name = "Select" }, { id = "M", name = "Parliamentary" }, { id = "P", name = "Presidential" } ]
+
+
 renderField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
 renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
@@ -222,7 +244,7 @@ renderDetails model =
         , form [ onSubmit Save ]
             [ renderField "party" model.party.name "eg.XXX" False Party
             , renderField "votes" model.votes "e.g 23009" False Votes
-            , renderField "type" model.candidateType "e.g X" False CandidateType
+            , renderField "type" model.candidateType "e.g M/P" False CandidateType
             , renderField "percentage" model.percentage "e.g 45.4" False Percentage
             , renderField "angle" model.angle "e.g 180" False Angle
             , renderField "bar" model.bar "e.g 234" False Bar
@@ -235,7 +257,7 @@ renderEditableDetails model =
     form [ onSubmit Save ]
         [ renderField "party" model.party.name "eg.XXX" True Party
         , renderField "votes" model.votes "e.g 23009" True Votes
-        , renderField "type" model.candidateType "e.g X" True CandidateType
+        , renderField "type" model.candidateType "e.g M/P" True CandidateType
         , renderField "percentage" model.percentage "e.g 45.4" True Percentage
         , renderField "angle" model.angle "e.g 180" True Angle
         , renderField "bar" model.bar "e.g 234" True Bar
@@ -247,7 +269,7 @@ renderNewDetails model nationalAnalysis =
     form [ onSubmit Save ]
         [ renderParties "party" Party model.parties
         , renderField "votes" nationalAnalysis.votes "e.g 23009" True Votes
-        , renderField "type" nationalAnalysis.candidateType "e.g X" True CandidateType
+        , renderGenericList "type" CandidateType getTypeList
         , renderField "percentage" nationalAnalysis.percentage "e.g 45.4" True Percentage
         , renderField "angle" nationalAnalysis.angle "e.g 180" True Angle
         , renderField "bar" nationalAnalysis.bar "e.g 234" True Bar

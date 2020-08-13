@@ -25,6 +25,7 @@ type Msg
 
 type Field
     = Name String
+    | Email String
     | Password String
     | Msisdn String
     | Level String
@@ -86,6 +87,9 @@ update model msg =
             case field of
                 Name name ->
                     ( { model | selectedUser = User.setName name model.selectedUser }, Cmd.none )
+
+                Email email ->
+                    ( { model | selectedUser = User.setEmail email model.selectedUser }, Cmd.none )
 
                 Msisdn msisdn ->
                     ( { model | selectedUser = User.setMsisdn msisdn model.selectedUser }, Cmd.none )
@@ -172,6 +176,28 @@ regionItem item =
     option [ value item.id ] [ Html.text item.name ]
 
 
+renderGenericList : String -> (String -> Field) -> List { id : String, name : String } -> Html.Html Msg
+renderGenericList fieldLabel field itemsList =
+    div [ class "form-group" ]
+        [ label [] [ Html.text fieldLabel ]
+        , select
+            [ class "form-control"
+            , onChange (Form << field)
+            ]
+            (List.map genericItem itemsList)
+        ]
+
+
+genericItem : { id : String, name : String } -> Html.Html msg
+genericItem item =
+    option [ value item.id ] [ Html.text item.name ]
+
+
+getLevelList : List { id : String, name : String }
+getLevelList =
+    [ { id = "0", name = "Select Level" }, { id = "U", name = "User" }, { id = "A", name = "Admin" } ]
+
+
 renderUserList : List User.Model -> Html.Html Msg
 renderUserList users =
     table [ class "table table-striped table table-hover" ]
@@ -242,6 +268,7 @@ renderDetails model =
             ]
         , form []
             [ renderField "name" model.name "eg. Smith" False Name
+            , renderField "email" model.email "eg. election@code.arbeitet.com" False Email
             , renderField "msisdn" model.msisdn "e.g +491763500232450" False Msisdn
             , renderField "level" model.level "e.g 0000" False Level
             , renderField "year" model.year "e.g P" False Year
@@ -254,9 +281,10 @@ renderEditableDetails : User.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Save ]
         [ renderField "name" model.name "eg. Smith" True Name
+        , renderField "email" model.email "eg. election@code.arbeitet.com" True Email
         , renderField "msisdn" model.msisdn "e.g +491763500232450" True Msisdn
-        , renderField "level" model.level "e.g 0000" True Level
-        , renderField "year" model.year "e.g P" True Year
+        , renderField "level" model.level "e.g S/A/U" True Level
+        , renderField "year" model.year "e.g 2020" True Year
         , renderField "region" model.region.name "e.g Beach Road" True Region
         ]
 
@@ -265,10 +293,11 @@ renderNewDetails : Model -> User.Model -> Html.Html Msg
 renderNewDetails model userModel =
     form [ onSubmit Save ]
         [ renderField "name" userModel.name "eg. Smith" True Name
+        , renderField "email" userModel.email "eg. election@code.arbeitet.com" True Email
         , renderPasswordField "password" userModel.password "eg. password" True Password
         , renderField "msisdn" userModel.msisdn "eg. +491763500232450" True Msisdn
-        , renderField "level" userModel.level "e.g 0000" True Level
-        , renderField "year" userModel.year "e.g 0000" True Year
+        , renderGenericList "level" Level getLevelList
+        , renderField "year" userModel.year "e.g 2020" True Year
         , renderRegions "region" Region model.regions
         , renderSubmitBtn "Save" "btn btn-danger" True
         ]
@@ -289,7 +318,11 @@ showDetailState mode model =
 
 addToUsers : User.Model -> List User.Model -> List User.Model
 addToUsers user list =
-    user :: list
+    if User.isIdExist user list then
+        list
+
+    else
+        user :: list
 
 
 decode : Decode.Decoder UserData

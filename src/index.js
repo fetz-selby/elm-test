@@ -5,7 +5,7 @@ import { getConstituencies, addConstituency } from "./api/constituencies";
 import { getCandidates, addCandidate } from "./api/candidates";
 import { getParties, addParty } from "./api/parties";
 import { getPolls, addPoll } from "./api/polls";
-import { getRegions, deleteRegion } from "./api/regions";
+import { getRegions, deleteRegion, addRegion } from "./api/regions";
 import { getParentConstituencies } from "./api/parentConstituencies";
 import { getApproves } from "./api/approves";
 import { getNationalAnalysis } from "./api/nationalAnalysis";
@@ -24,6 +24,9 @@ import {
   normalizePolls,
   normalizeAgents,
   normalizeUsers,
+  normalizeUser,
+  normalizeAgent,
+  normalizeRegion,
 } from "./api/helper";
 import io from "socket.io-client";
 import feathers from "@feathersjs/client";
@@ -57,55 +60,7 @@ async function create() {
     console.log("action, ", action);
 
     switch (action) {
-      case "FetchCandidates": {
-        const candidates = getCandidates({
-          service,
-          payload: { year, constituencyId },
-        });
-        app.main.ports.msgForElm.send({
-          type: "CandidatesLoaded",
-          payload: {
-            candidates,
-          },
-        });
-        break;
-      }
-
-      case "FetchConstituencies": {
-        const constituencies = await getConstituencies({ app, payload });
-
-        app.main.ports.msgForElm.send({
-          type: "ConstituenciesLoaded",
-          payload: {
-            constituencies,
-          },
-        });
-
-        break;
-      }
-
-      case "FetchPolls": {
-        console.log("Fetching polls");
-        getPolls({ app, payload });
-        break;
-      }
-
-      case "FetchParties": {
-        console.log("Fetching parties");
-        const parties = await getParties({ service });
-        app.main.ports.msgForElm.send({
-          type: "PartiesLoaded",
-          payload: {
-            parties,
-          },
-        });
-        break;
-      }
-
       case "InitApp": {
-        const regions = await getRegions({ service, app });
-        const parentConstituencies = await getParentConstituencies({ service });
-
         break;
       }
 
@@ -199,9 +154,6 @@ async function create() {
         const users = await getUsers({ service });
         const regions = await getRegions({ service });
 
-        console.log("users, ", users);
-        console.log("regions, ", regions);
-
         app.ports.msgForElm.send({
           type: "UsersLoaded",
           payload: {
@@ -261,7 +213,6 @@ async function create() {
               parentConstituencies: normalizeParentConstituencies(
                 parentConstituencies
               ),
-              regions: normalizeRegions(regions),
             },
           },
         });
@@ -325,7 +276,8 @@ async function create() {
 
       case "SaveAgent": {
         const agent = { ...payload, year };
-        console.log("Agent,", agent);
+        const addAgentResp = await addAgent({ service, agent });
+        console.log("[AddAgent], ", addAgentResp);
         // const addAgentResp = await addAgent({ service, agent });
         // console.log("[AddAgent], ", addAgentResp);
 
@@ -334,7 +286,7 @@ async function create() {
 
       case "SaveCandidate": {
         const candidate = { ...payload, year };
-        console.log("Candidate,", candidate);
+        const addCandidateResp = await addCandidate({ service, candidate });
         // const addCandidateResp = await addCandidate({ service, candidate });
         // console.log("[AddAgent], ", addAgentResp);
 
@@ -343,7 +295,10 @@ async function create() {
 
       case "SaveConstituency": {
         const constituency = { ...payload, year };
-        console.log("Constituency,", constituency);
+        const addConstituencyResp = await addConstituency({
+          service,
+          constituency,
+        });
         // const addCandidateResp = await addCandidate({ service, candidate });
         // console.log("[AddAgent], ", addAgentResp);
 
@@ -369,8 +324,17 @@ async function create() {
       }
 
       case "SaveParty": {
-        const party = { ...payload, year };
-        console.log("Party,", party);
+        const party = { ...payload };
+        const addPartyResp = await addParty({ service, party });
+        // const addCandidateResp = await addCandidate({ service, candidate });
+        // console.log("[AddAgent], ", addAgentResp);
+
+        break;
+      }
+
+      case "SaveRegion": {
+        const region = { ...payload };
+        const addRegionResp = await addRegion({ service, region });
         // const addCandidateResp = await addCandidate({ service, candidate });
         // console.log("[AddAgent], ", addAgentResp);
 
@@ -449,16 +413,25 @@ async function create() {
 
     // When a model is created
 
-    service.service("agents").on("created", (d, c) => {
-      console.log("agent created");
+    service.service("agents").on("created", (agent, c) => {
+      app.ports.msgForElm.send({
+        type: "OneAgentAdded",
+        payload: normalizeAgent(agent),
+      });
     });
 
-    service.service("users").on("created", (d, c) => {
-      console.log("user created");
+    service.service("users").on("created", (user, c) => {
+      app.ports.msgForElm.send({
+        type: "OneUserAdded",
+        payload: normalizeUser(user),
+      });
     });
 
-    service.service("regions").on("created", (d, c) => {
-      console.log("region created");
+    service.service("regions").on("created", (region, c) => {
+      app.ports.msgForElm.send({
+        type: "OneRegionAdded",
+        payload: normalizeRegion(region),
+      });
     });
 
     service.service("constituencies").on("created", (d, c) => {});

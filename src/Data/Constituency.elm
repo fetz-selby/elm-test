@@ -7,6 +7,7 @@ module Data.Constituency exposing
     , encode
     , filter
     , initConstituency
+    , isIdExist
     , setAutoCompute
     , setCastedVotes
     , setId
@@ -19,6 +20,7 @@ module Data.Constituency exposing
     , setTotalVotes
     )
 
+import Array
 import Data.ParentConstituency as ParentConstituency
 import Data.Party as Party
 import Json.Decode as Decode
@@ -55,6 +57,16 @@ initConstituency =
     }
 
 
+isIdExist : Model -> List Model -> Bool
+isIdExist constituency list =
+    list |> getOnlyIds |> List.member constituency.id
+
+
+getOnlyIds : List Model -> List String
+getOnlyIds list =
+    list |> Array.fromList |> Array.map (\n -> n.id) |> Array.toList
+
+
 filter : String -> List Model -> List Model
 filter search list =
     List.filter (\model -> model |> convertModelToLower |> isFound (String.toLower search)) list
@@ -70,13 +82,27 @@ convertModelToLower model =
     { model | name = String.toLower model.name }
 
 
-convertBoolToString : Bool -> String
-convertBoolToString state =
+convertBoolToTFString : Bool -> String
+convertBoolToTFString state =
     if state then
         "T"
 
     else
         "F"
+
+
+convertBoolToYNString : Bool -> String
+convertBoolToYNString state =
+    if state then
+        "Y"
+
+    else
+        "N"
+
+
+convertStringToBool : String -> Bool
+convertStringToBool state =
+    (state |> String.toUpper) == "Y"
 
 
 setId : String -> Model -> Model
@@ -89,9 +115,9 @@ setName name model =
     { model | name = name }
 
 
-setAutoCompute : Bool -> Model -> Model
+setAutoCompute : String -> Model -> Model
 setAutoCompute autoCompute model =
-    { model | autoCompute = autoCompute }
+    { model | autoCompute = convertStringToBool autoCompute }
 
 
 setCastedVotes : String -> Model -> Model
@@ -99,9 +125,9 @@ setCastedVotes castedVotes model =
     { model | castedVotes = castedVotes }
 
 
-setIsDeclared : Bool -> Model -> Model
+setIsDeclared : String -> Model -> Model
 setIsDeclared isDeclared model =
-    { model | isDeclared = isDeclared }
+    { model | isDeclared = convertStringToBool isDeclared }
 
 
 setParentId : String -> Model -> Model
@@ -134,9 +160,9 @@ encode constituency =
     Encode.object
         [ ( "id", Encode.string constituency.id )
         , ( "name", Encode.string constituency.name )
-        , ( "auto_compute", Encode.string (convertBoolToString constituency.autoCompute) )
+        , ( "auto_compute", Encode.string (convertBoolToTFString constituency.autoCompute) )
         , ( "casted_votes", Encode.string constituency.castedVotes )
-        , ( "is_declared", Encode.string (convertBoolToString constituency.isDeclared) )
+        , ( "is_declared", Encode.string (convertBoolToYNString constituency.isDeclared) )
         , ( "parent_id", Encode.string constituency.parent.id )
         , ( "reg_votes", Encode.string constituency.regVotes )
         , ( "seat_won_id", Encode.string constituency.seatWonId.id )

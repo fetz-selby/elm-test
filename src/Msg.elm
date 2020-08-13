@@ -162,7 +162,11 @@ decode model json =
                 Ok agent ->
                     ShowAgents (ShowAgents.AddOne agent)
 
-                Err _ ->
+                Err err ->
+                    let
+                        _ =
+                            Debug.log "Err[Agent]" err
+                    in
                     IncomingMsgError FailedToLoadCandidates
 
         Ok "OneUserAdded" ->

@@ -6,6 +6,7 @@ module Data.Candidate exposing
     , encode
     , filter
     , initCandidate
+    , isIdExist
     , setAngle
     , setAvatarPath
     , setBarRatio
@@ -18,6 +19,7 @@ module Data.Candidate exposing
     , setVotes
     )
 
+import Array
 import Data.Constituency as Constituency
 import Data.Party as Party
 import Json.Decode as Decode
@@ -52,6 +54,16 @@ initCandidate =
     , percentage = "0.0"
     , barRatio = "0.0"
     }
+
+
+isIdExist : Model -> List Model -> Bool
+isIdExist candidate list =
+    list |> getOnlyIds |> List.member candidate.id
+
+
+getOnlyIds : List Model -> List String
+getOnlyIds list =
+    list |> Array.fromList |> Array.map (\n -> n.id) |> Array.toList
 
 
 filter : String -> List Model -> List Model

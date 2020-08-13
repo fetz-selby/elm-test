@@ -291,7 +291,11 @@ showDetailState mode model =
 
 addToAgents : Agent.Model -> List Agent.Model -> List Agent.Model
 addToAgents agent list =
-    agent :: list
+    if Agent.isIdExist agent list then
+        list
+
+    else
+        agent :: list
 
 
 decode : Decode.Decoder AgentData

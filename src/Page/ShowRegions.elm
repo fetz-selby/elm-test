@@ -103,7 +103,7 @@ update model msg =
                     ( { model | selectedRegion = Region.modifySeat seat model.selectedRegion }, Cmd.none )
 
         Save ->
-            ( model, Cmd.none )
+            ( model, Cmd.batch [ Ports.sendToJs (Ports.SaveRegion model.selectedRegion) ] )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
@@ -172,10 +172,10 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
-renderBtn : String -> String -> Bool -> Msg -> Html.Html Msg
-renderBtn label className isCustom msg =
+renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn label className isCustom =
     div [ class "form-group" ]
-        [ button [ classList [ ( className, True ), ( "btn-extra", isCustom ) ], onClick msg ] [ Html.text label ]
+        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
         ]
 
 
@@ -185,10 +185,9 @@ renderDetails model =
         [ div [ class "col-md-12 spacing-bottom" ]
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
-        , form [ onSubmit Save ]
+        , form []
             [ renderField "region" model.name "eg.Ashanti" False Name
             , renderField "seat" model.seats "e.g 30" False Seats
-            , renderBtn "Delete" "btn btn-danger" True (OnDelete model.id)
             ]
         ]
 
@@ -206,7 +205,7 @@ renderNewDetails =
     form [ onSubmit Save ]
         [ renderField "region" "" "eg.Ashanti" True Name
         , renderField "seat" "" "e.g 30" True Seats
-        , renderBtn "Add" "btn btn-primary" True OnAdd
+        , renderSubmitBtn "Save" "btn btn-danger" True
         ]
 
 
@@ -225,7 +224,11 @@ showDetailState mode model =
 
 addToRegions : Region.Model -> List Region.Model -> List Region.Model
 addToRegions region list =
-    region :: list
+    if Region.isIdExist region list then
+        list
+
+    else
+        region :: list
 
 
 decode : Decode.Decoder RegionData

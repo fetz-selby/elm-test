@@ -6,6 +6,7 @@ module Data.Approve exposing
     , encode
     , filter
     , initApprove
+    , isIdExist
     , setAgent
     , setCandidateType
     , setConstituency
@@ -16,6 +17,7 @@ module Data.Approve exposing
     , setPoll
     )
 
+import Array
 import Data.Agent as Agent
 import Data.Constituency as Constituency
 import Data.Poll as Poll
@@ -56,6 +58,16 @@ initApprove =
     , postedTs = ""
     , status = ""
     }
+
+
+isIdExist : Model -> List Model -> Bool
+isIdExist approve list =
+    list |> getOnlyIds |> List.member approve.id
+
+
+getOnlyIds : List Model -> List String
+getOnlyIds list =
+    list |> Array.fromList |> Array.map (\n -> n.id) |> Array.toList
 
 
 filter : String -> List Model -> List Model

@@ -209,6 +209,28 @@ constituencyItem item =
     option [ value item.id ] [ Html.text item.name ]
 
 
+renderGenericList : String -> (String -> Field) -> List { id : String, name : String } -> Html.Html Msg
+renderGenericList fieldLabel field itemsList =
+    div [ class "form-group" ]
+        [ label [] [ Html.text fieldLabel ]
+        , select
+            [ class "form-control"
+            , onChange (Form << field)
+            ]
+            (List.map genericItem itemsList)
+        ]
+
+
+genericItem : { id : String, name : String } -> Html.Html msg
+genericItem item =
+    option [ value item.id ] [ Html.text item.name ]
+
+
+getTypeList : List { id : String, name : String }
+getTypeList =
+    [ { id = "0", name = "Select" }, { id = "M", name = "Paliamentary" }, { id = "P", name = "Presidential" } ]
+
+
 renderCandidateList : List Candidate.Model -> Html.Html Msg
 renderCandidateList candidates =
     table [ class "table table-striped table table-hover" ]
@@ -265,8 +287,8 @@ renderDetails model =
             ]
         , form [ onSubmit Save ]
             [ renderField "name" model.name "eg. Smith" False Name
-            , renderField "constituency" model.constituency.name "e.g P" False Constituency
-            , renderField "type" model.candidateType "e.g P" False CandidateType
+            , renderField "constituency" model.constituency.name "e.g Bantama" False Constituency
+            , renderField "type" model.candidateType "e.g M/P" False CandidateType
             , renderField "votes" model.votes "e.g 1002" False Votes
             , renderField "party" model.party.name "e.g XXX" False Party
             , renderField "avatar path" model.avatarPath "e.g XXX" False AvatarPath
@@ -281,8 +303,8 @@ renderEditableDetails : Candidate.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
         [ renderField "name" model.name "eg. Smith" True Name
-        , renderField "constituency" model.constituency.name "e.g P" True Constituency
-        , renderField "type" model.candidateType "e.g P" True CandidateType
+        , renderField "constituency" model.constituency.name "e.g Bantama" True Constituency
+        , renderField "type" model.candidateType "e.g M/P" True CandidateType
         , renderField "votes" model.votes "e.g 1002" True Votes
         , renderField "party" model.party.name "e.g XXX" True Party
         , renderField "avatar path" model.avatarPath "e.g XXX" True AvatarPath
@@ -299,7 +321,7 @@ renderNewDetails model selectedUser =
         [ renderField "name" selectedUser.name "eg. Smith" True Name
         , renderConstituencies "constituency" Constituency model.constituencies
         , renderParties "party" Party model.parties
-        , renderField "type" selectedUser.candidateType "e.g P" True CandidateType
+        , renderGenericList "type" CandidateType getTypeList
         , renderField "votes" selectedUser.votes "e.g 1002" True Votes
         , renderField "avatar path" selectedUser.avatarPath "e.g XXX" True AvatarPath
         , renderField "percentage" selectedUser.percentage "e.g 45.4" True Percentage

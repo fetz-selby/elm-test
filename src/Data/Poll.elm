@@ -6,6 +6,7 @@ module Data.Poll exposing
     , encode
     , filter
     , initPoll
+    , isIdExist
     , setConstituency
     , setId
     , setName
@@ -14,6 +15,7 @@ module Data.Poll exposing
     , setValidVotes
     )
 
+import Array
 import Data.Constituency as Constituency
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
@@ -41,6 +43,16 @@ initPoll =
     , totalVoters = ""
     , constituency = Constituency.initConstituency
     }
+
+
+isIdExist : Model -> List Model -> Bool
+isIdExist poll list =
+    list |> getOnlyIds |> List.member poll.id
+
+
+getOnlyIds : List Model -> List String
+getOnlyIds list =
+    list |> Array.fromList |> Array.map (\n -> n.id) |> Array.toList
 
 
 filter : String -> List Model -> List Model

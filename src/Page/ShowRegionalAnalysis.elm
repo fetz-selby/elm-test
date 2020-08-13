@@ -196,6 +196,28 @@ partyItem item =
     option [ value item.id ] [ Html.text item.name ]
 
 
+renderGenericList : String -> (String -> Field) -> List { id : String, name : String } -> Html.Html Msg
+renderGenericList fieldLabel field itemsList =
+    div [ class "form-group" ]
+        [ label [] [ Html.text fieldLabel ]
+        , select
+            [ class "form-control"
+            , onChange (Form << field)
+            ]
+            (List.map genericItem itemsList)
+        ]
+
+
+genericItem : { id : String, name : String } -> Html.Html msg
+genericItem item =
+    option [ value item.id ] [ Html.text item.name ]
+
+
+getTypeList : List { id : String, name : String }
+getTypeList =
+    [ { id = "0", name = "Select" }, { id = "M", name = "Parliamentary" }, { id = "P", name = "Presidential" } ]
+
+
 renderRegionalList : List RegionalAnalysis.Model -> Html.Html Msg
 renderRegionalList regionalAnalysis =
     table [ class "table table-striped table table-hover" ]
@@ -251,7 +273,7 @@ renderDetails model =
             ]
         , form [ onSubmit Save ]
             [ renderField "region" model.region.name "eg.Ashanti" False Region
-            , renderField "type" model.candidateType "e.g P" False CandidateType
+            , renderField "type" model.candidateType "e.g M/P" False CandidateType
             , renderField "votes" model.votes "e.g 1002" False Votes
             , renderField "party" model.party.name "e.g XXX" False Party
             , renderField "percentage" model.percentage "e.g 45.4" False Percentage
@@ -266,13 +288,12 @@ renderEditableDetails : RegionalAnalysis.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Save ]
         [ renderField "region" model.region.name "eg.Ashanti" True Region
-        , renderField "type" model.candidateType "e.g P" True CandidateType
+        , renderField "type" model.candidateType "e.g M/P" True CandidateType
         , renderField "votes" model.votes "e.g 1002" True Votes
         , renderField "party" model.party.name "e.g XXX" True Party
         , renderField "percentage" model.percentage "e.g 45.4" True Percentage
         , renderField "angle" model.angle "e.g 180" True Angle
         , renderField "bar" model.bar "e.g 234" True Bar
-        , renderField "status" model.status "e.g A/D" True Status
         ]
 
 
@@ -281,12 +302,11 @@ renderNewDetails model selectedRegionalAnalysis =
     form [ onSubmit Save ]
         [ renderRegions "region" Region model.regions
         , renderParties "party" Party model.parties
-        , renderField "type" selectedRegionalAnalysis.candidateType "e.g P" True CandidateType
+        , renderGenericList "type" CandidateType getTypeList
         , renderField "votes" selectedRegionalAnalysis.votes "e.g 1002" True Votes
         , renderField "percentage" selectedRegionalAnalysis.percentage "e.g 45.4" True Percentage
         , renderField "angle" selectedRegionalAnalysis.angle "e.g 180" True Angle
         , renderField "bar" selectedRegionalAnalysis.bar "e.g 234" True Bar
-        , renderField "status" selectedRegionalAnalysis.status "e.g A/D" True Status
         , renderSubmitBtn "Save" "btn btn-danger" True
         ]
 

@@ -6,6 +6,7 @@ module Data.RegionalAnalysis exposing
     , encode
     , filter
     , initRegionalAnalysis
+    , isIdExist
     , setAngle
     , setBar
     , setCandidateType
@@ -17,8 +18,9 @@ module Data.RegionalAnalysis exposing
     , setVotes
     )
 
+import Array
 import Data.Party as Party
-import Data.Region as Region exposing (convertModelToLower)
+import Data.Region as Region exposing (convertModelToLower, isIdExist)
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
 import Json.Encode as Encode
@@ -49,6 +51,16 @@ initRegionalAnalysis =
     , region = Region.initRegion
     , status = ""
     }
+
+
+isIdExist : Model -> List Model -> Bool
+isIdExist regionalAnalysis list =
+    list |> getOnlyIds |> List.member regionalAnalysis.id
+
+
+getOnlyIds : List Model -> List String
+getOnlyIds list =
+    list |> Array.fromList |> Array.map (\n -> n.id) |> Array.toList
 
 
 filter : String -> List Model -> List Model

@@ -6,6 +6,7 @@ module Data.Agent exposing
     , encode
     , filter
     , initAgent
+    , isIdExist
     , setConstituency
     , setId
     , setMsisdn
@@ -14,6 +15,7 @@ module Data.Agent exposing
     , setPoll
     )
 
+import Array
 import Data.Constituency as Constituency
 import Data.Poll as Poll
 import Json.Decode as Decode
@@ -40,6 +42,16 @@ initAgent =
     , constituency = Constituency.initConstituency
     , poll = Poll.initPoll
     }
+
+
+isIdExist : Model -> List Model -> Bool
+isIdExist agent list =
+    list |> getOnlyIds |> List.member agent.id
+
+
+getOnlyIds : List Model -> List String
+getOnlyIds list =
+    list |> Array.fromList |> Array.map (\n -> n.id) |> Array.toList
 
 
 filter : String -> List Model -> List Model

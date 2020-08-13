@@ -190,7 +190,7 @@ updateWithPollsPage model pageModel =
 
 updateWithParentConstituenciesPage : Model -> ShowParentConstituenciesPage.Model -> Model
 updateWithParentConstituenciesPage model pageModel =
-    { model | pages = Page.ShowParentConstituencies pageModel, pageTitle = "Polls" }
+    { model | pages = Page.ShowParentConstituencies pageModel, pageTitle = "Parent Constituencies" }
 
 
 updateWithApprovesPage : Model -> ShowApprovesPage.Model -> Model

@@ -94,7 +94,7 @@ update model msg =
                     ( { model | selectedConstituency = Constituency.setCastedVotes castedVotes model.selectedConstituency }, Cmd.none )
 
                 IsDeclared isDeclared ->
-                    ( { model | selectedConstituency = Constituency.setIsDeclared False model.selectedConstituency }, Cmd.none )
+                    ( { model | selectedConstituency = Constituency.setIsDeclared isDeclared model.selectedConstituency }, Cmd.none )
 
                 ParentId parentId ->
                     ( { model | selectedConstituency = Constituency.setParentId parentId model.selectedConstituency }, Cmd.none )
@@ -112,7 +112,7 @@ update model msg =
                     ( { model | selectedConstituency = Constituency.setTotalVotes totalVotes model.selectedConstituency }, Cmd.none )
 
                 AutoCompute autoCompute ->
-                    ( { model | selectedConstituency = Constituency.setAutoCompute False model.selectedConstituency }, Cmd.none )
+                    ( { model | selectedConstituency = Constituency.setAutoCompute autoCompute model.selectedConstituency }, Cmd.none )
 
         Save ->
             ( model, Cmd.batch [ Ports.sendToJs (Ports.SaveConstituency model.selectedConstituency) ] )
@@ -189,6 +189,33 @@ partyItem item =
     option [ value item.id ] [ Html.text item.name ]
 
 
+renderGenericList : String -> (String -> Field) -> List { id : String, name : String } -> Html.Html Msg
+renderGenericList fieldLabel field itemsList =
+    div [ class "form-group" ]
+        [ label [] [ Html.text fieldLabel ]
+        , select
+            [ class "form-control"
+            , onChange (Form << field)
+            ]
+            (List.map genericItem itemsList)
+        ]
+
+
+genericItem : { id : String, name : String } -> Html.Html msg
+genericItem item =
+    option [ value item.id ] [ Html.text item.name ]
+
+
+getIsDeclaredList : List { id : String, name : String }
+getIsDeclaredList =
+    [ { id = "0", name = "Select" }, { id = "N", name = "No" }, { id = "Y", name = "Yes" } ]
+
+
+getAutoComputeList : List { id : String, name : String }
+getAutoComputeList =
+    [ { id = "0", name = "Select" }, { id = "N", name = "No" }, { id = "Y", name = "Yes" } ]
+
+
 renderHeader : Html.Html Msg
 renderHeader =
     div [ class "row spacing" ]
@@ -256,7 +283,7 @@ renderDetails model =
         , form [ onSubmit Save ]
             [ renderField "constituency" model.name "eg.Bekwai" False Constituency
             , renderField "seat won by" model.seatWonId.name "eg.XXX" False SeatWonId
-            , renderField "casted votes" model.castedVotes "e.g P" False CastedVotes
+            , renderField "casted votes" model.castedVotes "e.g 3423" False CastedVotes
             , renderField "reg votes" model.regVotes "e.g 432" False RegVotes
             , renderField "rejected votes" model.rejectVotes "e.g 180" False RejectVotes
             , renderField "total votes" model.totalVotes "e.g 234" False TotalVotes
@@ -289,7 +316,7 @@ renderEditableDetails model =
     form [ onSubmit Save ]
         [ renderField "constituency" model.name "eg.Bekwai" True Constituency
         , renderField "seat won by" model.seatWonId.name "eg.XXX" True SeatWonId
-        , renderField "casted votes" model.castedVotes "e.g P" True CastedVotes
+        , renderField "casted votes" model.castedVotes "e.g 2342" True CastedVotes
         , renderField "reg votes" model.regVotes "e.g 432" True RegVotes
         , renderField "rejected votes" model.rejectVotes "e.g 180" True RejectVotes
         , renderField "total votes" model.totalVotes "e.g 234" True TotalVotes
@@ -323,20 +350,12 @@ renderNewDetails model constituencyModel =
         [ renderParentConstituencies "parent constituency" ParentId model.parentConstituencies
         , renderParties "seat won by" SeatWonId model.parties
         , renderField "constituency" constituencyModel.name "eg.Bekwai" True Constituency
-        , renderField "casted votes" constituencyModel.castedVotes "e.g P" True CastedVotes
+        , renderField "casted votes" constituencyModel.castedVotes "e.g 2343" True CastedVotes
         , renderField "reg votes" constituencyModel.regVotes "e.g 432" True RegVotes
         , renderField "rejected votes" constituencyModel.rejectVotes "e.g 180" True RejectVotes
         , renderField "total votes" constituencyModel.totalVotes "e.g 234" True TotalVotes
-        , renderField "is declared"
-            "No"
-            "e.g Yes"
-            True
-            IsDeclared
-        , renderField "is autoCompute"
-            "No"
-            "e.g No"
-            True
-            AutoCompute
+        , renderGenericList "is declared" IsDeclared getIsDeclaredList
+        , renderGenericList "is auto compute" AutoCompute getAutoComputeList
         , renderSubmitBtn "Save" "btn btn-danger" True
         ]
 

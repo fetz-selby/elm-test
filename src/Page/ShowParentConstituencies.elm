@@ -2,10 +2,9 @@ module Page.ShowParentConstituencies exposing (Model, Msg(..), decode, default, 
 
 import Data.ParentConstituency as ParentConstituency
 import Data.Region as Region
-import Html exposing (button, div, form, input, label, option, select, table, tbody, td, th, thead, tr)
+import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
 import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
-import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
 import Ports
 
@@ -37,7 +36,6 @@ type ShowDetailMode
 
 type alias ParentConstituencyData =
     { parentConstituencies : List ParentConstituency.Model
-    , regions : List Region.Model
     }
 
 
@@ -70,7 +68,6 @@ update model msg =
         ParentConstituenciesReceived parentConstituencyData ->
             ( { model
                 | parentConstituencies = parentConstituencyData.parentConstituencies
-                , regions = parentConstituencyData.regions
               }
             , Cmd.none
             )
@@ -124,7 +121,7 @@ view model =
                         renderEditableDetails model.selectedParentConstituency
 
                     New ->
-                        renderNewDetails model model.selectedParentConstituency
+                        renderNewDetails model.selectedParentConstituency
                 ]
             ]
         ]
@@ -142,21 +139,20 @@ renderHeader =
         ]
 
 
-renderRegions : String -> (String -> Field) -> List Region.Model -> Html.Html Msg
-renderRegions fieldLabel field regionList =
-    div [ class "form-group" ]
-        [ label [] [ Html.text fieldLabel ]
-        , select
-            [ class "form-control"
-            , onChange (Form << field)
-            ]
-            (List.map regionItem regionList)
-        ]
 
-
-regionItem : Region.Model -> Html.Html msg
-regionItem item =
-    option [ value item.id ] [ Html.text item.name ]
+-- renderRegions : String -> (String -> Field) -> List Region.Model -> Html.Html Msg
+-- renderRegions fieldLabel field regionList =
+--     div [ class "form-group" ]
+--         [ label [] [ Html.text fieldLabel ]
+--         , select
+--             [ class "form-control"
+--             , onChange (Form << field)
+--             ]
+--             (List.map regionItem regionList)
+--         ]
+-- regionItem : Region.Model -> Html.Html msg
+-- regionItem item =
+--     option [ value item.id ] [ Html.text item.name ]
 
 
 renderParentConstituencyList : List ParentConstituency.Model -> Html.Html Msg
@@ -210,8 +206,8 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "name" model.name "eg. Smith" False Name
-            , renderField "region" model.region.name "e.g P" False Region
+            [ renderField "name" model.name "eg. Bantama" False Name
+            , renderField "region" model.region.name "e.g Ashanti" False Region
             ]
         ]
 
@@ -219,17 +215,16 @@ renderDetails model =
 renderEditableDetails : ParentConstituency.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderField "name" model.name "eg. Smith" True Name
-        , renderField "region" model.region.name "e.g P" True Region
+        [ renderField "name" model.name "eg. Bantama" True Name
+        , renderField "region" model.region.name "e.g Ashanti" False Region
         , renderSubmitBtn "Update" "btn btn-danger" True
         ]
 
 
-renderNewDetails : Model -> ParentConstituency.Model -> Html.Html Msg
-renderNewDetails model selectedParentConstituency =
+renderNewDetails : ParentConstituency.Model -> Html.Html Msg
+renderNewDetails selectedParentConstituency =
     form [ onSubmit Save ]
-        [ renderField "name" selectedParentConstituency.name "eg. Smith" True Name
-        , renderRegions "region" Region model.regions
+        [ renderField "name" selectedParentConstituency.name "eg. Bantama" True Name
         , renderSubmitBtn "Save" "btn btn-danger" True
         ]
 
@@ -254,7 +249,7 @@ addToParentConstituencies parentConstituency list =
 
 decode : Decode.Decoder ParentConstituencyData
 decode =
-    Decode.field "parentConstituencyData" (Decode.map2 ParentConstituencyData ParentConstituency.decodeList Region.decodeList)
+    Decode.field "parentConstituencyData" (Decode.map ParentConstituencyData ParentConstituency.decodeList)
 
 
 default : Model

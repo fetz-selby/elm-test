@@ -191,7 +191,7 @@ renderDetails model =
             , renderField "agent" model.agent.name "eg.Smith" False Agent
             , renderField "constituency" model.constituency.name "e.g Bekwai" False Constituency
             , renderField "poll station" model.poll.name "e.g XXX" False Poll
-            , renderField "type" model.candidateType "e.g 45.4" False CandidateType
+            , renderField "type" model.candidateType "e.g M/P" False CandidateType
             , renderField "msisdn" model.msisdn "e.g +XXX XXXX" False Msisdn
             , renderField "posted ts" model.postedTs "e.g 12.01.2020 16:54 32" False PostedTs
             , renderSubmitBtn "Reject" "btn btn-danger" True
@@ -206,7 +206,7 @@ renderEditableDetails model =
         , renderField "agent" model.agent.name "eg.Smith" False Agent
         , renderField "constituency" model.constituency.name "e.g Bekwai" False Constituency
         , renderField "poll station" model.poll.name "e.g XXX" False Poll
-        , renderField "type" model.candidateType "e.g 45.4" False CandidateType
+        , renderField "type" model.candidateType "e.g M/P" False CandidateType
         , renderField "msisdn" model.msisdn "e.g +XXX XXXX" False Msisdn
         , renderField "posted ts" model.postedTs "e.g 12.01.2020 16:54 32" False PostedTs
         , renderSubmitBtn "Approve" "btn btn-danger" True

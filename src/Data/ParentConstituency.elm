@@ -6,11 +6,13 @@ module Data.ParentConstituency exposing
     , encode
     , filter
     , initParentConstituency
+    , isIdExist
     , setId
     , setName
     , setRegionId
     )
 
+import Array
 import Data.Region as Region
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
@@ -27,6 +29,16 @@ type alias Model =
 initParentConstituency : Model
 initParentConstituency =
     { id = "", name = "", region = Region.initRegion }
+
+
+isIdExist : Model -> List Model -> Bool
+isIdExist parentConstituency list =
+    list |> getOnlyIds |> List.member parentConstituency.id
+
+
+getOnlyIds : List Model -> List String
+getOnlyIds list =
+    list |> Array.fromList |> Array.map (\n -> n.id) |> Array.toList
 
 
 filter : String -> List Model -> List Model

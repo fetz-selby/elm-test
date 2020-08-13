@@ -6,6 +6,7 @@ module Data.Region exposing
     , encode
     , filter
     , initRegion
+    , isIdExist
     , modifyName
     , modifySeat
     , setId
@@ -13,6 +14,7 @@ module Data.Region exposing
     , setSeats
     )
 
+import Array
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
 import Json.Encode as Encode
@@ -28,6 +30,16 @@ type alias Model =
 initRegion : Model
 initRegion =
     { id = "", name = "", seats = "0" }
+
+
+isIdExist : Model -> List Model -> Bool
+isIdExist region list =
+    list |> getOnlyIds |> List.member region.id
+
+
+getOnlyIds : List Model -> List String
+getOnlyIds list =
+    list |> Array.fromList |> Array.map (\n -> n.id) |> Array.toList
 
 
 encode : Model -> Encode.Value

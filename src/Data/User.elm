@@ -6,6 +6,8 @@ module Data.User exposing
     , encode
     , filter
     , initUser
+    , isIdExist
+    , setEmail
     , setId
     , setLevel
     , setMsisdn
@@ -15,6 +17,7 @@ module Data.User exposing
     , setYear
     )
 
+import Array
 import Data.Region as Region
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
@@ -24,6 +27,7 @@ import Json.Encode as Encode
 type alias Model =
     { id : String
     , name : String
+    , email : String
     , msisdn : String
     , level : String
     , year : String
@@ -36,6 +40,7 @@ initUser : Model
 initUser =
     { id = ""
     , name = ""
+    , email = ""
     , msisdn = ""
     , level = ""
     , year = ""
@@ -76,6 +81,11 @@ setName name model =
     { model | name = name }
 
 
+setEmail : String -> Model -> Model
+setEmail email model =
+    { model | email = email }
+
+
 setMsisdn : String -> Model -> Model
 setMsisdn msisdn model =
     { model | msisdn = msisdn }
@@ -101,16 +111,27 @@ setRegionId regionId model =
     { model | region = Region.setId regionId model.region }
 
 
+isIdExist : Model -> List Model -> Bool
+isIdExist user list =
+    list |> getOnlyIds |> List.member user.id
+
+
+getOnlyIds : List Model -> List String
+getOnlyIds list =
+    list |> Array.fromList |> Array.map (\n -> n.id) |> Array.toList
+
+
 encode : Model -> Encode.Value
 encode user =
     Encode.object
         [ ( "id", Encode.string user.id )
         , ( "name", Encode.string user.name )
+        , ( "email", Encode.string user.email )
         , ( "msisdn", Encode.string user.msisdn )
         , ( "level", Encode.string user.level )
         , ( "year", Encode.string user.year )
         , ( "region_id", Encode.string user.region.id )
-        , ( "password", Encode.string user.region.id )
+        , ( "password", Encode.string user.password )
         ]
 
 
@@ -119,6 +140,7 @@ decode =
     Decode.succeed Model
         |> JDP.required "id" Decode.string
         |> JDP.required "name" Decode.string
+        |> JDP.required "email" Decode.string
         |> JDP.required "msisdn" Decode.string
         |> JDP.required "level" Decode.string
         |> JDP.required "year" Decode.string
