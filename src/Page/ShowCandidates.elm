@@ -346,7 +346,11 @@ showDetailState mode model =
 
 addToCandidates : Candidate.Model -> List Candidate.Model -> List Candidate.Model
 addToCandidates candidate list =
-    candidate :: list
+    if Candidate.isIdExist candidate list then
+        list
+
+    else
+        candidate :: list
 
 
 decode : Decode.Decoder CandidateData

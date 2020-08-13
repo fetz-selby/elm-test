@@ -83,7 +83,7 @@ update model msg =
             ( model, Cmd.none )
 
         AddParty ->
-            ( { model | showDetailMode = New }, Cmd.none )
+            ( { model | showDetailMode = New, selectedParty = Party.initParty }, Cmd.none )
 
         ShowDetail party ->
             ( { model | showDetailMode = View, selectedParty = party }, Cmd.none )
@@ -188,8 +188,8 @@ renderDetails model =
             ]
         , form [ onSubmit Save ]
             [ renderField "party" model.name "eg.XXX" False Party
-            , renderField "color" model.color "e.g P" False Color
-            , renderField "logo path" model.logoPath "e.g #F33e345" False LogoPath
+            , renderField "color" model.color "e.g #fefefe" False Color
+            , renderField "logo path" model.logoPath "e.g /path/to/avatar.jpg" False LogoPath
             , renderField "order queue" model.orderQueue "e.g 12" False OrderQueue
             ]
         ]
@@ -199,8 +199,8 @@ renderEditableDetails : Party.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Save ]
         [ renderField "party" model.name "eg.XXX" True Party
-        , renderField "color" model.color "e.g P" True Color
-        , renderField "logo path" model.logoPath "e.g #F33e345" True LogoPath
+        , renderField "color" model.color "e.g #fefefe" True Color
+        , renderField "logo path" model.logoPath "e.g /path/to/avatar.jpg" True LogoPath
         , renderField "order queue" model.orderQueue "e.g 12" True OrderQueue
         ]
 
@@ -209,8 +209,8 @@ renderNewDetails : Party.Model -> Html.Html Msg
 renderNewDetails selectedParty =
     form [ onSubmit Save ]
         [ renderField "party" selectedParty.name "eg.XXX" True Party
-        , renderField "color" selectedParty.color "e.g P" True Color
-        , renderField "logo path" selectedParty.logoPath "e.g #F33e345" True LogoPath
+        , renderField "color" selectedParty.color "e.g #fefefe" True Color
+        , renderField "logo path" selectedParty.logoPath "e.g /path/to/avatar.jpg" True LogoPath
         , renderField "order queue" selectedParty.orderQueue "e.g 12" True OrderQueue
         , renderSubmitBtn "Save" "btn btn-danger" True
         ]
@@ -231,7 +231,11 @@ showDetailState mode model =
 
 addToParties : Party.Model -> List Party.Model -> List Party.Model
 addToParties party list =
-    party :: list
+    if Party.isIdExist party list then
+        list
+
+    else
+        party :: list
 
 
 decode : Decode.Decoder PartyData

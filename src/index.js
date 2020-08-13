@@ -27,6 +27,10 @@ import {
   normalizeUser,
   normalizeAgent,
   normalizeRegion,
+  normalizeConstituency,
+  normalizeCandidate,
+  normalizeParty,
+  normalizePoll,
 } from "./api/helper";
 import io from "socket.io-client";
 import feathers from "@feathersjs/client";
@@ -343,7 +347,7 @@ async function create() {
 
       case "SavePoll": {
         const poll = { ...payload, year };
-        console.log("Poll,", poll);
+        const addPollResp = await addPoll({ service, poll });
         // const addCandidateResp = await addCandidate({ service, candidate });
         // console.log("[AddAgent], ", addAgentResp);
 
@@ -434,17 +438,39 @@ async function create() {
       });
     });
 
-    service.service("constituencies").on("created", (d, c) => {});
+    service.service("constituencies").on("created", (constituency, c) => {
+      app.ports.msgForElm.send({
+        type: "OneConstituencyAdd",
+        payload: normalizeConstituency(constituency),
+      });
+    });
 
     service.service("approve_list").on("created", (d, c) => {});
 
-    service.service("candidates").on("created", (d, c) => {});
+    service.service("candidates").on("created", (candidate, c) => {
+      app.ports.msgForElm.send({
+        type: "OneCandidateAdded",
+        payload: normalizeCandidate(candidate),
+      });
+    });
 
     service.service("national_analysis").on("created", (d, c) => {});
 
     service.service("parent_constituencies").on("created", (d, c) => {});
 
-    service.service("parties").on("created", (d, c) => {});
+    service.service("parties").on("created", (party, c) => {
+      app.ports.msgForElm.send({
+        type: "OnePartyAdded",
+        payload: normalizeParty(party),
+      });
+    });
+
+    service.service("polls").on("created", (poll, c) => {
+      app.ports.msgForElm.send({
+        type: "OnePollAdded",
+        payload: normalizePoll(poll),
+      });
+    });
 
     service.service("regional_analysis").on("created", (d, c) => {});
 

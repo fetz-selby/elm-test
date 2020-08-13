@@ -65,7 +65,7 @@ update model msg =
             ( model, Cmd.none )
 
         AddPoll ->
-            ( { model | showDetailMode = New }, Cmd.none )
+            ( { model | showDetailMode = New, selectedPoll = Poll.initPoll }, Cmd.none )
 
         ShowDetail poll ->
             ( { model | showDetailMode = View, selectedPoll = poll }, Cmd.none )
@@ -225,7 +225,7 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "name" model.name "eg. Smith" False Name
+            [ renderField "name" model.name "eg. XXX" False Name
             , renderField "constituency" model.constituency.name "e.g Bantama" False Constituency
             , renderField "rejected" model.rejectedVotes "e.g 12" False RejectedVotes
             , renderField "valid" model.validVotes "e.g 1002" False ValidVotes
@@ -237,7 +237,7 @@ renderDetails model =
 renderEditableDetails : Poll.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Save ]
-        [ renderField "name" model.name "eg. Smith" True Name
+        [ renderField "name" model.name "eg. XXX" True Name
         , renderField "constituency" model.constituency.name "eg. XXX" True Constituency
         , renderField "rejected" model.rejectedVotes "e.g 12" True RejectedVotes
         , renderField "valid" model.validVotes "e.g 1002" True ValidVotes
@@ -248,7 +248,7 @@ renderEditableDetails model =
 renderNewDetails : Model -> Poll.Model -> Html.Html Msg
 renderNewDetails model selectedPoll =
     form [ onSubmit Save ]
-        [ renderField "name" selectedPoll.name "eg. Smith" True Name
+        [ renderField "name" selectedPoll.name "eg. XXX" True Name
         , renderConstituencies "constituency" Constituency model.constituencies
         , renderField "rejected" selectedPoll.rejectedVotes "e.g 12" True RejectedVotes
         , renderField "valid" selectedPoll.validVotes "e.g 1002" True ValidVotes
@@ -272,7 +272,11 @@ showDetailState mode model =
 
 addToPolls : Poll.Model -> List Poll.Model -> List Poll.Model
 addToPolls poll list =
-    poll :: list
+    if Poll.isIdExist poll list then
+        list
+
+    else
+        poll :: list
 
 
 decode : Decode.Decoder PollData

@@ -68,7 +68,7 @@ update model msg =
             ( model, Cmd.none )
 
         AddConstituency ->
-            ( { model | showDetailMode = New }, Cmd.none )
+            ( { model | showDetailMode = New, selectedConstituency = Constituency.initConstituency }, Cmd.none )
 
         ShowDetail constituency ->
             ( { model | showDetailMode = View, selectedConstituency = constituency }, Cmd.none )
@@ -146,7 +146,7 @@ view model =
                         renderDetails model.selectedConstituency
 
                     Edit ->
-                        renderEditableDetails model.selectedConstituency
+                        renderEditableDetails model model.selectedConstituency
 
                     New ->
                         renderNewDetails model model.selectedConstituency
@@ -311,36 +311,18 @@ renderDetails model =
         ]
 
 
-renderEditableDetails : Constituency.Model -> Html.Html Msg
-renderEditableDetails model =
+renderEditableDetails : Model -> Constituency.Model -> Html.Html Msg
+renderEditableDetails model selectedConstituency =
     form [ onSubmit Save ]
-        [ renderField "constituency" model.name "eg.Bekwai" True Constituency
-        , renderField "seat won by" model.seatWonId.name "eg.XXX" True SeatWonId
-        , renderField "casted votes" model.castedVotes "e.g 2342" True CastedVotes
-        , renderField "reg votes" model.regVotes "e.g 432" True RegVotes
-        , renderField "rejected votes" model.rejectVotes "e.g 180" True RejectVotes
-        , renderField "total votes" model.totalVotes "e.g 234" True TotalVotes
-        , renderField "is declared"
-            (if model.isDeclared then
-                "Yes"
-
-             else
-                "No"
-            )
-            "e.g Yes"
-            True
-            IsDeclared
-        , renderField "is declared"
-            (if model.autoCompute then
-                "Yes"
-
-             else
-                "No"
-            )
-            "e.g No"
-            True
-            AutoCompute
-        , renderField "parent id" model.parent.name "e.g Bantama" True ParentId
+        [ renderField "constituency" selectedConstituency.name "eg.Bekwai" True Constituency
+        , renderParties "seat won by" SeatWonId model.parties
+        , renderField "casted votes" selectedConstituency.castedVotes "e.g 2342" True CastedVotes
+        , renderField "reg votes" selectedConstituency.regVotes "e.g 432" True RegVotes
+        , renderField "rejected votes" selectedConstituency.rejectVotes "e.g 180" True RejectVotes
+        , renderField "total votes" selectedConstituency.totalVotes "e.g 234" True TotalVotes
+        , renderGenericList "is declared" IsDeclared getIsDeclaredList
+        , renderGenericList "is auto compute" AutoCompute getAutoComputeList
+        , renderField "parent id" selectedConstituency.parent.name "e.g Bantama" True ParentId
         ]
 
 
@@ -348,13 +330,11 @@ renderNewDetails : Model -> Constituency.Model -> Html.Html Msg
 renderNewDetails model constituencyModel =
     form [ onSubmit Save ]
         [ renderParentConstituencies "parent constituency" ParentId model.parentConstituencies
-        , renderParties "seat won by" SeatWonId model.parties
         , renderField "constituency" constituencyModel.name "eg.Bekwai" True Constituency
         , renderField "casted votes" constituencyModel.castedVotes "e.g 2343" True CastedVotes
         , renderField "reg votes" constituencyModel.regVotes "e.g 432" True RegVotes
         , renderField "rejected votes" constituencyModel.rejectVotes "e.g 180" True RejectVotes
         , renderField "total votes" constituencyModel.totalVotes "e.g 234" True TotalVotes
-        , renderGenericList "is declared" IsDeclared getIsDeclaredList
         , renderGenericList "is auto compute" AutoCompute getAutoComputeList
         , renderSubmitBtn "Save" "btn btn-danger" True
         ]
@@ -375,7 +355,11 @@ showDetailState mode model =
 
 addToConstituencies : Constituency.Model -> List Constituency.Model -> List Constituency.Model
 addToConstituencies constituency list =
-    constituency :: list
+    if Constituency.isIdExist constituency list then
+        list
+
+    else
+        constituency :: list
 
 
 decode : Decode.Decoder ConstituencyData
