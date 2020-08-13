@@ -5,6 +5,7 @@ import Page.ShowApproves as ShowApproves
 import Page.ShowCandidates as ShowCandidates
 import Page.ShowConstituencies as ShowConstituencies
 import Page.ShowNationalAnalysis as ShowNationalAnalysis
+import Page.ShowParentConstituencies as ShowParentConstituencies
 import Page.ShowParties as ShowParties
 import Page.ShowPolls as ShowPolls
 import Page.ShowRegionalAnalysis as ShowRegionalAnalysis
@@ -17,6 +18,7 @@ type Page
     | ShowCandidates ShowCandidates.Model
     | ShowAgents ShowAgents.Model
     | ShowPolls ShowPolls.Model
+    | ShowParentConstituencies ShowParentConstituencies.Model
     | ShowParties ShowParties.Model
     | ShowRegions ShowRegions.Model
     | ShowApproves ShowApproves.Model

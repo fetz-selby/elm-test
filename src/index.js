@@ -247,6 +247,28 @@ async function create() {
         break;
       }
 
+      case "InitParentConstituencies": {
+        const regions = await getRegions({ service });
+        const parentConstituencies = await getParentConstituencies({
+          service,
+          regionId,
+        });
+
+        app.ports.msgForElm.send({
+          type: "ParentConstituenciesLoaded",
+          payload: {
+            parentConstituencyData: {
+              parentConstituencies: normalizeParentConstituencies(
+                parentConstituencies
+              ),
+              regions: normalizeRegions(regions),
+            },
+          },
+        });
+
+        break;
+      }
+
       case "InitApprove": {
         const approves = await getApproves({ service, year, regionId });
         app.ports.msgForElm.send({
@@ -358,6 +380,15 @@ async function create() {
       case "SavePoll": {
         const poll = { ...payload, year };
         console.log("Poll,", poll);
+        // const addCandidateResp = await addCandidate({ service, candidate });
+        // console.log("[AddAgent], ", addAgentResp);
+
+        break;
+      }
+
+      case "SaveParentConstituency": {
+        const parentConstituency = { ...payload, year };
+        console.log("ParentConstituency,", parentConstituency);
         // const addCandidateResp = await addCandidate({ service, candidate });
         // console.log("[AddAgent], ", addAgentResp);
 

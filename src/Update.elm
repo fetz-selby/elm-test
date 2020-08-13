@@ -8,6 +8,7 @@ import Page.ShowApproves as ShowApprovesPage
 import Page.ShowCandidates as ShowCandidatesPage
 import Page.ShowConstituencies as ShowConstituenciesPage
 import Page.ShowNationalAnalysis as ShowNationalAnalysisPage
+import Page.ShowParentConstituencies as ShowParentConstituenciesPage
 import Page.ShowParties as ShowPartiesPage
 import Page.ShowPolls as ShowPollsPage
 import Page.ShowRegionalAnalysis as ShowRegionalAnalysisPage
@@ -98,6 +99,17 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        Msg.ShowParentConstituencies parentConslMsg ->
+            case model.pages of
+                Page.ShowParentConstituencies submodel ->
+                    parentConslMsg
+                        |> ShowParentConstituenciesPage.update submodel
+                        |> Tuple.mapFirst (updateWithParentConstituenciesPage model)
+                        |> Tuple.mapSecond (Cmd.map Msg.ShowParentConstituencies)
+
+                _ ->
+                    ( model, Cmd.none )
+
         Msg.ShowApproves approveMsg ->
             case model.pages of
                 Page.ShowApproves submodel ->
@@ -174,6 +186,11 @@ updateWithPartiesPage model pageModel =
 updateWithPollsPage : Model -> ShowPollsPage.Model -> Model
 updateWithPollsPage model pageModel =
     { model | pages = Page.ShowPolls pageModel, pageTitle = "Polls" }
+
+
+updateWithParentConstituenciesPage : Model -> ShowParentConstituenciesPage.Model -> Model
+updateWithParentConstituenciesPage model pageModel =
+    { model | pages = Page.ShowParentConstituencies pageModel, pageTitle = "Polls" }
 
 
 updateWithApprovesPage : Model -> ShowApprovesPage.Model -> Model
@@ -253,6 +270,14 @@ updateWithSidebarView model viewModel =
                 , pages = Page.ShowPolls ShowPollsPage.default
               }
             , Ports.sendToJs Ports.InitSidebarPoll
+            )
+
+        GeneralSidebar.ParentConstituencies ->
+            ( { model
+                | sidebar = Sidebar.GeneralSidebar viewModel
+                , pages = Page.ShowParentConstituencies ShowParentConstituenciesPage.default
+              }
+            , Ports.sendToJs Ports.InitSidebarParentConstituency
             )
 
         GeneralSidebar.Approve ->

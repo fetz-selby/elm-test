@@ -17,6 +17,7 @@ import Page.ShowApproves as ShowApproves
 import Page.ShowCandidates as ShowCandidates
 import Page.ShowConstituencies as ShowConstituencies
 import Page.ShowNationalAnalysis as ShowNationalAnalysis
+import Page.ShowParentConstituencies as ShowParentConstituencies
 import Page.ShowParties as ShowParties
 import Page.ShowPolls as ShowPolls
 import Page.ShowRegionalAnalysis as ShowRegionalAnalysis
@@ -32,6 +33,7 @@ type Msg
     | ShowAgents ShowAgents.Msg
     | ShowParties ShowParties.Msg
     | ShowPolls ShowPolls.Msg
+    | ShowParentConstituencies ShowParentConstituencies.Msg
     | ShowRegions ShowRegions.Msg
     | ShowApproves ShowApproves.Msg
     | ShowRegionalAnalysis ShowRegionalAnalysis.Msg
@@ -45,6 +47,7 @@ type IncomingAppError
     | FailedToLoadCandidates
     | FailedToLoadParties
     | FailedToLoadPolls
+    | FailedToLoadParentConstituencies
     | FailedToLoadRegions
     | FailedToLoadApproves
     | FailedToLoadRegionalAnalysis
@@ -96,6 +99,14 @@ decode model json =
 
                 Err _ ->
                     IncomingMsgError FailedToLoadPolls
+
+        Ok "ParentConstituenciesLoaded" ->
+            case decodePayload ShowParentConstituencies.decode json of
+                Ok parentConstituencyData ->
+                    ShowParentConstituencies (ShowParentConstituencies.ParentConstituenciesReceived parentConstituencyData)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadParentConstituencies
 
         Ok "PartiesLoaded" ->
             case decodePayload ShowParties.decode json of

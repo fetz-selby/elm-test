@@ -13,6 +13,7 @@ type Msg
     | Candidates
     | Parties
     | Polls
+    | ParentConstituencies
     | Approve
     | RegionalSummary
     | NationalSummary
@@ -35,6 +36,7 @@ view model =
         , menu "Candidates" Candidates
         , menu "Parties" Parties
         , menu "Polls" Polls
+        , menu "Parent Constituency" ParentConstituencies
         , menu "Approve" Approve
         , menu "Regional Summary" RegionalSummary
         , menu "National Summary" NationalSummary
@@ -64,6 +66,9 @@ update model msg =
 
         Polls ->
             ( { model | current = Polls }, Cmd.none )
+
+        ParentConstituencies ->
+            ( { model | current = ParentConstituencies }, Cmd.none )
 
         Approve ->
             ( { model | current = Approve }, Cmd.none )

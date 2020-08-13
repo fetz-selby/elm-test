@@ -10,6 +10,7 @@ import Page.ShowApproves
 import Page.ShowCandidates
 import Page.ShowConstituencies
 import Page.ShowNationalAnalysis
+import Page.ShowParentConstituencies
 import Page.ShowParties
 import Page.ShowPolls
 import Page.ShowRegionalAnalysis
@@ -77,6 +78,11 @@ pageView { pages } =
             model
                 |> Page.ShowPolls.view
                 |> Html.map Msg.ShowPolls
+
+        Page.ShowParentConstituencies model ->
+            model
+                |> Page.ShowParentConstituencies.view
+                |> Html.map Msg.ShowParentConstituencies
 
         Page.ShowApproves model ->
             model

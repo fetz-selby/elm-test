@@ -29,6 +29,7 @@ type OutgoingMsg
     | InitSidebarRegion
     | InitSidebarParty
     | InitSidebarPoll
+    | InitSidebarParentConstituency
     | InitSidebarCandidate
     | InitSidebarConstituency
     | InitSidebarUser
@@ -53,6 +54,7 @@ type OutgoingMsg
     | SaveNationalSummary NationalAnalysis.Model
     | UpdateApprove Approve.Model
     | UpdateCandidate Candidate.Model
+    | UpdateParentConstituency ParentConstituency.Model
 
 
 port msgForJs : PortData -> Cmd msg
@@ -107,6 +109,9 @@ toPortData msg =
 
         InitSidebarPoll ->
             { action = "InitPolls", payload = Encode.null }
+
+        InitSidebarParentConstituency ->
+            { action = "InitParentConstituencies", payload = Encode.null }
 
         InitSidebarApprove ->
             { action = "InitApprove", payload = Encode.null }
@@ -179,3 +184,6 @@ toPortData msg =
 
         UpdateCandidate candidate ->
             { action = "UpdateApprove", payload = Candidate.encode candidate }
+
+        UpdateParentConstituency parentConstituency ->
+            { action = "UpdateParentConstituency", payload = ParentConstituency.encode parentConstituency }
