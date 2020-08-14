@@ -3,7 +3,7 @@ module Page.ShowParentConstituencies exposing (Model, Msg(..), decode, default, 
 import Data.ParentConstituency as ParentConstituency
 import Data.Region as Region
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, disabled, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
 import Ports
@@ -45,6 +45,7 @@ type alias Model =
     , searchWord : String
     , selectedParentConstituency : ParentConstituency.Model
     , showDetailMode : ShowDetailMode
+    , isLoading : Bool
     }
 
 
@@ -73,7 +74,13 @@ update model msg =
             )
 
         AddOne parentConstituency ->
-            ( { model | parentConstituencies = addToParentConstituencies parentConstituency model.parentConstituencies }, Cmd.none )
+            ( { model
+                | parentConstituencies = addToParentConstituencies parentConstituency model.parentConstituencies
+                , isLoading = False
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
 
         Form field ->
             case field of
@@ -84,7 +91,7 @@ update model msg =
                     ( { model | selectedParentConstituency = ParentConstituency.setRegionId regionId model.selectedParentConstituency }, Cmd.none )
 
         Save ->
-            ( model, Cmd.batch [ Ports.sendToJs (Ports.SaveParentConstituency model.selectedParentConstituency) ] )
+            ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveParentConstituency model.selectedParentConstituency) ] )
 
         Update ->
             ( model, Cmd.batch [ Ports.sendToJs (Ports.UpdateParentConstituency model.selectedParentConstituency) ] )
@@ -118,10 +125,10 @@ view model =
                         renderDetails model.selectedParentConstituency
 
                     Edit ->
-                        renderEditableDetails model.selectedParentConstituency
+                        renderEditableDetails model.selectedParentConstituency model.isLoading
 
                     New ->
-                        renderNewDetails model.selectedParentConstituency
+                        renderNewDetails model.selectedParentConstituency model.isLoading
                 ]
             ]
         ]
@@ -137,22 +144,6 @@ renderHeader =
             [ button [ class "btn btn-primary new-button", onClick AddParentConstituency ] [ Html.text "New" ]
             ]
         ]
-
-
-
--- renderRegions : String -> (String -> Field) -> List Region.Model -> Html.Html Msg
--- renderRegions fieldLabel field regionList =
---     div [ class "form-group" ]
---         [ label [] [ Html.text fieldLabel ]
---         , select
---             [ class "form-control"
---             , onChange (Form << field)
---             ]
---             (List.map regionItem regionList)
---         ]
--- regionItem : Region.Model -> Html.Html msg
--- regionItem item =
---     option [ value item.id ] [ Html.text item.name ]
 
 
 renderParentConstituencyList : List ParentConstituency.Model -> Html.Html Msg
@@ -192,10 +183,23 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
-renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn label className isCustom =
+renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading label className isCustom =
     div [ class "form-group" ]
-        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        [ if isLoading then
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text "Please wait ..." ]
+
+          else
+            button
+                [ type_ "submit"
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
         ]
 
 
@@ -212,20 +216,20 @@ renderDetails model =
         ]
 
 
-renderEditableDetails : ParentConstituency.Model -> Html.Html Msg
-renderEditableDetails model =
+renderEditableDetails : ParentConstituency.Model -> Bool -> Html.Html Msg
+renderEditableDetails model isLoading =
     form [ onSubmit Update ]
         [ renderField "name" model.name "eg. Bantama" True Name
         , renderField "region" model.region.name "e.g Ashanti" False Region
-        , renderSubmitBtn "Update" "btn btn-danger" True
+        , renderSubmitBtn isLoading "Update" "btn btn-danger" True
         ]
 
 
-renderNewDetails : ParentConstituency.Model -> Html.Html Msg
-renderNewDetails selectedParentConstituency =
+renderNewDetails : ParentConstituency.Model -> Bool -> Html.Html Msg
+renderNewDetails selectedParentConstituency isLoading =
     form [ onSubmit Save ]
         [ renderField "name" selectedParentConstituency.name "eg. Bantama" True Name
-        , renderSubmitBtn "Save" "btn btn-danger" True
+        , renderSubmitBtn isLoading "Save" "btn btn-danger" True
         ]
 
 
@@ -263,4 +267,5 @@ default =
     , searchWord = ""
     , selectedParentConstituency = ParentConstituency.initParentConstituency
     , showDetailMode = View
+    , isLoading = False
     }

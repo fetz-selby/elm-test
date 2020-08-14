@@ -2,7 +2,7 @@ module Page.ShowParties exposing (Model, Msg(..), decode, default, update, view)
 
 import Data.Party as Party
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, disabled, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
 import Ports
@@ -45,6 +45,7 @@ type alias Model =
     , year : String
     , selectedParty : Party.Model
     , showDetailMode : ShowDetailMode
+    , isLoading : Bool
     }
 
 
@@ -70,7 +71,7 @@ view model =
                         renderEditableDetails model.selectedParty
 
                     New ->
-                        renderNewDetails model.selectedParty
+                        renderNewDetails model.selectedParty model.isLoading
                 ]
             ]
         ]
@@ -92,7 +93,13 @@ update model msg =
             ( { model | parties = partyData.parties }, Cmd.none )
 
         AddOne party ->
-            ( { model | parties = addToParties party model.parties }, Cmd.none )
+            ( { model
+                | parties = addToParties party model.parties
+                , isLoading = False
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
 
         Form field ->
             case field of
@@ -109,7 +116,7 @@ update model msg =
                     ( { model | selectedParty = Party.setOrderQueue orderQueue model.selectedParty }, Cmd.none )
 
         Save ->
-            ( model, Cmd.batch [ Ports.sendToJs (Ports.SaveParty model.selectedParty) ] )
+            ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveParty model.selectedParty) ] )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
@@ -173,10 +180,23 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
-renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn label className isCustom =
+renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading label className isCustom =
     div [ class "form-group" ]
-        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        [ if isLoading then
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text "Please wait ..." ]
+
+          else
+            button
+                [ type_ "submit"
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
         ]
 
 
@@ -205,14 +225,14 @@ renderEditableDetails model =
         ]
 
 
-renderNewDetails : Party.Model -> Html.Html Msg
-renderNewDetails selectedParty =
+renderNewDetails : Party.Model -> Bool -> Html.Html Msg
+renderNewDetails selectedParty isLoading =
     form [ onSubmit Save ]
         [ renderField "party" selectedParty.name "eg.XXX" True Party
         , renderField "color" selectedParty.color "e.g #fefefe" True Color
         , renderField "logo path" selectedParty.logoPath "e.g /path/to/avatar.jpg" True LogoPath
         , renderField "order queue" selectedParty.orderQueue "e.g 12" True OrderQueue
-        , renderSubmitBtn "Save" "btn btn-danger" True
+        , renderSubmitBtn isLoading "Save" "btn btn-danger" True
         ]
 
 
@@ -250,4 +270,5 @@ default =
     , year = ""
     , selectedParty = Party.initParty
     , showDetailMode = View
+    , isLoading = False
     }

@@ -4,7 +4,7 @@ import Data.Constituency as Constituency
 import Data.ParentConstituency as ParentConstituency
 import Data.Party as Party
 import Html exposing (button, div, form, input, label, option, select, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, disabled, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
@@ -58,6 +58,7 @@ type alias Model =
     , year : String
     , selectedConstituency : Constituency.Model
     , showDetailMode : ShowDetailMode
+    , isLoading : Bool
     }
 
 
@@ -83,7 +84,13 @@ update model msg =
             )
 
         AddOne constituency ->
-            ( { model | constituencies = addToConstituencies constituency model.constituencies }, Cmd.none )
+            ( { model
+                | constituencies = addToConstituencies constituency model.constituencies
+                , isLoading = False
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
 
         Form field ->
             case field of
@@ -115,7 +122,7 @@ update model msg =
                     ( { model | selectedConstituency = Constituency.setAutoCompute autoCompute model.selectedConstituency }, Cmd.none )
 
         Save ->
-            ( model, Cmd.batch [ Ports.sendToJs (Ports.SaveConstituency model.selectedConstituency) ] )
+            ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveConstituency model.selectedConstituency) ] )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
@@ -267,10 +274,23 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
-renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn label className isCustom =
+renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading label className isCustom =
     div [ class "form-group" ]
-        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        [ if isLoading then
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text "Please wait ..." ]
+
+          else
+            button
+                [ type_ "submit"
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
         ]
 
 
@@ -336,7 +356,7 @@ renderNewDetails model constituencyModel =
         , renderField "rejected votes" constituencyModel.rejectVotes "e.g 180" True RejectVotes
         , renderField "total votes" constituencyModel.totalVotes "e.g 234" True TotalVotes
         , renderGenericList "is auto compute" AutoCompute getAutoComputeList
-        , renderSubmitBtn "Save" "btn btn-danger" True
+        , renderSubmitBtn model.isLoading "Save" "btn btn-danger" True
         ]
 
 
@@ -377,4 +397,5 @@ default =
     , year = ""
     , selectedConstituency = Constituency.initConstituency
     , showDetailMode = View
+    , isLoading = False
     }

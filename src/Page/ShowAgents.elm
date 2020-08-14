@@ -4,7 +4,7 @@ import Data.Agent as Agent
 import Data.Constituency as Constituency
 import Data.Poll as Poll
 import Html exposing (button, div, form, input, label, option, select, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, disabled, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
@@ -53,6 +53,7 @@ type alias Model =
     , year : String
     , selectedAgent : Agent.Model
     , showDetailMode : ShowDetailMode
+    , isLoading : Bool
     }
 
 
@@ -83,7 +84,13 @@ update model msg =
             )
 
         AddOne agent ->
-            ( { model | agents = addToAgents agent model.agents }, Cmd.none )
+            ( { model
+                | agents = addToAgents agent model.agents
+                , showDetailMode = View
+                , isLoading = False
+              }
+            , Cmd.none
+            )
 
         Form field ->
             case field of
@@ -103,7 +110,7 @@ update model msg =
                     ( { model | selectedAgent = Agent.setPin pin model.selectedAgent }, Cmd.none )
 
         Save ->
-            ( model, Cmd.batch [ Ports.sendToJs (Ports.SaveAgent model.selectedAgent) ] )
+            ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveAgent model.selectedAgent) ] )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
@@ -230,10 +237,23 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
-renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn label className isCustom =
+renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading label className isCustom =
     div [ class "form-group" ]
-        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        [ if isLoading then
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text "Please wait ..." ]
+
+          else
+            button
+                [ type_ "submit"
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
         ]
 
 
@@ -272,7 +292,7 @@ renderNewDetails model selectedAgent =
         , renderField "pin" selectedAgent.pin "e.g 0000" True Pin
         , renderConstituencies "constituency" Constituency model.constituencies
         , renderPolls "poll" Poll model.polls
-        , renderSubmitBtn "Save" "btn btn-danger" True
+        , renderSubmitBtn model.isLoading "Save" "btn btn-danger" True
         ]
 
 
@@ -312,4 +332,5 @@ default =
     , year = ""
     , selectedAgent = Agent.initAgent
     , showDetailMode = View
+    , isLoading = False
     }

@@ -3,7 +3,7 @@ module Page.ShowPolls exposing (Model, Msg(..), decode, default, initShowCandida
 import Data.Constituency as Constituency
 import Data.Poll as Poll
 import Html exposing (button, div, form, input, label, option, select, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, disabled, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
@@ -50,6 +50,7 @@ type alias Model =
     , year : String
     , selectedPoll : Poll.Model
     , showDetailMode : ShowDetailMode
+    , isLoading : Bool
     }
 
 
@@ -79,7 +80,13 @@ update model msg =
             )
 
         AddOne poll ->
-            ( { model | polls = addToPolls poll model.polls }, Cmd.none )
+            ( { model
+                | polls = addToPolls poll model.polls
+                , isLoading = False
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
 
         Form field ->
             case field of
@@ -99,7 +106,7 @@ update model msg =
                     ( { model | selectedPoll = Poll.setValidVotes validVotes model.selectedPoll }, Cmd.none )
 
         Save ->
-            ( model, Cmd.batch [ Ports.sendToJs (Ports.SavePoll model.selectedPoll) ] )
+            ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SavePoll model.selectedPoll) ] )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
@@ -211,10 +218,23 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
-renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn label className isCustom =
+renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading label className isCustom =
     div [ class "form-group" ]
-        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        [ if isLoading then
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text "Please wait ..." ]
+
+          else
+            button
+                [ type_ "submit"
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
         ]
 
 
@@ -253,7 +273,7 @@ renderNewDetails model selectedPoll =
         , renderField "rejected" selectedPoll.rejectedVotes "e.g 12" True RejectedVotes
         , renderField "valid" selectedPoll.validVotes "e.g 1002" True ValidVotes
         , renderField "total" selectedPoll.totalVoters "e.g 9088" True TotalVoters
-        , renderSubmitBtn "Save" "btn btn-danger" True
+        , renderSubmitBtn model.isLoading "Save" "btn btn-danger" True
         ]
 
 
@@ -292,4 +312,5 @@ default =
     , year = ""
     , selectedPoll = Poll.initPoll
     , showDetailMode = View
+    , isLoading = False
     }

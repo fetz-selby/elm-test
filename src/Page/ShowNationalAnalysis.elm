@@ -3,7 +3,7 @@ module Page.ShowNationalAnalysis exposing (Model, Msg(..), decode, default, upda
 import Data.NationalAnalysis as NationalAnalysis
 import Data.Party as Party
 import Html exposing (button, div, form, input, label, option, select, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, disabled, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
@@ -51,6 +51,7 @@ type alias Model =
     , year : String
     , selectedNationalAnalysis : NationalAnalysis.Model
     , showDetailMode : ShowDetailMode
+    , isLoading : Bool
     }
 
 
@@ -103,7 +104,13 @@ update model msg =
             )
 
         AddOne nationalAnalysis ->
-            ( { model | nationalAnalysis = addToNationalAnalysis nationalAnalysis model.nationalAnalysis }, Cmd.none )
+            ( { model
+                | nationalAnalysis = addToNationalAnalysis nationalAnalysis model.nationalAnalysis
+                , isLoading = False
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
 
         Form field ->
             case field of
@@ -126,7 +133,7 @@ update model msg =
                     ( { model | selectedNationalAnalysis = NationalAnalysis.setBar bar model.selectedNationalAnalysis }, Cmd.none )
 
         Save ->
-            ( model, Cmd.batch [ Ports.sendToJs (Ports.SaveNationalSummary model.selectedNationalAnalysis) ] )
+            ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveNationalSummary model.selectedNationalAnalysis) ] )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
@@ -228,10 +235,23 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
-renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn label className isCustom =
+renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading label className isCustom =
     div [ class "form-group" ]
-        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        [ if isLoading then
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text "Please wait ..." ]
+
+          else
+            button
+                [ type_ "submit"
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
         ]
 
 
@@ -273,7 +293,7 @@ renderNewDetails model nationalAnalysis =
         , renderField "percentage" nationalAnalysis.percentage "e.g 45.4" True Percentage
         , renderField "angle" nationalAnalysis.angle "e.g 180" True Angle
         , renderField "bar" nationalAnalysis.bar "e.g 234" True Bar
-        , renderSubmitBtn "Save" "btn btn-danger" True
+        , renderSubmitBtn model.isLoading "Save" "btn btn-danger" True
         ]
 
 
@@ -312,4 +332,5 @@ default =
     , year = ""
     , selectedNationalAnalysis = NationalAnalysis.initNationalAnalysis
     , showDetailMode = View
+    , isLoading = False
     }

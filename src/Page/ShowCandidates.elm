@@ -4,7 +4,7 @@ import Data.Candidate as Candidate
 import Data.Constituency as Constituency
 import Data.Party as Party
 import Html exposing (button, div, form, input, label, option, select, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, disabled, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
@@ -58,6 +58,7 @@ type alias Model =
     , year : String
     , selectedCandidate : Candidate.Model
     , showDetailMode : ShowDetailMode
+    , isLoading : Bool
     }
 
 
@@ -88,7 +89,13 @@ update model msg =
             )
 
         AddOne candidate ->
-            ( { model | candidates = addToCandidates candidate model.candidates }, Cmd.none )
+            ( { model
+                | candidates = addToCandidates candidate model.candidates
+                , isLoading = False
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
 
         Form field ->
             case field of
@@ -120,7 +127,7 @@ update model msg =
                     ( { model | selectedCandidate = Candidate.setConstituency constituencyId model.selectedCandidate }, Cmd.none )
 
         Save ->
-            ( model, Cmd.batch [ Ports.sendToJs (Ports.SaveCandidate model.selectedCandidate) ] )
+            ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveCandidate model.selectedCandidate) ] )
 
         Update ->
             ( model, Cmd.batch [ Ports.sendToJs (Ports.UpdateCandidate model.selectedCandidate) ] )
@@ -154,7 +161,7 @@ view model =
                         renderDetails model.selectedCandidate
 
                     Edit ->
-                        renderEditableDetails model.selectedCandidate
+                        renderEditableDetails model model.selectedCandidate
 
                     New ->
                         renderNewDetails model model.selectedCandidate
@@ -272,10 +279,23 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
-renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn label className isCustom =
+renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading label className isCustom =
     div [ class "form-group" ]
-        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        [ if isLoading then
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text "Please wait ..." ]
+
+          else
+            button
+                [ type_ "submit"
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
         ]
 
 
@@ -299,19 +319,19 @@ renderDetails model =
         ]
 
 
-renderEditableDetails : Candidate.Model -> Html.Html Msg
-renderEditableDetails model =
+renderEditableDetails : Model -> Candidate.Model -> Html.Html Msg
+renderEditableDetails model selectedCandidate =
     form [ onSubmit Update ]
-        [ renderField "name" model.name "eg. Smith" True Name
-        , renderField "constituency" model.constituency.name "e.g Bantama" True Constituency
-        , renderField "type" model.candidateType "e.g M/P" True CandidateType
-        , renderField "votes" model.votes "e.g 1002" True Votes
-        , renderField "party" model.party.name "e.g XXX" True Party
-        , renderField "avatar path" model.avatarPath "e.g XXX" True AvatarPath
-        , renderField "percentage" model.percentage "e.g 45.4" True Percentage
-        , renderField "angle" model.angle "e.g 180" True Angle
-        , renderField "bar" model.barRatio "e.g 234" True BarRatio
-        , renderSubmitBtn "Update" "btn btn-danger" True
+        [ renderField "name" selectedCandidate.name "eg. Smith" True Name
+        , renderField "constituency" selectedCandidate.constituency.name "e.g Bantama" True Constituency
+        , renderField "type" selectedCandidate.candidateType "e.g M/P" True CandidateType
+        , renderField "votes" selectedCandidate.votes "e.g 1002" True Votes
+        , renderField "party" selectedCandidate.party.name "e.g XXX" True Party
+        , renderField "avatar path" selectedCandidate.avatarPath "e.g XXX" True AvatarPath
+        , renderField "percentage" selectedCandidate.percentage "e.g 45.4" True Percentage
+        , renderField "angle" selectedCandidate.angle "e.g 180" True Angle
+        , renderField "bar" selectedCandidate.barRatio "e.g 234" True BarRatio
+        , renderSubmitBtn model.isLoading "Update" "btn btn-danger" True
         ]
 
 
@@ -327,7 +347,7 @@ renderNewDetails model selectedUser =
         , renderField "percentage" selectedUser.percentage "e.g 45.4" True Percentage
         , renderField "angle" selectedUser.angle "e.g 180" True Angle
         , renderField "bar" selectedUser.barRatio "e.g 234" True BarRatio
-        , renderSubmitBtn "Save" "btn btn-danger" True
+        , renderSubmitBtn model.isLoading "Save" "btn btn-danger" True
         ]
 
 
@@ -367,4 +387,5 @@ default =
     , year = ""
     , selectedCandidate = Candidate.initCandidate
     , showDetailMode = View
+    , isLoading = False
     }

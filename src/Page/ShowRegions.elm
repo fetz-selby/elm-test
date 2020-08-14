@@ -2,7 +2,7 @@ module Page.ShowRegions exposing (Model, Msg(..), decode, default, update, view)
 
 import Data.Region as Region
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, disabled, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
 import Ports
@@ -70,7 +70,7 @@ view model =
                         renderEditableDetails model.selectedRegion
 
                     New ->
-                        renderNewDetails
+                        renderNewDetails model
                 ]
             ]
         ]
@@ -83,16 +83,22 @@ update model msg =
             ( model, Cmd.none )
 
         AddRegion ->
-            ( { model | showDetailMode = New, selectedRegion = Region.initRegion }, Cmd.none )
+            ( { model | showDetailMode = New, selectedRegion = Region.initRegion, isLoading = False }, Cmd.none )
 
         ShowDetail region ->
             ( { model | showDetailMode = View, selectedRegion = region }, Cmd.none )
 
         RegionsReceived regionData ->
-            ( { model | regions = regionData.regions }, Cmd.none )
+            ( { model | regions = regionData.regions, isLoading = False }, Cmd.none )
 
         AddOne region ->
-            ( { model | regions = addToRegions region model.regions }, Cmd.none )
+            ( { model
+                | regions = addToRegions region model.regions
+                , isLoading = False
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
 
         Form field ->
             case field of
@@ -103,7 +109,7 @@ update model msg =
                     ( { model | selectedRegion = Region.modifySeat seat model.selectedRegion }, Cmd.none )
 
         Save ->
-            ( model, Cmd.batch [ Ports.sendToJs (Ports.SaveRegion model.selectedRegion) ] )
+            ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveRegion model.selectedRegion) ] )
 
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
@@ -172,10 +178,23 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
-renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn label className isCustom =
+renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading label className isCustom =
     div [ class "form-group" ]
-        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        [ if isLoading then
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text "Please wait ..." ]
+
+          else
+            button
+                [ type_ "submit"
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
         ]
 
 
@@ -200,12 +219,12 @@ renderEditableDetails model =
         ]
 
 
-renderNewDetails : Html.Html Msg
-renderNewDetails =
+renderNewDetails : Model -> Html.Html Msg
+renderNewDetails model =
     form [ onSubmit Save ]
-        [ renderField "region" "" "eg.Ashanti" True Name
-        , renderField "seat" "" "e.g 30" True Seats
-        , renderSubmitBtn "Save" "btn btn-danger" True
+        [ renderField "region" model.selectedRegion.name "eg.Ashanti" True Name
+        , renderField "seat" model.selectedRegion.seats "e.g 30" True Seats
+        , renderSubmitBtn model.isLoading "Save" "btn btn-danger" True
         ]
 
 
