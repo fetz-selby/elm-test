@@ -244,7 +244,11 @@ showDetailState mode model =
 
 addToParentConstituencies : ParentConstituency.Model -> List ParentConstituency.Model -> List ParentConstituency.Model
 addToParentConstituencies parentConstituency list =
-    parentConstituency :: list
+    if ParentConstituency.isIdExist parentConstituency list then
+        list
+
+    else
+        parentConstituency :: list
 
 
 decode : Decode.Decoder ParentConstituencyData

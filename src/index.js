@@ -6,10 +6,19 @@ import { getCandidates, addCandidate } from "./api/candidates";
 import { getParties, addParty } from "./api/parties";
 import { getPolls, addPoll } from "./api/polls";
 import { getRegions, deleteRegion, addRegion } from "./api/regions";
-import { getParentConstituencies } from "./api/parentConstituencies";
+import {
+  getParentConstituencies,
+  addParentConstituency,
+} from "./api/parentConstituencies";
 import { getApproves } from "./api/approves";
-import { getNationalAnalysis } from "./api/nationalAnalysis";
-import { getRegionalAnalysis } from "./api/regionalAnalysis";
+import {
+  getNationalAnalysis,
+  addNationalAnalysis,
+} from "./api/nationalAnalysis";
+import {
+  getRegionalAnalysis,
+  addRegionalAnalysis,
+} from "./api/regionalAnalysis";
 import { ROLE } from "./constants";
 import {
   flatenConstituenciesWithRegionIdIncluded,
@@ -31,6 +40,9 @@ import {
   normalizeCandidate,
   normalizeParty,
   normalizePoll,
+  normalizeParentConstituency,
+  normalizeRegionalAnalysis,
+  normalizeNationalAnalysis,
 } from "./api/helper";
 import io from "socket.io-client";
 import feathers from "@feathersjs/client";
@@ -56,7 +68,7 @@ async function create() {
     const socket = io("http://localhost:5002");
     // @feathersjs/client is exposed as the `feathers` global.
     const service = feathers();
-    const { constituencyId, regionId, year, role } = setup;
+    const { regionId, year, role } = setup;
     const { ADMIN, USER } = ROLE;
 
     service.configure(feathers.socketio(socket));
@@ -312,16 +324,21 @@ async function create() {
       case "SaveNationalSummary": {
         const nationalAnalysis = { ...payload, year };
         console.log("NationalAnalysis,", nationalAnalysis);
-        // const addCandidateResp = await addCandidate({ service, candidate });
-        // console.log("[AddAgent], ", addAgentResp);
+        const addNationalAnalysisResp = await addNationalAnalysis({
+          service,
+          nationalAnalysis,
+        });
 
         break;
       }
 
       case "SaveRegionalSummary": {
-        const regionalAnalysis = { ...payload, year };
+        const regionalAnalysis = { ...payload, region_id: regionId, year };
         console.log("RegionalAnalysis,", regionalAnalysis);
-        // const addCandidateResp = await addCandidate({ service, candidate });
+        const addRegionalAnalysisResp = await addRegionalAnalysis({
+          service,
+          regionalAnalysis,
+        });
         // console.log("[AddAgent], ", addAgentResp);
 
         break;
@@ -348,18 +365,17 @@ async function create() {
       case "SavePoll": {
         const poll = { ...payload, year };
         const addPollResp = await addPoll({ service, poll });
-        // const addCandidateResp = await addCandidate({ service, candidate });
-        // console.log("[AddAgent], ", addAgentResp);
 
         break;
       }
 
       case "SaveParentConstituency": {
-        const parentConstituency = { ...payload, year };
-        console.log("ParentConstituency,", parentConstituency);
-        // const addCandidateResp = await addCandidate({ service, candidate });
-        // console.log("[AddAgent], ", addAgentResp);
+        const parentConstituency = { ...payload, region_id: regionId };
 
+        const addParentConstituencyResp = await addParentConstituency({
+          service,
+          parentConstituency,
+        });
         break;
       }
 
@@ -454,9 +470,23 @@ async function create() {
       });
     });
 
-    service.service("national_analysis").on("created", (d, c) => {});
+    service
+      .service("national_analysis")
+      .on("created", (nationalAnalysis, c) => {
+        app.ports.msgForElm.send({
+          type: "OneNationalAnalysisAdded",
+          payload: normalizeNationalAnalysis(nationalAnalysis),
+        });
+      });
 
-    service.service("parent_constituencies").on("created", (d, c) => {});
+    service
+      .service("parent_constituencies")
+      .on("created", (parentConstituency, c) => {
+        app.ports.msgForElm.send({
+          type: "OneParentConstituencyAdd",
+          payload: normalizeParentConstituency(parentConstituency),
+        });
+      });
 
     service.service("parties").on("created", (party, c) => {
       app.ports.msgForElm.send({
@@ -472,7 +502,14 @@ async function create() {
       });
     });
 
-    service.service("regional_analysis").on("created", (d, c) => {});
+    service
+      .service("regional_analysis")
+      .on("created", (regionalAnalysis, c) => {
+        app.ports.msgForElm.send({
+          type: "OneRegionalAnalysisAdded",
+          payload: normalizeRegionalAnalysis(regionalAnalysis),
+        });
+      });
 
     // When a model is updated
     service.service("agents").on("updated", (d, c) => {

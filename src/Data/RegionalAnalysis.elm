@@ -136,7 +136,6 @@ encode regional =
         [ ( "id", Encode.string regional.id )
         , ( "votes", Encode.string regional.votes )
         , ( "type", Encode.string regional.candidateType )
-        , ( "region_id", Encode.string regional.region.id )
         , ( "party_id", Encode.string regional.party.id )
         , ( "percentage", Encode.string regional.percentage )
         , ( "angle", Encode.string regional.angle )

@@ -78,7 +78,6 @@ encode parentConstituency =
     Encode.object
         [ ( "id", Encode.string parentConstituency.id )
         , ( "name", Encode.string parentConstituency.name )
-        , ( "region_id", Encode.string parentConstituency.region.id )
         ]
 
 

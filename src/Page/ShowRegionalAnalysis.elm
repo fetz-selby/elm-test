@@ -300,8 +300,7 @@ renderEditableDetails model =
 renderNewDetails : Model -> RegionalAnalysis.Model -> Html.Html Msg
 renderNewDetails model selectedRegionalAnalysis =
     form [ onSubmit Save ]
-        [ renderRegions "region" Region model.regions
-        , renderParties "party" Party model.parties
+        [ renderParties "party" Party model.parties
         , renderGenericList "type" CandidateType getTypeList
         , renderField "votes" selectedRegionalAnalysis.votes "e.g 1002" True Votes
         , renderField "percentage" selectedRegionalAnalysis.percentage "e.g 45.4" True Percentage
@@ -326,7 +325,11 @@ showDetailState mode model =
 
 addToRegionalAnalysis : RegionalAnalysis.Model -> List RegionalAnalysis.Model -> List RegionalAnalysis.Model
 addToRegionalAnalysis regionalAnalysis list =
-    regionalAnalysis :: list
+    if RegionalAnalysis.isIdExist regionalAnalysis list then
+        list
+
+    else
+        regionalAnalysis :: list
 
 
 decode : Decode.Decoder RegionalAnalysisData

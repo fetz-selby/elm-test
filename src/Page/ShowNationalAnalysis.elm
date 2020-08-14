@@ -292,7 +292,11 @@ showDetailState mode model =
 
 addToNationalAnalysis : NationalAnalysis.Model -> List NationalAnalysis.Model -> List NationalAnalysis.Model
 addToNationalAnalysis nationalAnalysis list =
-    nationalAnalysis :: list
+    if NationalAnalysis.isIdExist nationalAnalysis list then
+        list
+
+    else
+        nationalAnalysis :: list
 
 
 decode : Decode.Decoder NationalAnalysisData

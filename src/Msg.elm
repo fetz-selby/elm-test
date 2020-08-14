@@ -5,6 +5,7 @@ import Data.Approve as Approve
 import Data.Candidate as Candidate
 import Data.Constituency as Constituency
 import Data.NationalAnalysis as NationalAnalysis
+import Data.ParentConstituency as ParentConstituency
 import Data.Party as Party
 import Data.Poll as Poll
 import Data.Region as Region
@@ -184,6 +185,14 @@ decode model json =
 
                 Err _ ->
                     IncomingMsgError FailedToLoadConstituencies
+
+        Ok "OneParentConstituencyAdd" ->
+            case decodePayload ParentConstituency.decode json of
+                Ok parentConstituency ->
+                    ShowParentConstituencies (ShowParentConstituencies.AddOne parentConstituency)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadParentConstituencies
 
         Ok "OnePollAdded" ->
             case decodePayload Poll.decode json of
