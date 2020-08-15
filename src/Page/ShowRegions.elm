@@ -1,6 +1,6 @@
 module Page.ShowRegions exposing (Model, Msg(..), decode, default, update, view)
 
-import Data.Region as Region
+import Data.Region as Region exposing (isValid)
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
 import Html.Attributes exposing (class, classList, disabled, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
@@ -166,22 +166,22 @@ renderRegionItem region =
         ]
 
 
-renderField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
-renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
+renderField : String -> String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
+renderField inputType fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , if isEditable then
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
 
           else
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, readonly True ] []
         ]
 
 
-renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn isLoading label className isCustom =
+renderSubmitBtn : Bool -> Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading isValid label className isCustom =
     div [ class "form-group" ]
-        [ if isLoading then
+        [ if isLoading && isValid then
             button
                 [ type_ "submit"
                 , disabled True
@@ -189,10 +189,18 @@ renderSubmitBtn isLoading label className isCustom =
                 ]
                 [ Html.text "Please wait ..." ]
 
-          else
+          else if not isLoading && isValid then
             button
                 [ type_ "submit"
                 , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
+
+          else
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( "btn btn-extra", isCustom ), ( "btn-invalid", True ) ]
                 ]
                 [ Html.text label ]
         ]
@@ -205,8 +213,8 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form []
-            [ renderField "region" model.name "eg.Ashanti" False Name
-            , renderField "seat" model.seats "e.g 30" False Seats
+            [ renderField "text" "region" model.name "eg.Ashanti" False Name
+            , renderField "number" "seat" model.seats "e.g 30" False Seats
             ]
         ]
 
@@ -214,17 +222,17 @@ renderDetails model =
 renderEditableDetails : Region.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Save ]
-        [ renderField "region" model.name "eg.Ashanti" False Name
-        , renderField "seat" model.seats "e.g 30" True Seats
+        [ renderField "text" "region" model.name "eg.Ashanti" False Name
+        , renderField "number" "seat" model.seats "e.g 30" True Seats
         ]
 
 
 renderNewDetails : Model -> Html.Html Msg
 renderNewDetails model =
     form [ onSubmit Save ]
-        [ renderField "region" model.selectedRegion.name "eg.Ashanti" True Name
-        , renderField "seat" model.selectedRegion.seats "e.g 30" True Seats
-        , renderSubmitBtn model.isLoading "Save" "btn btn-danger" True
+        [ renderField "text" "region" model.selectedRegion.name "eg.Ashanti" True Name
+        , renderField "number" "seat" model.selectedRegion.seats "e.g 30" True Seats
+        , renderSubmitBtn model.isLoading (Region.isValid model.selectedRegion) "Save" "btn btn-danger" True
         ]
 
 

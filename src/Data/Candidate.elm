@@ -5,8 +5,10 @@ module Data.Candidate exposing
     , decodeList
     , encode
     , filter
+    , getId
     , initCandidate
     , isIdExist
+    , isValid
     , setAngle
     , setAvatarPath
     , setBarRatio
@@ -142,6 +144,70 @@ setPercentage percentage model =
 setBarRatio : String -> Model -> Model
 setBarRatio barRatio model =
     { model | barRatio = barRatio }
+
+
+getId : Model -> Int
+getId model =
+    case String.toInt model.id of
+        Just val ->
+            val
+
+        Nothing ->
+            0
+
+
+isValid : Model -> Bool
+isValid model =
+    hasValidName model.name
+        && hasValidFigures model.percentage
+        && hasValidFigures model.angle
+        && hasValidFigures model.barRatio
+        && hasValidFigures model.votes
+        && hasValidCandidateType model.candidateType
+        && hasValidParty model.party
+        && hasValidConstituency model.constituency
+
+
+hasValidName : String -> Bool
+hasValidName name =
+    name |> String.length |> (<) 2
+
+
+hasValidFigures : String -> Bool
+hasValidFigures figure =
+    let
+        a =
+            case String.toFloat figure of
+                Just v ->
+                    v
+
+                Nothing ->
+                    -1
+    in
+    (figure
+        |> String.length
+        |> (<) 0
+    )
+        && (a |> (<=) 0)
+
+
+hasValidCandidateType : String -> Bool
+hasValidCandidateType candidateType =
+    (candidateType |> String.toUpper |> (==) "M")
+        || (candidateType
+                |> String.toUpper
+                |> (==) "P"
+           )
+
+
+hasValidParty : Party.Model -> Bool
+hasValidParty party =
+    party |> Party.getId |> (<) 0
+
+
+hasValidConstituency : Constituency.Model -> Bool
+hasValidConstituency constituency =
+    constituency |> Constituency.getId |> (<) 0
 
 
 encode : Model -> Encode.Value

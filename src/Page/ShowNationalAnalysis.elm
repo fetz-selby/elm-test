@@ -223,22 +223,22 @@ getTypeList =
     [ { id = "0", name = "Select" }, { id = "M", name = "Parliamentary" }, { id = "P", name = "Presidential" } ]
 
 
-renderField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
-renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
+renderField : String -> String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
+renderField inputType fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , if isEditable then
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
 
           else
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, readonly True ] []
         ]
 
 
-renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn isLoading label className isCustom =
+renderSubmitBtn : Bool -> Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading isValid label className isCustom =
     div [ class "form-group" ]
-        [ if isLoading then
+        [ if isLoading && isValid then
             button
                 [ type_ "submit"
                 , disabled True
@@ -246,10 +246,18 @@ renderSubmitBtn isLoading label className isCustom =
                 ]
                 [ Html.text "Please wait ..." ]
 
-          else
+          else if not isLoading && isValid then
             button
                 [ type_ "submit"
                 , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
+
+          else
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( "btn btn-extra", isCustom ), ( "btn-invalid", True ) ]
                 ]
                 [ Html.text label ]
         ]
@@ -262,12 +270,12 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "party" model.party.name "eg.XXX" False Party
-            , renderField "votes" model.votes "e.g 23009" False Votes
-            , renderField "type" model.candidateType "e.g M/P" False CandidateType
-            , renderField "percentage" model.percentage "e.g 45.4" False Percentage
-            , renderField "angle" model.angle "e.g 180" False Angle
-            , renderField "bar" model.bar "e.g 234" False Bar
+            [ renderField "text" "party" model.party.name "eg.XXX" False Party
+            , renderField "number" "votes" model.votes "e.g 23009" False Votes
+            , renderField "text" "type" model.candidateType "e.g M/P" False CandidateType
+            , renderField "number" "percentage" model.percentage "e.g 45.4" False Percentage
+            , renderField "number" "angle" model.angle "e.g 180" False Angle
+            , renderField "number" "bar" model.bar "e.g 234" False Bar
             ]
         ]
 
@@ -275,12 +283,12 @@ renderDetails model =
 renderEditableDetails : NationalAnalysis.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Save ]
-        [ renderField "party" model.party.name "eg.XXX" True Party
-        , renderField "votes" model.votes "e.g 23009" True Votes
-        , renderField "type" model.candidateType "e.g M/P" True CandidateType
-        , renderField "percentage" model.percentage "e.g 45.4" True Percentage
-        , renderField "angle" model.angle "e.g 180" True Angle
-        , renderField "bar" model.bar "e.g 234" True Bar
+        [ renderField "text" "party" model.party.name "eg.XXX" True Party
+        , renderField "number" "votes" model.votes "e.g 23009" True Votes
+        , renderField "text" "type" model.candidateType "e.g M/P" True CandidateType
+        , renderField "number" "percentage" model.percentage "e.g 45.4" True Percentage
+        , renderField "number" "angle" model.angle "e.g 180" True Angle
+        , renderField "number" "bar" model.bar "e.g 234" True Bar
         ]
 
 
@@ -288,12 +296,12 @@ renderNewDetails : Model -> NationalAnalysis.Model -> Html.Html Msg
 renderNewDetails model nationalAnalysis =
     form [ onSubmit Save ]
         [ renderParties "party" Party model.parties
-        , renderField "votes" nationalAnalysis.votes "e.g 23009" True Votes
+        , renderField "number" "votes" nationalAnalysis.votes "e.g 23009" True Votes
         , renderGenericList "type" CandidateType getTypeList
-        , renderField "percentage" nationalAnalysis.percentage "e.g 45.4" True Percentage
-        , renderField "angle" nationalAnalysis.angle "e.g 180" True Angle
-        , renderField "bar" nationalAnalysis.bar "e.g 234" True Bar
-        , renderSubmitBtn model.isLoading "Save" "btn btn-danger" True
+        , renderField "number" "percentage" nationalAnalysis.percentage "e.g 45.4" True Percentage
+        , renderField "number" "angle" nationalAnalysis.angle "e.g 180" True Angle
+        , renderField "number" "bar" nationalAnalysis.bar "e.g 234" True Bar
+        , renderSubmitBtn model.isLoading (NationalAnalysis.isValid nationalAnalysis) "Save" "btn btn-danger" True
         ]
 
 

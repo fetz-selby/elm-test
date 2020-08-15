@@ -7,6 +7,7 @@ module Data.NationalAnalysis exposing
     , filter
     , initNationalAnalysis
     , isIdExist
+    , isValid
     , setAngle
     , setBar
     , setCandidateType
@@ -106,6 +107,48 @@ setBar bar model =
 setPartyId : String -> Model -> Model
 setPartyId partyId model =
     { model | party = Party.setId partyId model.party }
+
+
+isValid : Model -> Bool
+isValid model =
+    hasValidFigures model.votes
+        && hasValidFigures model.percentage
+        && hasValidFigures model.angle
+        && hasValidFigures model.bar
+        && hasValidCandidateType model.candidateType
+        && hasValidParty model.party
+
+
+hasValidFigures : String -> Bool
+hasValidFigures figure =
+    let
+        a =
+            case String.toFloat figure of
+                Just v ->
+                    v
+
+                Nothing ->
+                    -1
+    in
+    (figure
+        |> String.length
+        |> (<) 0
+    )
+        && (a |> (<=) 0)
+
+
+hasValidCandidateType : String -> Bool
+hasValidCandidateType candidateType =
+    (candidateType |> String.toUpper |> (==) "M")
+        || (candidateType
+                |> String.toUpper
+                |> (==) "P"
+           )
+
+
+hasValidParty : Party.Model -> Bool
+hasValidParty party =
+    party |> Party.getId |> (<) 0
 
 
 encode : Model -> Encode.Value

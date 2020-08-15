@@ -5,8 +5,10 @@ module Data.Party exposing
     , decodeList
     , encode
     , filter
+    , getId
     , initParty
     , isIdExist
+    , isValid
     , setColor
     , setId
     , setLogoPath
@@ -89,6 +91,36 @@ setColor color model =
 setOrderQueue : String -> Model -> Model
 setOrderQueue orderQueue model =
     { model | orderQueue = orderQueue }
+
+
+getId : Model -> Int
+getId model =
+    case String.toInt model.id of
+        Just val ->
+            val
+
+        Nothing ->
+            0
+
+
+isValid : Model -> Bool
+isValid model =
+    hasValidName model.name && hasValidOrderQueue model.orderQueue
+
+
+hasValidName : String -> Bool
+hasValidName name =
+    name |> String.length |> (<) 2
+
+
+hasValidOrderQueue : String -> Bool
+hasValidOrderQueue orderQueue =
+    case String.toInt orderQueue of
+        Just _ ->
+            True
+
+        Nothing ->
+            False
 
 
 encode : Model -> Encode.Value

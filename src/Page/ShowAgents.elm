@@ -225,22 +225,22 @@ renderAgentItem agent =
         ]
 
 
-renderField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
-renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
+renderField : String -> String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
+renderField inputType fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , if isEditable then
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
 
           else
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, readonly True ] []
         ]
 
 
-renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn isLoading label className isCustom =
+renderSubmitBtn : Bool -> Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading isValid label className isCustom =
     div [ class "form-group" ]
-        [ if isLoading then
+        [ if isLoading && isValid then
             button
                 [ type_ "submit"
                 , disabled True
@@ -248,10 +248,18 @@ renderSubmitBtn isLoading label className isCustom =
                 ]
                 [ Html.text "Please wait ..." ]
 
-          else
+          else if not isLoading && isValid then
             button
                 [ type_ "submit"
                 , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
+
+          else
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( "btn btn-extra", isCustom ), ( "btn-invalid", True ) ]
                 ]
                 [ Html.text label ]
         ]
@@ -264,11 +272,11 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "name" model.name "eg. Smith" False Name
-            , renderField "msisdn" model.msisdn "e.g +491763500232450" False Msisdn
-            , renderField "pin" model.pin "e.g 0000" False Pin
-            , renderField "constituency" model.constituency.name "e.g P" False Constituency
-            , renderField "poll" model.poll.name "e.g Beach Road" False Poll
+            [ renderField "text" "name" model.name "eg. Smith" False Name
+            , renderField "number" "msisdn" model.msisdn "e.g +491763500232450" False Msisdn
+            , renderField "number" "pin" model.pin "e.g 0000" False Pin
+            , renderField "text" "constituency" model.constituency.name "e.g P" False Constituency
+            , renderField "text" "poll" model.poll.name "e.g Beach Road" False Poll
             ]
         ]
 
@@ -276,23 +284,23 @@ renderDetails model =
 renderEditableDetails : Agent.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Save ]
-        [ renderField "name" model.name "eg. Smith" True Name
-        , renderField "msisdn" model.msisdn "e.g +491763500232450" True Msisdn
-        , renderField "pin" model.pin "e.g 0000" True Pin
-        , renderField "constituency" model.constituency.name "e.g P" True Constituency
-        , renderField "poll" model.poll.name "e.g Beach Road" True Poll
+        [ renderField "text" "name" model.name "eg. Smith" True Name
+        , renderField "number" "msisdn" model.msisdn "e.g +491763500232450" True Msisdn
+        , renderField "number" "pin" model.pin "e.g 0000" True Pin
+        , renderField "text" "constituency" model.constituency.name "e.g P" True Constituency
+        , renderField "text" "poll" model.poll.name "e.g Beach Road" True Poll
         ]
 
 
 renderNewDetails : Model -> Agent.Model -> Html.Html Msg
 renderNewDetails model selectedAgent =
     form [ onSubmit Save ]
-        [ renderField "name" selectedAgent.name "eg. Smith" True Name
-        , renderField "msisdn" selectedAgent.msisdn "eg. +491763500232450" True Msisdn
-        , renderField "pin" selectedAgent.pin "e.g 0000" True Pin
+        [ renderField "text" "name" selectedAgent.name "eg. Smith" True Name
+        , renderField "number" "msisdn" selectedAgent.msisdn "eg. +491763500232450" True Msisdn
+        , renderField "number" "pin" selectedAgent.pin "e.g 0000" True Pin
         , renderConstituencies "constituency" Constituency model.constituencies
         , renderPolls "poll" Poll model.polls
-        , renderSubmitBtn model.isLoading "Save" "btn btn-danger" True
+        , renderSubmitBtn model.isLoading (Agent.isValid model.selectedAgent) "Save" "btn btn-danger" True
         ]
 
 

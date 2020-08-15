@@ -5,8 +5,10 @@ module Data.ParentConstituency exposing
     , decodeList
     , encode
     , filter
+    , getId
     , initParentConstituency
     , isIdExist
+    , isValid
     , setId
     , setName
     , setRegionId
@@ -71,6 +73,26 @@ setName name model =
 setRegionId : String -> Model -> Model
 setRegionId regionId model =
     { model | region = Region.setId regionId model.region }
+
+
+getId : Model -> Int
+getId model =
+    case String.toInt model.id of
+        Just val ->
+            val
+
+        Nothing ->
+            0
+
+
+isValid : Model -> Bool
+isValid model =
+    hasValidName model.name
+
+
+hasValidName : String -> Bool
+hasValidName name =
+    name |> String.length |> (<) 2
 
 
 encode : Model -> Encode.Value

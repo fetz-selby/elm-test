@@ -5,8 +5,10 @@ module Data.Poll exposing
     , decodeList
     , encode
     , filter
+    , getId
     , initPoll
     , isIdExist
+    , isValid
     , setConstituency
     , setId
     , setName
@@ -107,13 +109,50 @@ setConstituency constituencyId model =
     { model | constituency = Constituency.setId constituencyId model.constituency }
 
 
+getId : Model -> Int
+getId model =
+    case String.toInt model.id of
+        Just val ->
+            val
+
+        Nothing ->
+            0
+
+
+isValid : Model -> Bool
+isValid model =
+    hasValidName model.name
+        && hasValidVotes model.rejectedVotes
+        && hasValidVotes model.validVotes
+        && hasValidVotes model.totalVoters
+        && hasValidConstituencyId model.constituency
+
+
+hasValidName : String -> Bool
+hasValidName name =
+    name |> String.length |> (<) 2
+
+
+hasValidVotes : String -> Bool
+hasValidVotes votes =
+    (votes
+        |> String.length
+        |> (<) 0
+    )
+        && (votes |> String.all Char.isDigit)
+
+
+hasValidConstituencyId : Constituency.Model -> Bool
+hasValidConstituencyId constituency =
+    constituency |> Constituency.getId |> (<) 0
+
+
 encode : Model -> Encode.Value
 encode poll =
     Encode.object
         [ ( "id", Encode.string poll.id )
         , ( "name", Encode.string poll.name )
         , ( "cons_id", Encode.string poll.constituency.id )
-        , ( "year", Encode.string poll.year )
         , ( "rejected_votes", Encode.string poll.rejectedVotes )
         , ( "valid_votes", Encode.string poll.validVotes )
         , ( "total_voters", Encode.string poll.totalVoters )

@@ -7,6 +7,7 @@ module Data.Agent exposing
     , filter
     , initAgent
     , isIdExist
+    , isValid
     , setConstituency
     , setId
     , setMsisdn
@@ -104,6 +105,58 @@ setConstituency constituencyId model =
 setPoll : String -> Model -> Model
 setPoll pollId model =
     { model | poll = Poll.setId pollId model.poll }
+
+
+isValid : Model -> Bool
+isValid model =
+    hasValidName model.name
+        && hasValidMsisdn model.msisdn
+        && hasValidPIN model.pin
+        && hasValidConstituencyId model.constituency
+        && hasValidPollId model.poll
+
+
+hasValidName : String -> Bool
+hasValidName name =
+    name |> String.length |> (<) 2
+
+
+hasValidMsisdn : String -> Bool
+hasValidMsisdn msisdn =
+    let
+        a =
+            msisdn
+                |> String.length
+                |> (>) 14
+
+        b =
+            msisdn |> String.all Char.isDigit
+    in
+    a && b
+
+
+hasValidPIN : String -> Bool
+hasValidPIN pin =
+    let
+        a =
+            pin
+                |> String.length
+                |> (==) 4
+
+        b =
+            pin |> String.all Char.isDigit
+    in
+    a && b
+
+
+hasValidConstituencyId : Constituency.Model -> Bool
+hasValidConstituencyId constituency =
+    constituency |> Constituency.getId |> (<) 0
+
+
+hasValidPollId : Poll.Model -> Bool
+hasValidPollId poll =
+    poll |> Poll.getId |> (<) 0
 
 
 encode : Model -> Encode.Value

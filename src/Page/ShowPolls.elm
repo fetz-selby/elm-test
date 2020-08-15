@@ -206,22 +206,22 @@ renderPollItem poll =
         ]
 
 
-renderField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
-renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
+renderField : String -> String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
+renderField inputType fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , if isEditable then
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
 
           else
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, readonly True ] []
         ]
 
 
-renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn isLoading label className isCustom =
+renderSubmitBtn : Bool -> Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading isValid label className isCustom =
     div [ class "form-group" ]
-        [ if isLoading then
+        [ if isLoading && isValid then
             button
                 [ type_ "submit"
                 , disabled True
@@ -229,10 +229,18 @@ renderSubmitBtn isLoading label className isCustom =
                 ]
                 [ Html.text "Please wait ..." ]
 
-          else
+          else if not isLoading && isValid then
             button
                 [ type_ "submit"
                 , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
+
+          else
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( "btn btn-extra", isCustom ), ( "btn-invalid", True ) ]
                 ]
                 [ Html.text label ]
         ]
@@ -245,11 +253,11 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "name" model.name "eg. XXX" False Name
-            , renderField "constituency" model.constituency.name "e.g Bantama" False Constituency
-            , renderField "rejected" model.rejectedVotes "e.g 12" False RejectedVotes
-            , renderField "valid" model.validVotes "e.g 1002" False ValidVotes
-            , renderField "total" model.totalVoters "e.g 9088" False TotalVoters
+            [ renderField "text" "name" model.name "eg. XXX" False Name
+            , renderField "text" "constituency" model.constituency.name "e.g Bantama" False Constituency
+            , renderField "number" "rejected" model.rejectedVotes "e.g 12" False RejectedVotes
+            , renderField "number" "valid" model.validVotes "e.g 1002" False ValidVotes
+            , renderField "number" "total" model.totalVoters "e.g 9088" False TotalVoters
             ]
         ]
 
@@ -257,23 +265,23 @@ renderDetails model =
 renderEditableDetails : Poll.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Save ]
-        [ renderField "name" model.name "eg. XXX" True Name
-        , renderField "constituency" model.constituency.name "eg. XXX" True Constituency
-        , renderField "rejected" model.rejectedVotes "e.g 12" True RejectedVotes
-        , renderField "valid" model.validVotes "e.g 1002" True ValidVotes
-        , renderField "total" model.totalVoters "e.g 9088" True TotalVoters
+        [ renderField "text" "name" model.name "eg. XXX" True Name
+        , renderField "text" "constituency" model.constituency.name "eg. XXX" True Constituency
+        , renderField "number" "rejected" model.rejectedVotes "e.g 12" True RejectedVotes
+        , renderField "number" "valid" model.validVotes "e.g 1002" True ValidVotes
+        , renderField "number" "total" model.totalVoters "e.g 9088" True TotalVoters
         ]
 
 
 renderNewDetails : Model -> Poll.Model -> Html.Html Msg
 renderNewDetails model selectedPoll =
     form [ onSubmit Save ]
-        [ renderField "name" selectedPoll.name "eg. XXX" True Name
+        [ renderField "text" "name" selectedPoll.name "eg. XXX" True Name
         , renderConstituencies "constituency" Constituency model.constituencies
-        , renderField "rejected" selectedPoll.rejectedVotes "e.g 12" True RejectedVotes
-        , renderField "valid" selectedPoll.validVotes "e.g 1002" True ValidVotes
-        , renderField "total" selectedPoll.totalVoters "e.g 9088" True TotalVoters
-        , renderSubmitBtn model.isLoading "Save" "btn btn-danger" True
+        , renderField "number" "rejected" selectedPoll.rejectedVotes "e.g 12" True RejectedVotes
+        , renderField "number" "valid" selectedPoll.validVotes "e.g 1002" True ValidVotes
+        , renderField "number" "total" selectedPoll.totalVoters "e.g 9088" True TotalVoters
+        , renderSubmitBtn model.isLoading (Poll.isValid selectedPoll) "Save" "btn btn-danger" True
         ]
 
 

@@ -5,8 +5,10 @@ module Data.Region exposing
     , decodeList
     , encode
     , filter
+    , getId
     , initRegion
     , isIdExist
+    , isValid
     , modifyName
     , modifySeat
     , setId
@@ -89,6 +91,36 @@ setName name model =
 setSeats : String -> Model -> Model
 setSeats seats model =
     { model | seats = seats }
+
+
+isValid : Model -> Bool
+isValid model =
+    hasValidName model.name && hasValidSeats model.seats
+
+
+hasValidName : String -> Bool
+hasValidName name =
+    name |> String.length |> (<) 2
+
+
+hasValidSeats : String -> Bool
+hasValidSeats seats =
+    case String.toInt seats of
+        Just _ ->
+            True
+
+        Nothing ->
+            False
+
+
+getId : Model -> Int
+getId model =
+    case String.toInt model.id of
+        Just val ->
+            val
+
+        Nothing ->
+            0
 
 
 decode : Decode.Decoder Model

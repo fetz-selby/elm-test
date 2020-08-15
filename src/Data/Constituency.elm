@@ -6,8 +6,10 @@ module Data.Constituency exposing
     , default
     , encode
     , filter
+    , getId
     , initConstituency
     , isIdExist
+    , isValid
     , setAutoCompute
     , setCastedVotes
     , setId
@@ -102,7 +104,7 @@ convertBoolToYNString state =
 
 convertStringToBool : String -> Bool
 convertStringToBool state =
-    (state |> String.toUpper) == "Y"
+    state |> String.toUpper |> (==) "Y"
 
 
 setId : String -> Model -> Model
@@ -153,6 +155,51 @@ setSeatWonId seatWonId model =
 setTotalVotes : String -> Model -> Model
 setTotalVotes totalVotes model =
     { model | totalVotes = totalVotes }
+
+
+isValid : Model -> Bool
+isValid model =
+    hasValidName model.name
+        && hasValidVotes model.castedVotes
+        && hasValidVotes model.regVotes
+        && hasValidVotes model.rejectVotes
+        && hasValidVotes model.totalVotes
+        && hasValidParentConstituency model.parent
+        && hasValidSeatWonId model.seatWonId
+
+
+hasValidName : String -> Bool
+hasValidName name =
+    name |> String.length |> (<) 2
+
+
+hasValidVotes : String -> Bool
+hasValidVotes votes =
+    (votes
+        |> String.length
+        |> (<) 0
+    )
+        && (votes |> String.all Char.isDigit)
+
+
+hasValidParentConstituency : ParentConstituency.Model -> Bool
+hasValidParentConstituency model =
+    model |> ParentConstituency.getId |> (<) 0
+
+
+hasValidSeatWonId : Party.Model -> Bool
+hasValidSeatWonId party =
+    party |> Party.getId |> (<) 0
+
+
+getId : Model -> Int
+getId model =
+    case String.toInt model.id of
+        Just val ->
+            val
+
+        Nothing ->
+            0
 
 
 encode : Model -> Encode.Value

@@ -267,22 +267,22 @@ renderCandidateItem candidate =
         ]
 
 
-renderField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
-renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
+renderField : String -> String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
+renderField inputType fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , if isEditable then
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
 
           else
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, readonly True ] []
         ]
 
 
-renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn isLoading label className isCustom =
+renderSubmitBtn : Bool -> Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading isValid label className isCustom =
     div [ class "form-group" ]
-        [ if isLoading then
+        [ if isLoading && isValid then
             button
                 [ type_ "submit"
                 , disabled True
@@ -290,10 +290,18 @@ renderSubmitBtn isLoading label className isCustom =
                 ]
                 [ Html.text "Please wait ..." ]
 
-          else
+          else if not isLoading && isValid then
             button
                 [ type_ "submit"
                 , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
+
+          else
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( "btn btn-extra", isCustom ), ( "btn-invalid", True ) ]
                 ]
                 [ Html.text label ]
         ]
@@ -306,15 +314,15 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "name" model.name "eg. Smith" False Name
-            , renderField "constituency" model.constituency.name "e.g Bantama" False Constituency
-            , renderField "type" model.candidateType "e.g M/P" False CandidateType
-            , renderField "votes" model.votes "e.g 1002" False Votes
-            , renderField "party" model.party.name "e.g XXX" False Party
-            , renderField "avatar path" model.avatarPath "e.g XXX" False AvatarPath
-            , renderField "percentage" model.percentage "e.g 45.4" False Percentage
-            , renderField "angle" model.angle "e.g 180" False Angle
-            , renderField "bar" model.barRatio "e.g 234" False BarRatio
+            [ renderField "text" "name" model.name "eg. Smith" False Name
+            , renderField "text" "constituency" model.constituency.name "e.g Bantama" False Constituency
+            , renderField "text" "type" model.candidateType "e.g M/P" False CandidateType
+            , renderField "number" "votes" model.votes "e.g 1002" False Votes
+            , renderField "text" "party" model.party.name "e.g XXX" False Party
+            , renderField "text" "avatar path" model.avatarPath "e.g XXX" False AvatarPath
+            , renderField "number" "percentage" model.percentage "e.g 45.4" False Percentage
+            , renderField "number" "angle" model.angle "e.g 180" False Angle
+            , renderField "number" "bar" model.barRatio "e.g 234" False BarRatio
             ]
         ]
 
@@ -322,32 +330,32 @@ renderDetails model =
 renderEditableDetails : Model -> Candidate.Model -> Html.Html Msg
 renderEditableDetails model selectedCandidate =
     form [ onSubmit Update ]
-        [ renderField "name" selectedCandidate.name "eg. Smith" True Name
-        , renderField "constituency" selectedCandidate.constituency.name "e.g Bantama" True Constituency
-        , renderField "type" selectedCandidate.candidateType "e.g M/P" True CandidateType
-        , renderField "votes" selectedCandidate.votes "e.g 1002" True Votes
-        , renderField "party" selectedCandidate.party.name "e.g XXX" True Party
-        , renderField "avatar path" selectedCandidate.avatarPath "e.g XXX" True AvatarPath
-        , renderField "percentage" selectedCandidate.percentage "e.g 45.4" True Percentage
-        , renderField "angle" selectedCandidate.angle "e.g 180" True Angle
-        , renderField "bar" selectedCandidate.barRatio "e.g 234" True BarRatio
-        , renderSubmitBtn model.isLoading "Update" "btn btn-danger" True
+        [ renderField "text" "name" selectedCandidate.name "eg. Smith" True Name
+        , renderField "text" "constituency" selectedCandidate.constituency.name "e.g Bantama" True Constituency
+        , renderField "text" "type" selectedCandidate.candidateType "e.g M/P" True CandidateType
+        , renderField "number" "votes" selectedCandidate.votes "e.g 1002" True Votes
+        , renderField "text" "party" selectedCandidate.party.name "e.g XXX" True Party
+        , renderField "text" "avatar path" selectedCandidate.avatarPath "e.g XXX" True AvatarPath
+        , renderField "number" "percentage" selectedCandidate.percentage "e.g 45.4" True Percentage
+        , renderField "number" "angle" selectedCandidate.angle "e.g 180" True Angle
+        , renderField "number" "bar" selectedCandidate.barRatio "e.g 234" True BarRatio
+        , renderSubmitBtn model.isLoading (Candidate.isValid selectedCandidate) "Update" "btn btn-danger" True
         ]
 
 
 renderNewDetails : Model -> Candidate.Model -> Html.Html Msg
-renderNewDetails model selectedUser =
+renderNewDetails model selectedCandidate =
     form [ onSubmit Save ]
-        [ renderField "name" selectedUser.name "eg. Smith" True Name
+        [ renderField "text" "name" selectedCandidate.name "eg. Smith" True Name
         , renderConstituencies "constituency" Constituency model.constituencies
         , renderParties "party" Party model.parties
         , renderGenericList "type" CandidateType getTypeList
-        , renderField "votes" selectedUser.votes "e.g 1002" True Votes
-        , renderField "avatar path" selectedUser.avatarPath "e.g XXX" True AvatarPath
-        , renderField "percentage" selectedUser.percentage "e.g 45.4" True Percentage
-        , renderField "angle" selectedUser.angle "e.g 180" True Angle
-        , renderField "bar" selectedUser.barRatio "e.g 234" True BarRatio
-        , renderSubmitBtn model.isLoading "Save" "btn btn-danger" True
+        , renderField "number" "votes" selectedCandidate.votes "e.g 1002" True Votes
+        , renderField "text" "avatar path" selectedCandidate.avatarPath "e.g XXX" True AvatarPath
+        , renderField "number" "percentage" selectedCandidate.percentage "e.g 45.4" True Percentage
+        , renderField "number" "angle" selectedCandidate.angle "e.g 180" True Angle
+        , renderField "number" "bar" selectedCandidate.barRatio "e.g 234" True BarRatio
+        , renderSubmitBtn model.isLoading (Candidate.isValid selectedCandidate) "Save" "btn btn-danger" True
         ]
 
 

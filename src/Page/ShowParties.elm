@@ -168,22 +168,22 @@ renderPartyItem party =
         ]
 
 
-renderField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
-renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
+renderField : String -> String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
+renderField inputType fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , if isEditable then
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
 
           else
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, readonly True ] []
         ]
 
 
-renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn isLoading label className isCustom =
+renderSubmitBtn : Bool -> Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading isValid label className isCustom =
     div [ class "form-group" ]
-        [ if isLoading then
+        [ if isLoading && isValid then
             button
                 [ type_ "submit"
                 , disabled True
@@ -191,10 +191,18 @@ renderSubmitBtn isLoading label className isCustom =
                 ]
                 [ Html.text "Please wait ..." ]
 
-          else
+          else if not isLoading && isValid then
             button
                 [ type_ "submit"
                 , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
+
+          else
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( "btn btn-extra", isCustom ), ( "btn-invalid", True ) ]
                 ]
                 [ Html.text label ]
         ]
@@ -207,10 +215,10 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "party" model.name "eg.XXX" False Party
-            , renderField "color" model.color "e.g #fefefe" False Color
-            , renderField "logo path" model.logoPath "e.g /path/to/avatar.jpg" False LogoPath
-            , renderField "order queue" model.orderQueue "e.g 12" False OrderQueue
+            [ renderField "text" "party" model.name "eg.XXX" False Party
+            , renderField "text" "color" model.color "e.g #fefefe" False Color
+            , renderField "text" "logo path" model.logoPath "e.g /path/to/avatar.jpg" False LogoPath
+            , renderField "number" "order queue" model.orderQueue "e.g 12" False OrderQueue
             ]
         ]
 
@@ -218,21 +226,21 @@ renderDetails model =
 renderEditableDetails : Party.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Save ]
-        [ renderField "party" model.name "eg.XXX" True Party
-        , renderField "color" model.color "e.g #fefefe" True Color
-        , renderField "logo path" model.logoPath "e.g /path/to/avatar.jpg" True LogoPath
-        , renderField "order queue" model.orderQueue "e.g 12" True OrderQueue
+        [ renderField "text" "party" model.name "eg.XXX" True Party
+        , renderField "text" "color" model.color "e.g #fefefe" True Color
+        , renderField "text" "logo path" model.logoPath "e.g /path/to/avatar.jpg" True LogoPath
+        , renderField "number" "order queue" model.orderQueue "e.g 12" True OrderQueue
         ]
 
 
 renderNewDetails : Party.Model -> Bool -> Html.Html Msg
 renderNewDetails selectedParty isLoading =
     form [ onSubmit Save ]
-        [ renderField "party" selectedParty.name "eg.XXX" True Party
-        , renderField "color" selectedParty.color "e.g #fefefe" True Color
-        , renderField "logo path" selectedParty.logoPath "e.g /path/to/avatar.jpg" True LogoPath
-        , renderField "order queue" selectedParty.orderQueue "e.g 12" True OrderQueue
-        , renderSubmitBtn isLoading "Save" "btn btn-danger" True
+        [ renderField "text" "party" selectedParty.name "eg.XXX" True Party
+        , renderField "text" "color" selectedParty.color "e.g #fefefe" True Color
+        , renderField "text" "logo path" selectedParty.logoPath "e.g /path/to/avatar.jpg" True LogoPath
+        , renderField "number" "order queue" selectedParty.orderQueue "e.g 12" True OrderQueue
+        , renderSubmitBtn isLoading (Party.isValid selectedParty) "Save" "btn btn-danger" True
         ]
 
 

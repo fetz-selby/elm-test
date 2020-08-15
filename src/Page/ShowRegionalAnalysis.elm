@@ -253,22 +253,22 @@ renderRegionalItem regional =
         ]
 
 
-renderField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
-renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
+renderField : String -> String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
+renderField inputType fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , if isEditable then
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
 
           else
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, readonly True ] []
         ]
 
 
-renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn isLoading label className isCustom =
+renderSubmitBtn : Bool -> Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading isValid label className isCustom =
     div [ class "form-group" ]
-        [ if isLoading then
+        [ if isLoading && isValid then
             button
                 [ type_ "submit"
                 , disabled True
@@ -276,10 +276,18 @@ renderSubmitBtn isLoading label className isCustom =
                 ]
                 [ Html.text "Please wait ..." ]
 
-          else
+          else if not isLoading && isValid then
             button
                 [ type_ "submit"
                 , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
+
+          else
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( "btn btn-extra", isCustom ), ( "btn-invalid", True ) ]
                 ]
                 [ Html.text label ]
         ]
@@ -292,14 +300,14 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "region" model.region.name "eg.Ashanti" False Region
-            , renderField "type" model.candidateType "e.g M/P" False CandidateType
-            , renderField "votes" model.votes "e.g 1002" False Votes
-            , renderField "party" model.party.name "e.g XXX" False Party
-            , renderField "percentage" model.percentage "e.g 45.4" False Percentage
-            , renderField "angle" model.angle "e.g 180" False Angle
-            , renderField "bar" model.bar "e.g 234" False Bar
-            , renderField "status" model.status "e.g A/D" False Status
+            [ renderField "text" "region" model.region.name "eg.Ashanti" False Region
+            , renderField "text" "type" model.candidateType "e.g M/P" False CandidateType
+            , renderField "number" "votes" model.votes "e.g 1002" False Votes
+            , renderField "text" "party" model.party.name "e.g XXX" False Party
+            , renderField "number" "percentage" model.percentage "e.g 45.4" False Percentage
+            , renderField "number" "angle" model.angle "e.g 180" False Angle
+            , renderField "number" "bar" model.bar "e.g 234" False Bar
+            , renderField "text" "status" model.status "e.g A/D" False Status
             ]
         ]
 
@@ -307,13 +315,13 @@ renderDetails model =
 renderEditableDetails : RegionalAnalysis.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Save ]
-        [ renderField "region" model.region.name "eg.Ashanti" True Region
-        , renderField "type" model.candidateType "e.g M/P" True CandidateType
-        , renderField "votes" model.votes "e.g 1002" True Votes
-        , renderField "party" model.party.name "e.g XXX" True Party
-        , renderField "percentage" model.percentage "e.g 45.4" True Percentage
-        , renderField "angle" model.angle "e.g 180" True Angle
-        , renderField "bar" model.bar "e.g 234" True Bar
+        [ renderField "text" "region" model.region.name "eg.Ashanti" True Region
+        , renderField "text" "type" model.candidateType "e.g M/P" True CandidateType
+        , renderField "number" "votes" model.votes "e.g 1002" True Votes
+        , renderField "text" "party" model.party.name "e.g XXX" True Party
+        , renderField "number" "percentage" model.percentage "e.g 45.4" True Percentage
+        , renderField "number" "angle" model.angle "e.g 180" True Angle
+        , renderField "number" "bar" model.bar "e.g 234" True Bar
         ]
 
 
@@ -322,11 +330,11 @@ renderNewDetails model selectedRegionalAnalysis =
     form [ onSubmit Save ]
         [ renderParties "party" Party model.parties
         , renderGenericList "type" CandidateType getTypeList
-        , renderField "votes" selectedRegionalAnalysis.votes "e.g 1002" True Votes
-        , renderField "percentage" selectedRegionalAnalysis.percentage "e.g 45.4" True Percentage
-        , renderField "angle" selectedRegionalAnalysis.angle "e.g 180" True Angle
-        , renderField "bar" selectedRegionalAnalysis.bar "e.g 234" True Bar
-        , renderSubmitBtn model.isLoading "Save" "btn btn-danger" True
+        , renderField "number" "votes" selectedRegionalAnalysis.votes "e.g 1002" True Votes
+        , renderField "number" "percentage" selectedRegionalAnalysis.percentage "e.g 45.4" True Percentage
+        , renderField "number" "angle" selectedRegionalAnalysis.angle "e.g 180" True Angle
+        , renderField "number" "bar" selectedRegionalAnalysis.bar "e.g 234" True Bar
+        , renderSubmitBtn model.isLoading (RegionalAnalysis.isValid selectedRegionalAnalysis) "Save" "btn btn-danger" True
         ]
 
 

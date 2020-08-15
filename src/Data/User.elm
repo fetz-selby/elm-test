@@ -7,6 +7,7 @@ module Data.User exposing
     , filter
     , initUser
     , isIdExist
+    , isValid
     , setEmail
     , setId
     , setLevel
@@ -19,6 +20,7 @@ module Data.User exposing
 
 import Array
 import Data.Region as Region
+import Email
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
 import Json.Encode as Encode
@@ -133,6 +135,73 @@ encode user =
         , ( "region_id", Encode.string user.region.id )
         , ( "password", Encode.string user.password )
         ]
+
+
+isValid : Model -> Bool
+isValid model =
+    hasValidName model.name
+        && hasValidEmail model.email
+        && hasValidMsisdn model.msisdn
+        && hasValidLevel model.level
+        && hasValidYear model.year
+        && hasValidRegionId model.region
+        && hasValidPassword model.password
+
+
+hasValidName : String -> Bool
+hasValidName name =
+    name |> String.length |> (<) 2
+
+
+hasValidEmail : String -> Bool
+hasValidEmail email =
+    case email |> Email.fromString of
+        Just _ ->
+            True
+
+        Nothing ->
+            False
+
+
+hasValidMsisdn : String -> Bool
+hasValidMsisdn msisdn =
+    let
+        a =
+            msisdn
+                |> String.length
+                |> (>) 14
+
+        b =
+            msisdn |> String.all Char.isDigit
+    in
+    a && b
+
+
+hasValidLevel : String -> Bool
+hasValidLevel level =
+    level == "U" || level == "A"
+
+
+hasValidYear : String -> Bool
+hasValidYear year =
+    let
+        a =
+            year |> String.length |> (==) 4
+
+        b =
+            year |> String.all Char.isDigit
+    in
+    a && b
+
+
+hasValidRegionId : Region.Model -> Bool
+hasValidRegionId region =
+    region |> Region.getId |> (<) 0
+
+
+hasValidPassword : String -> Bool
+hasValidPassword password =
+    password |> String.length |> (<) 3
 
 
 decode : Decode.Decoder Model

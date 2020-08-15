@@ -236,22 +236,22 @@ renderUserItem user =
         ]
 
 
-renderField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
-renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
+renderField : String -> String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
+renderField inputType fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , if isEditable then
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
 
           else
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, readonly True ] []
         ]
 
 
-renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn isLoading label className isCustom =
+renderSubmitBtn : Bool -> Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading isValid label className isCustom =
     div [ class "form-group" ]
-        [ if isLoading then
+        [ if isLoading && isValid then
             button
                 [ type_ "submit"
                 , disabled True
@@ -259,10 +259,18 @@ renderSubmitBtn isLoading label className isCustom =
                 ]
                 [ Html.text "Please wait ..." ]
 
-          else
+          else if not isLoading && isValid then
             button
                 [ type_ "submit"
                 , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
+
+          else
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( "btn btn-extra", isCustom ), ( "btn-invalid", True ) ]
                 ]
                 [ Html.text label ]
         ]
@@ -287,12 +295,12 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form []
-            [ renderField "name" model.name "eg. Smith" False Name
-            , renderField "email" model.email "eg. election@code.arbeitet.com" False Email
-            , renderField "msisdn" model.msisdn "e.g +491763500232450" False Msisdn
-            , renderField "level" model.level "e.g 0000" False Level
-            , renderField "year" model.year "e.g P" False Year
-            , renderField "region" model.region.name "e.g Ashanti Region" False Region
+            [ renderField "text" "name" model.name "eg. Smith" False Name
+            , renderField "email" "email" model.email "eg. election@code.arbeitet.com" False Email
+            , renderField "number" "msisdn" model.msisdn "e.g +491763500232450" False Msisdn
+            , renderField "text" "level" model.level "e.g 0000" False Level
+            , renderField "number" "year" model.year "e.g P" False Year
+            , renderField "text" "region" model.region.name "e.g Ashanti Region" False Region
             ]
         ]
 
@@ -300,26 +308,26 @@ renderDetails model =
 renderEditableDetails : User.Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Save ]
-        [ renderField "name" model.name "eg. Smith" True Name
-        , renderField "email" model.email "eg. election@code.arbeitet.com" True Email
-        , renderField "msisdn" model.msisdn "e.g +491763500232450" True Msisdn
-        , renderField "level" model.level "e.g S/A/U" True Level
-        , renderField "year" model.year "e.g 2020" True Year
-        , renderField "region" model.region.name "e.g Beach Road" True Region
+        [ renderField "text" "name" model.name "eg. Smith" True Name
+        , renderField "email" "email" model.email "eg. election@code.arbeitet.com" True Email
+        , renderField "number" "msisdn" model.msisdn "e.g +491763500232450" True Msisdn
+        , renderField "text" "level" model.level "e.g S/A/U" True Level
+        , renderField "number" "year" model.year "e.g 2020" True Year
+        , renderField "text" "region" model.region.name "e.g Beach Road" True Region
         ]
 
 
 renderNewDetails : Model -> User.Model -> Html.Html Msg
 renderNewDetails model userModel =
     form [ onSubmit Save ]
-        [ renderField "name" userModel.name "eg. Smith" True Name
-        , renderField "email" userModel.email "eg. election@code.arbeitet.com" True Email
+        [ renderField "text" "name" userModel.name "eg. Smith" True Name
+        , renderField "email" "email" userModel.email "eg. election@code.arbeitet.com" True Email
         , renderPasswordField "password" userModel.password "eg. password" True Password
-        , renderField "msisdn" userModel.msisdn "eg. +491763500232450" True Msisdn
+        , renderField "number" "msisdn" userModel.msisdn "eg. +491763500232450" True Msisdn
         , renderGenericList "level" Level getLevelList
-        , renderField "year" userModel.year "e.g 2020" True Year
+        , renderField "number" "year" userModel.year "e.g 2020" True Year
         , renderRegions "region" Region model.regions
-        , renderSubmitBtn model.isLoading "Save" "btn btn-danger" True
+        , renderSubmitBtn model.isLoading (User.isValid model.selectedUser) "Save" "btn btn-danger" True
         ]
 
 

@@ -262,22 +262,22 @@ renderConstituencyItem constituency =
         ]
 
 
-renderField : String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
-renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
+renderField : String -> String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg
+renderField inputType fieldLabel fieldValue fieldPlaceholder isEditable field =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , if isEditable then
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, onInput (Form << field) ] []
 
           else
-            input [ class "form-control", type_ "text", value fieldValue, placeholder fieldPlaceholder, readonly True ] []
+            input [ class "form-control", type_ inputType, value fieldValue, placeholder fieldPlaceholder, readonly True ] []
         ]
 
 
-renderSubmitBtn : Bool -> String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn isLoading label className isCustom =
+renderSubmitBtn : Bool -> Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading isValid label className isCustom =
     div [ class "form-group" ]
-        [ if isLoading then
+        [ if isLoading && isValid then
             button
                 [ type_ "submit"
                 , disabled True
@@ -285,10 +285,18 @@ renderSubmitBtn isLoading label className isCustom =
                 ]
                 [ Html.text "Please wait ..." ]
 
-          else
+          else if not isLoading && isValid then
             button
                 [ type_ "submit"
                 , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
+
+          else
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( "btn btn-extra", isCustom ), ( "btn-invalid", True ) ]
                 ]
                 [ Html.text label ]
         ]
@@ -301,13 +309,14 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "constituency" model.name "eg.Bekwai" False Constituency
-            , renderField "seat won by" model.seatWonId.name "eg.XXX" False SeatWonId
-            , renderField "casted votes" model.castedVotes "e.g 3423" False CastedVotes
-            , renderField "reg votes" model.regVotes "e.g 432" False RegVotes
-            , renderField "rejected votes" model.rejectVotes "e.g 180" False RejectVotes
-            , renderField "total votes" model.totalVotes "e.g 234" False TotalVotes
-            , renderField "is declared"
+            [ renderField "text" "constituency" model.name "eg.Bekwai" False Constituency
+            , renderField "text" "seat won by" model.seatWonId.name "eg.XXX" False SeatWonId
+            , renderField "number" "casted votes" model.castedVotes "e.g 3423" False CastedVotes
+            , renderField "number" "reg votes" model.regVotes "e.g 432" False RegVotes
+            , renderField "number" "rejected votes" model.rejectVotes "e.g 180" False RejectVotes
+            , renderField "number" "total votes" model.totalVotes "e.g 234" False TotalVotes
+            , renderField "text"
+                "is declared"
                 (if model.isDeclared then
                     "Yes"
 
@@ -317,7 +326,8 @@ renderDetails model =
                 "e.g Yes"
                 False
                 IsDeclared
-            , renderField "is declared"
+            , renderField "text"
+                "is declared"
                 (if model.autoCompute then
                     "Yes"
 
@@ -334,15 +344,15 @@ renderDetails model =
 renderEditableDetails : Model -> Constituency.Model -> Html.Html Msg
 renderEditableDetails model selectedConstituency =
     form [ onSubmit Save ]
-        [ renderField "constituency" selectedConstituency.name "eg.Bekwai" True Constituency
+        [ renderField "text" "constituency" selectedConstituency.name "eg.Bekwai" True Constituency
         , renderParties "seat won by" SeatWonId model.parties
-        , renderField "casted votes" selectedConstituency.castedVotes "e.g 2342" True CastedVotes
-        , renderField "reg votes" selectedConstituency.regVotes "e.g 432" True RegVotes
-        , renderField "rejected votes" selectedConstituency.rejectVotes "e.g 180" True RejectVotes
-        , renderField "total votes" selectedConstituency.totalVotes "e.g 234" True TotalVotes
+        , renderField "number" "casted votes" selectedConstituency.castedVotes "e.g 2342" True CastedVotes
+        , renderField "number" "reg votes" selectedConstituency.regVotes "e.g 432" True RegVotes
+        , renderField "number" "rejected votes" selectedConstituency.rejectVotes "e.g 180" True RejectVotes
+        , renderField "number" "total votes" selectedConstituency.totalVotes "e.g 234" True TotalVotes
         , renderGenericList "is declared" IsDeclared getIsDeclaredList
         , renderGenericList "is auto compute" AutoCompute getAutoComputeList
-        , renderField "parent id" selectedConstituency.parent.name "e.g Bantama" True ParentId
+        , renderField "text" "parent id" selectedConstituency.parent.name "e.g Bantama" True ParentId
         ]
 
 
@@ -350,13 +360,13 @@ renderNewDetails : Model -> Constituency.Model -> Html.Html Msg
 renderNewDetails model constituencyModel =
     form [ onSubmit Save ]
         [ renderParentConstituencies "parent constituency" ParentId model.parentConstituencies
-        , renderField "constituency" constituencyModel.name "eg.Bekwai" True Constituency
-        , renderField "casted votes" constituencyModel.castedVotes "e.g 2343" True CastedVotes
-        , renderField "reg votes" constituencyModel.regVotes "e.g 432" True RegVotes
-        , renderField "rejected votes" constituencyModel.rejectVotes "e.g 180" True RejectVotes
-        , renderField "total votes" constituencyModel.totalVotes "e.g 234" True TotalVotes
+        , renderField "text" "constituency" constituencyModel.name "eg.Bekwai" True Constituency
+        , renderField "number" "casted votes" constituencyModel.castedVotes "e.g 2343" True CastedVotes
+        , renderField "number" "reg votes" constituencyModel.regVotes "e.g 432" True RegVotes
+        , renderField "number" "rejected votes" constituencyModel.rejectVotes "e.g 180" True RejectVotes
+        , renderField "number" "total votes" constituencyModel.totalVotes "e.g 234" True TotalVotes
         , renderGenericList "is auto compute" AutoCompute getAutoComputeList
-        , renderSubmitBtn model.isLoading "Save" "btn btn-danger" True
+        , renderSubmitBtn model.isLoading (Constituency.isValid constituencyModel) "Save" "btn btn-danger" True
         ]
 
 
