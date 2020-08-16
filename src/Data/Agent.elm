@@ -8,6 +8,7 @@ module Data.Agent exposing
     , initAgent
     , isIdExist
     , isValid
+    , replace
     , setConstituency
     , setId
     , setMsisdn
@@ -123,30 +124,20 @@ hasValidName name =
 
 hasValidMsisdn : String -> Bool
 hasValidMsisdn msisdn =
-    let
-        a =
-            msisdn
-                |> String.length
-                |> (>) 14
-
-        b =
-            msisdn |> String.all Char.isDigit
-    in
-    a && b
+    (msisdn
+        |> String.length
+        |> (<) 9
+    )
+        && (msisdn |> String.all Char.isDigit)
 
 
 hasValidPIN : String -> Bool
 hasValidPIN pin =
-    let
-        a =
-            pin
-                |> String.length
-                |> (==) 4
-
-        b =
-            pin |> String.all Char.isDigit
-    in
-    a && b
+    (pin
+        |> String.length
+        |> (==) 4
+    )
+        && (pin |> String.all Char.isDigit)
 
 
 hasValidConstituencyId : Constituency.Model -> Bool
@@ -157,6 +148,20 @@ hasValidConstituencyId constituency =
 hasValidPollId : Poll.Model -> Bool
 hasValidPollId poll =
     poll |> Poll.getId |> (<) 0
+
+
+replace : Model -> List Model -> List Model
+replace model list =
+    list |> List.map (switch model)
+
+
+switch : Model -> Model -> Model
+switch replacer variable =
+    if replacer.id == variable.id then
+        replacer
+
+    else
+        variable
 
 
 encode : Model -> Encode.Value

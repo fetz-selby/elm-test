@@ -16,8 +16,10 @@ type Msg
     | ShowDetail User.Model
     | UsersReceived UserData
     | AddOne User.Model
+    | UpdateOne User.Model
     | Form Field
     | Save
+    | Update
     | DetailMode ShowDetailMode
     | OnEdit
     | SearchList String
@@ -125,6 +127,18 @@ update model msg =
         SearchList val ->
             ( { model | searchWord = val }, Cmd.none )
 
+        Update ->
+            ( { model | isLoading = True }, Ports.sendToJs (Ports.UpdateUser model.selectedUser) )
+
+        UpdateOne user ->
+            ( { model
+                | isLoading = False
+                , users = User.replace user model.users
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
+
 
 view : Model -> Html.Html Msg
 view model =
@@ -145,10 +159,10 @@ view model =
                         renderDetails model.selectedUser
 
                     Edit ->
-                        renderEditableDetails model.selectedUser
+                        renderEditableDetails model
 
                     New ->
-                        renderNewDetails model model.selectedUser
+                        renderNewDetails model
                 ]
             ]
         ]
@@ -305,27 +319,32 @@ renderDetails model =
         ]
 
 
-renderEditableDetails : User.Model -> Html.Html Msg
+renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
-    form [ onSubmit Save ]
-        [ renderField "text" "name" model.name "eg. Smith" True Name
-        , renderField "email" "email" model.email "eg. election@code.arbeitet.com" True Email
-        , renderField "number" "msisdn" model.msisdn "e.g +491763500232450" True Msisdn
-        , renderField "text" "level" model.level "e.g S/A/U" True Level
-        , renderField "number" "year" model.year "e.g 2020" True Year
-        , renderField "text" "region" model.region.name "e.g Beach Road" True Region
+    let
+        _ =
+            Debug.log "Edit" model.selectedUser
+    in
+    form [ onSubmit Update ]
+        [ renderField "text" "name" model.selectedUser.name "eg. Smith" True Name
+        , renderField "email" "email" model.selectedUser.email "eg. election@code.arbeitet.com" True Email
+        , renderField "number" "msisdn" model.selectedUser.msisdn "e.g +491763500232450" True Msisdn
+        , renderField "text" "level" model.selectedUser.level "e.g S/A/U" True Level
+        , renderField "number" "year" model.selectedUser.year "e.g 2020" True Year
+        , renderField "text" "region" model.selectedUser.region.name "e.g Beach Road" True Region
+        , renderSubmitBtn model.isLoading (User.isValid model.selectedUser) "Save" "btn btn-danger" True
         ]
 
 
-renderNewDetails : Model -> User.Model -> Html.Html Msg
-renderNewDetails model userModel =
+renderNewDetails : Model -> Html.Html Msg
+renderNewDetails model =
     form [ onSubmit Save ]
-        [ renderField "text" "name" userModel.name "eg. Smith" True Name
-        , renderField "email" "email" userModel.email "eg. election@code.arbeitet.com" True Email
-        , renderPasswordField "password" userModel.password "eg. password" True Password
-        , renderField "number" "msisdn" userModel.msisdn "eg. +491763500232450" True Msisdn
+        [ renderField "text" "name" model.selectedUser.name "eg. Smith" True Name
+        , renderField "email" "email" model.selectedUser.email "eg. election@code.arbeitet.com" True Email
+        , renderPasswordField "password" model.selectedUser.password "eg. password" True Password
+        , renderField "number" "msisdn" model.selectedUser.msisdn "eg. +491763500232450" True Msisdn
         , renderGenericList "level" Level getLevelList
-        , renderField "number" "year" userModel.year "e.g 2020" True Year
+        , renderField "number" "year" model.selectedUser.year "e.g 2020" True Year
         , renderRegions "region" Region model.regions
         , renderSubmitBtn model.isLoading (User.isValid model.selectedUser) "Save" "btn btn-danger" True
         ]

@@ -11,6 +11,7 @@ module Data.Region exposing
     , isValid
     , modifyName
     , modifySeat
+    , replace
     , setId
     , setName
     , setSeats
@@ -121,6 +122,20 @@ getId model =
 
         Nothing ->
             0
+
+
+replace : Model -> List Model -> List Model
+replace model list =
+    list |> List.map (switch model)
+
+
+switch : Model -> Model -> Model
+switch replacer variable =
+    if replacer.id == variable.id then
+        replacer
+
+    else
+        variable
 
 
 decode : Decode.Decoder Model

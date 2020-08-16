@@ -9,6 +9,7 @@ module Data.Candidate exposing
     , initCandidate
     , isIdExist
     , isValid
+    , replace
     , setAngle
     , setAvatarPath
     , setBarRatio
@@ -208,6 +209,20 @@ hasValidParty party =
 hasValidConstituency : Constituency.Model -> Bool
 hasValidConstituency constituency =
     constituency |> Constituency.getId |> (<) 0
+
+
+replace : Model -> List Model -> List Model
+replace model list =
+    list |> List.map (switch model)
+
+
+switch : Model -> Model -> Model
+switch replacer variable =
+    if replacer.id == variable.id then
+        replacer
+
+    else
+        variable
 
 
 encode : Model -> Encode.Value

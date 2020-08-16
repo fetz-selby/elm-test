@@ -8,6 +8,7 @@ module Data.RegionalAnalysis exposing
     , initRegionalAnalysis
     , isIdExist
     , isValid
+    , replace
     , setAngle
     , setBar
     , setCandidateType
@@ -21,7 +22,7 @@ module Data.RegionalAnalysis exposing
 
 import Array
 import Data.Party as Party
-import Data.Region as Region exposing (convertModelToLower, isIdExist)
+import Data.Region as Region exposing (convertModelToLower, isIdExist, replace)
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
 import Json.Encode as Encode
@@ -171,6 +172,20 @@ hasValidCandidateType candidateType =
 hasValidParty : Party.Model -> Bool
 hasValidParty party =
     party |> Party.getId |> (<) 0
+
+
+replace : Model -> List Model -> List Model
+replace model list =
+    list |> List.map (switch model)
+
+
+switch : Model -> Model -> Model
+switch replacer variable =
+    if replacer.id == variable.id then
+        replacer
+
+    else
+        variable
 
 
 encode : Model -> Encode.Value

@@ -242,6 +242,95 @@ decode model json =
                 Err _ ->
                     IncomingMsgError FailedToLoadNationalAnalysis
 
+        -- update
+        Ok "OneRegionUpdated" ->
+            case decodePayload Region.decode json of
+                Ok region ->
+                    ShowRegions (ShowRegions.UpdateOne region)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadRegions
+
+        Ok "OneCandidateUpdated" ->
+            case decodePayload Candidate.decode json of
+                Ok candidate ->
+                    ShowCandidates (ShowCandidates.UpdateOne candidate)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadCandidates
+
+        Ok "OneAgentUpdated" ->
+            case decodePayload Agent.decode json of
+                Ok agent ->
+                    ShowAgents (ShowAgents.UpdateOne agent)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadCandidates
+
+        Ok "OneUserUpdated" ->
+            case decodePayload User.decode json of
+                Ok user ->
+                    ShowUsers (ShowUsers.UpdateOne user)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadUsers
+
+        Ok "OneConstituencyUpdated" ->
+            case decodePayload Constituency.decode json of
+                Ok constituency ->
+                    ShowConstituencies (ShowConstituencies.UpdateOne constituency)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadConstituencies
+
+        Ok "OneParentConstituencyUpdated" ->
+            case decodePayload ParentConstituency.decode json of
+                Ok parentConstituency ->
+                    ShowParentConstituencies (ShowParentConstituencies.UpdateOne parentConstituency)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadParentConstituencies
+
+        Ok "OnePollUpdated" ->
+            case decodePayload Poll.decode json of
+                Ok poll ->
+                    ShowPolls (ShowPolls.UpdateOne poll)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadPolls
+
+        Ok "OnePartyUpdated" ->
+            case decodePayload Party.decode json of
+                Ok party ->
+                    ShowParties (ShowParties.UpdateOne party)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadParties
+
+        Ok "OneApproveUpdated" ->
+            case decodePayload Approve.decode json of
+                Ok approve ->
+                    ShowApproves (ShowApproves.UpdateOne approve)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadApproves
+
+        Ok "OneRegionalAnalysisUpdated" ->
+            case decodePayload RegionalAnalysis.decode json of
+                Ok regionalAnalysis ->
+                    ShowRegionalAnalysis (ShowRegionalAnalysis.UpdateOne regionalAnalysis)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadRegionalAnalysis
+
+        Ok "OneNationalAnalysisUpdated" ->
+            case decodePayload NationalAnalysis.decode json of
+                Ok nationalAnalysis ->
+                    ShowNationalAnalysis (ShowNationalAnalysis.UpdateOne nationalAnalysis)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadNationalAnalysis
+
         _ ->
             IncomingMsgError NoDecoderMatchFound
 

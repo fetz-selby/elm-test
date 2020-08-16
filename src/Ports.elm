@@ -52,9 +52,17 @@ type OutgoingMsg
     | SavePoll Poll.Model
     | SaveRegionSummary RegionalAnalysis.Model
     | SaveNationalSummary NationalAnalysis.Model
-    | UpdateApprove Approve.Model
+    | UpdateRegion Region.Model
+    | UpdateUser User.Model
+    | UpdateAgent Agent.Model
+    | UpdateConstituency Constituency.Model
     | UpdateCandidate Candidate.Model
+    | UpdateParty Party.Model
+    | UpdatePoll Poll.Model
     | UpdateParentConstituency ParentConstituency.Model
+    | UpdateApprove Approve.Model
+    | UpdateRegionalSummary RegionalAnalysis.Model
+    | UpdateNationalSummary NationalAnalysis.Model
 
 
 port msgForJs : PortData -> Cmd msg
@@ -182,8 +190,32 @@ toPortData msg =
         UpdateApprove approve ->
             { action = "UpdateApprove", payload = Approve.encode approve }
 
-        UpdateCandidate candidate ->
-            { action = "UpdateApprove", payload = Candidate.encode candidate }
-
         UpdateParentConstituency parentConstituency ->
             { action = "UpdateParentConstituency", payload = ParentConstituency.encode parentConstituency }
+
+        UpdateRegion region ->
+            { action = "UpdateRegion", payload = Region.encode region }
+
+        UpdateUser user ->
+            { action = "UpdateUser", payload = User.encode user }
+
+        UpdateAgent agent ->
+            { action = "UpdateAgent", payload = Agent.encode agent }
+
+        UpdateConstituency constituency ->
+            { action = "UpdateConstituency", payload = Constituency.encode constituency }
+
+        UpdateCandidate candidate ->
+            { action = "UpdateCandidate", payload = Candidate.encode candidate }
+
+        UpdateParty party ->
+            { action = "UpdateParty", payload = Party.encode party }
+
+        UpdatePoll poll ->
+            { action = "UpdatePoll", payload = Poll.encode poll }
+
+        UpdateRegionalSummary regional ->
+            { action = "UpdateRegionalSummary", payload = RegionalAnalysis.encode regional }
+
+        UpdateNationalSummary national ->
+            { action = "UpdateNationalSummary", payload = NationalAnalysis.encode national }

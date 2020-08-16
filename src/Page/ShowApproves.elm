@@ -2,7 +2,7 @@ module Page.ShowApproves exposing (Model, Msg(..), decode, default, update, view
 
 import Data.Approve as Approve
 import Html exposing (button, div, form, input, label, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, classList, placeholder, readonly, type_, value)
+import Html.Attributes exposing (class, classList, disabled, placeholder, readonly, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Json.Decode as Decode
 import Ports
@@ -14,6 +14,7 @@ type Msg
     | ShowDetail Approve.Model
     | ApprovesReceived ApproveData
     | AddOne Approve.Model
+    | UpdateOne Approve.Model
     | Form Field
     | OnEdit
     | Update
@@ -50,6 +51,7 @@ type alias Model =
     , voteType : String
     , selectedApprove : Approve.Model
     , showDetailMode : ShowDetailMode
+    , isLoading : Bool
     }
 
 
@@ -69,10 +71,10 @@ view model =
             , div [ class "col-md-4" ]
                 [ case model.showDetailMode of
                     View ->
-                        renderDetails model.selectedApprove
+                        renderDetails model
 
                     Edit ->
-                        renderEditableDetails model.selectedApprove
+                        renderEditableDetails model
 
                     New ->
                         div [] []
@@ -102,15 +104,6 @@ update model msg =
         Form field ->
             ( model, Cmd.none )
 
-        Update ->
-            let
-                updatedModel =
-                    { model | selectedApprove = Approve.setIsApproved True model.selectedApprove }
-            in
-            ( updatedModel
-            , Cmd.batch [ Ports.sendToJs (Ports.UpdateApprove updatedModel.selectedApprove) ]
-            )
-
         Reject ->
             -- Show warning before proceeding
             ( model, Cmd.batch [ Ports.sendToJs (Ports.DeleteApprove model.selectedApprove.id) ] )
@@ -123,6 +116,18 @@ update model msg =
 
         SearchList val ->
             ( { model | searchWord = val }, Cmd.none )
+
+        Update ->
+            ( { model | isLoading = True }, Ports.sendToJs (Ports.UpdateApprove model.selectedApprove) )
+
+        UpdateOne approve ->
+            ( { model
+                | isLoading = False
+                , approves = Approve.replace approve model.approves
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
 
 
 renderHeader : Html.Html Msg
@@ -173,43 +178,63 @@ renderField fieldLabel fieldValue fieldPlaceholder isEditable field =
         ]
 
 
-renderSubmitBtn : String -> String -> Bool -> Html.Html Msg
-renderSubmitBtn label className isCustom =
+renderSubmitBtn : Bool -> Bool -> String -> String -> Bool -> Html.Html Msg
+renderSubmitBtn isLoading isValid label className isCustom =
     div [ class "form-group" ]
-        [ button [ type_ "submit", classList [ ( className, True ), ( "btn-extra", isCustom ) ] ] [ Html.text label ]
+        [ if isLoading && isValid then
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text "Please wait ..." ]
+
+          else if not isLoading && isValid then
+            button
+                [ type_ "submit"
+                , classList [ ( className, True ), ( "btn-extra", isCustom ) ]
+                ]
+                [ Html.text label ]
+
+          else
+            button
+                [ type_ "submit"
+                , disabled True
+                , classList [ ( "btn btn-extra", isCustom ), ( "btn-invalid", True ) ]
+                ]
+                [ Html.text label ]
         ]
 
 
-renderDetails : Approve.Model -> Html.Html Msg
+renderDetails : Model -> Html.Html Msg
 renderDetails model =
     div []
         [ div [ class "col-md-12 spacing-bottom" ]
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Reject ]
-            [ renderField "message" model.message "eg.XXXX" False Message
-            , renderField "agent" model.agent.name "eg.Smith" False Agent
-            , renderField "constituency" model.constituency.name "e.g Bekwai" False Constituency
-            , renderField "poll station" model.poll.name "e.g XXX" False Poll
-            , renderField "type" model.candidateType "e.g M/P" False CandidateType
-            , renderField "msisdn" model.msisdn "e.g +XXX XXXX" False Msisdn
-            , renderField "posted ts" model.postedTs "e.g 12.01.2020 16:54 32" False PostedTs
-            , renderSubmitBtn "Reject" "btn btn-danger" True
+            [ renderField "message" model.selectedApprove.message "eg.XXXX" False Message
+            , renderField "agent" model.selectedApprove.agent.name "eg.Smith" False Agent
+            , renderField "constituency" model.selectedApprove.constituency.name "e.g Bekwai" False Constituency
+            , renderField "poll station" model.selectedApprove.poll.name "e.g XXX" False Poll
+            , renderField "type" model.selectedApprove.candidateType "e.g M/P" False CandidateType
+            , renderField "msisdn" model.selectedApprove.msisdn "e.g +XXX XXXX" False Msisdn
+            , renderField "posted ts" model.selectedApprove.postedTs "e.g 12.01.2020 16:54 32" False PostedTs
             ]
         ]
 
 
-renderEditableDetails : Approve.Model -> Html.Html Msg
+renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderField "message" model.message "eg.XXXX" False Message
-        , renderField "agent" model.agent.name "eg.Smith" False Agent
-        , renderField "constituency" model.constituency.name "e.g Bekwai" False Constituency
-        , renderField "poll station" model.poll.name "e.g XXX" False Poll
-        , renderField "type" model.candidateType "e.g M/P" False CandidateType
-        , renderField "msisdn" model.msisdn "e.g +XXX XXXX" False Msisdn
-        , renderField "posted ts" model.postedTs "e.g 12.01.2020 16:54 32" False PostedTs
-        , renderSubmitBtn "Approve" "btn btn-danger" True
+        [ renderField "message" model.selectedApprove.message "eg.XXXX" False Message
+        , renderField "agent" model.selectedApprove.agent.name "eg.Smith" False Agent
+        , renderField "constituency" model.selectedApprove.constituency.name "e.g Bekwai" False Constituency
+        , renderField "poll station" model.selectedApprove.poll.name "e.g XXX" False Poll
+        , renderField "type" model.selectedApprove.candidateType "e.g M/P" False CandidateType
+        , renderField "msisdn" model.selectedApprove.msisdn "e.g +XXX XXXX" False Msisdn
+        , renderField "posted ts" model.selectedApprove.postedTs "e.g 12.01.2020 16:54 32" False PostedTs
+        , renderSubmitBtn model.isLoading (Approve.isValid model.selectedApprove) "Save" "btn btn-danger" True
         ]
 
 
@@ -244,4 +269,5 @@ default =
     , voteType = ""
     , selectedApprove = Approve.initApprove
     , showDetailMode = View
+    , isLoading = False
     }

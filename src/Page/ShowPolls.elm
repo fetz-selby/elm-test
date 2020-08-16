@@ -16,8 +16,10 @@ type Msg
     | ShowDetail Poll.Model
     | PollsReceived PollData
     | AddOne Poll.Model
+    | UpdateOne Poll.Model
     | Form Field
     | Save
+    | Update
     | DetailMode ShowDetailMode
     | OnEdit
     | SearchList String
@@ -117,6 +119,18 @@ update model msg =
         SearchList val ->
             ( { model | searchWord = val }, Cmd.none )
 
+        Update ->
+            ( { model | isLoading = True }, Ports.sendToJs (Ports.UpdatePoll model.selectedPoll) )
+
+        UpdateOne poll ->
+            ( { model
+                | isLoading = False
+                , polls = Poll.replace poll model.polls
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
+
 
 view : Model -> Html.Html Msg
 view model =
@@ -137,10 +151,10 @@ view model =
                         renderDetails model.selectedPoll
 
                     Edit ->
-                        renderEditableDetails model.selectedPoll
+                        renderEditableDetails model
 
                     New ->
-                        renderNewDetails model model.selectedPoll
+                        renderNewDetails model
                 ]
             ]
         ]
@@ -262,26 +276,27 @@ renderDetails model =
         ]
 
 
-renderEditableDetails : Poll.Model -> Html.Html Msg
+renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
-    form [ onSubmit Save ]
-        [ renderField "text" "name" model.name "eg. XXX" True Name
-        , renderField "text" "constituency" model.constituency.name "eg. XXX" True Constituency
-        , renderField "number" "rejected" model.rejectedVotes "e.g 12" True RejectedVotes
-        , renderField "number" "valid" model.validVotes "e.g 1002" True ValidVotes
-        , renderField "number" "total" model.totalVoters "e.g 9088" True TotalVoters
+    form [ onSubmit Update ]
+        [ renderField "text" "name" model.selectedPoll.name "eg. XXX" True Name
+        , renderField "text" "constituency" model.selectedPoll.constituency.name "eg. XXX" True Constituency
+        , renderField "number" "rejected" model.selectedPoll.rejectedVotes "e.g 12" True RejectedVotes
+        , renderField "number" "valid" model.selectedPoll.validVotes "e.g 1002" True ValidVotes
+        , renderField "number" "total" model.selectedPoll.totalVoters "e.g 9088" True TotalVoters
+        , renderSubmitBtn model.isLoading (Poll.isValid model.selectedPoll) "Save" "btn btn-danger" True
         ]
 
 
-renderNewDetails : Model -> Poll.Model -> Html.Html Msg
-renderNewDetails model selectedPoll =
+renderNewDetails : Model -> Html.Html Msg
+renderNewDetails model =
     form [ onSubmit Save ]
-        [ renderField "text" "name" selectedPoll.name "eg. XXX" True Name
+        [ renderField "text" "name" model.selectedPoll.name "eg. XXX" True Name
         , renderConstituencies "constituency" Constituency model.constituencies
-        , renderField "number" "rejected" selectedPoll.rejectedVotes "e.g 12" True RejectedVotes
-        , renderField "number" "valid" selectedPoll.validVotes "e.g 1002" True ValidVotes
-        , renderField "number" "total" selectedPoll.totalVoters "e.g 9088" True TotalVoters
-        , renderSubmitBtn model.isLoading (Poll.isValid selectedPoll) "Save" "btn btn-danger" True
+        , renderField "number" "rejected" model.selectedPoll.rejectedVotes "e.g 12" True RejectedVotes
+        , renderField "number" "valid" model.selectedPoll.validVotes "e.g 1002" True ValidVotes
+        , renderField "number" "total" model.selectedPoll.totalVoters "e.g 9088" True TotalVoters
+        , renderSubmitBtn model.isLoading (Poll.isValid model.selectedPoll) "Save" "btn btn-danger" True
         ]
 
 

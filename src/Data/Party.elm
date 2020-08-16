@@ -9,6 +9,7 @@ module Data.Party exposing
     , initParty
     , isIdExist
     , isValid
+    , replace
     , setColor
     , setId
     , setLogoPath
@@ -121,6 +122,20 @@ hasValidOrderQueue orderQueue =
 
         Nothing ->
             False
+
+
+replace : Model -> List Model -> List Model
+replace model list =
+    list |> List.map (switch model)
+
+
+switch : Model -> Model -> Model
+switch replacer variable =
+    if replacer.id == variable.id then
+        replacer
+
+    else
+        variable
 
 
 encode : Model -> Encode.Value

@@ -14,8 +14,10 @@ type Msg
     | ShowDetail Party.Model
     | PartiesReceived PartyData
     | AddOne Party.Model
+    | UpdateOne Party.Model
     | Form Field
     | Save
+    | Update
     | DetailMode ShowDetailMode
     | OnEdit
     | SearchList String
@@ -68,10 +70,10 @@ view model =
                         renderDetails model.selectedParty
 
                     Edit ->
-                        renderEditableDetails model.selectedParty
+                        renderEditableDetails model
 
                     New ->
-                        renderNewDetails model.selectedParty model.isLoading
+                        renderNewDetails model
                 ]
             ]
         ]
@@ -126,6 +128,18 @@ update model msg =
 
         SearchList val ->
             ( { model | searchWord = val }, Cmd.none )
+
+        Update ->
+            ( { model | isLoading = True }, Ports.sendToJs (Ports.UpdateParty model.selectedParty) )
+
+        UpdateOne party ->
+            ( { model
+                | isLoading = False
+                , parties = Party.replace party model.parties
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
 
 
 renderHeader : Html.Html Msg
@@ -223,24 +237,25 @@ renderDetails model =
         ]
 
 
-renderEditableDetails : Party.Model -> Html.Html Msg
+renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
-    form [ onSubmit Save ]
-        [ renderField "text" "party" model.name "eg.XXX" True Party
-        , renderField "text" "color" model.color "e.g #fefefe" True Color
-        , renderField "text" "logo path" model.logoPath "e.g /path/to/avatar.jpg" True LogoPath
-        , renderField "number" "order queue" model.orderQueue "e.g 12" True OrderQueue
+    form [ onSubmit Update ]
+        [ renderField "text" "party" model.selectedParty.name "eg.XXX" True Party
+        , renderField "text" "color" model.selectedParty.color "e.g #fefefe" True Color
+        , renderField "text" "logo path" model.selectedParty.logoPath "e.g /path/to/avatar.jpg" True LogoPath
+        , renderField "number" "order queue" model.selectedParty.orderQueue "e.g 12" True OrderQueue
+        , renderSubmitBtn model.isLoading (Party.isValid model.selectedParty) "Save" "btn btn-danger" True
         ]
 
 
-renderNewDetails : Party.Model -> Bool -> Html.Html Msg
-renderNewDetails selectedParty isLoading =
+renderNewDetails : Model -> Html.Html Msg
+renderNewDetails model =
     form [ onSubmit Save ]
-        [ renderField "text" "party" selectedParty.name "eg.XXX" True Party
-        , renderField "text" "color" selectedParty.color "e.g #fefefe" True Color
-        , renderField "text" "logo path" selectedParty.logoPath "e.g /path/to/avatar.jpg" True LogoPath
-        , renderField "number" "order queue" selectedParty.orderQueue "e.g 12" True OrderQueue
-        , renderSubmitBtn isLoading (Party.isValid selectedParty) "Save" "btn btn-danger" True
+        [ renderField "text" "party" model.selectedParty.name "eg.XXX" True Party
+        , renderField "text" "color" model.selectedParty.color "e.g #fefefe" True Color
+        , renderField "text" "logo path" model.selectedParty.logoPath "e.g /path/to/avatar.jpg" True LogoPath
+        , renderField "number" "order queue" model.selectedParty.orderQueue "e.g 12" True OrderQueue
+        , renderSubmitBtn model.isLoading (Party.isValid model.selectedParty) "Save" "btn btn-danger" True
         ]
 
 

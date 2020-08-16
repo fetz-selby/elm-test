@@ -17,8 +17,10 @@ type Msg
     | ShowDetail RegionalAnalysis.Model
     | RegionalAnalysisReceived RegionalAnalysisData
     | AddOne RegionalAnalysis.Model
+    | UpdateOne RegionalAnalysis.Model
     | Form Field
     | Save
+    | Update
     | DetailMode ShowDetailMode
     | OnEdit
     | SearchList String
@@ -79,10 +81,10 @@ view model =
                         renderDetails model.selectedRegionalAnalysis
 
                     Edit ->
-                        renderEditableDetails model.selectedRegionalAnalysis
+                        renderEditableDetails model
 
                     New ->
-                        renderNewDetails model model.selectedRegionalAnalysis
+                        renderNewDetails model
                 ]
             ]
         ]
@@ -155,6 +157,18 @@ update model msg =
 
         SearchList val ->
             ( { model | searchWord = val }, Cmd.none )
+
+        Update ->
+            ( { model | isLoading = True }, Ports.sendToJs (Ports.UpdateRegionalSummary model.selectedRegionalAnalysis) )
+
+        UpdateOne regionalAnalysis ->
+            ( { model
+                | isLoading = False
+                , regionalAnalysis = RegionalAnalysis.replace regionalAnalysis model.regionalAnalysis
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
 
 
 renderHeader : Html.Html Msg
@@ -312,29 +326,29 @@ renderDetails model =
         ]
 
 
-renderEditableDetails : RegionalAnalysis.Model -> Html.Html Msg
+renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
-    form [ onSubmit Save ]
-        [ renderField "text" "region" model.region.name "eg.Ashanti" True Region
-        , renderField "text" "type" model.candidateType "e.g M/P" True CandidateType
-        , renderField "number" "votes" model.votes "e.g 1002" True Votes
-        , renderField "text" "party" model.party.name "e.g XXX" True Party
-        , renderField "number" "percentage" model.percentage "e.g 45.4" True Percentage
-        , renderField "number" "angle" model.angle "e.g 180" True Angle
-        , renderField "number" "bar" model.bar "e.g 234" True Bar
+    form [ onSubmit Update ]
+        [ renderField "text" "region" model.selectedRegionalAnalysis.region.name "eg.Ashanti" True Region
+        , renderField "text" "type" model.selectedRegionalAnalysis.candidateType "e.g M/P" True CandidateType
+        , renderField "number" "votes" model.selectedRegionalAnalysis.votes "e.g 1002" True Votes
+        , renderField "text" "party" model.selectedRegionalAnalysis.party.name "e.g XXX" True Party
+        , renderField "number" "percentage" model.selectedRegionalAnalysis.percentage "e.g 45.4" True Percentage
+        , renderField "number" "angle" model.selectedRegionalAnalysis.angle "e.g 180" True Angle
+        , renderField "number" "bar" model.selectedRegionalAnalysis.bar "e.g 234" True Bar
         ]
 
 
-renderNewDetails : Model -> RegionalAnalysis.Model -> Html.Html Msg
-renderNewDetails model selectedRegionalAnalysis =
+renderNewDetails : Model -> Html.Html Msg
+renderNewDetails model =
     form [ onSubmit Save ]
         [ renderParties "party" Party model.parties
         , renderGenericList "type" CandidateType getTypeList
-        , renderField "number" "votes" selectedRegionalAnalysis.votes "e.g 1002" True Votes
-        , renderField "number" "percentage" selectedRegionalAnalysis.percentage "e.g 45.4" True Percentage
-        , renderField "number" "angle" selectedRegionalAnalysis.angle "e.g 180" True Angle
-        , renderField "number" "bar" selectedRegionalAnalysis.bar "e.g 234" True Bar
-        , renderSubmitBtn model.isLoading (RegionalAnalysis.isValid selectedRegionalAnalysis) "Save" "btn btn-danger" True
+        , renderField "number" "votes" model.selectedRegionalAnalysis.votes "e.g 1002" True Votes
+        , renderField "number" "percentage" model.selectedRegionalAnalysis.percentage "e.g 45.4" True Percentage
+        , renderField "number" "angle" model.selectedRegionalAnalysis.angle "e.g 180" True Angle
+        , renderField "number" "bar" model.selectedRegionalAnalysis.bar "e.g 234" True Bar
+        , renderSubmitBtn model.isLoading (RegionalAnalysis.isValid model.selectedRegionalAnalysis) "Save" "btn btn-danger" True
         ]
 
 

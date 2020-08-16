@@ -8,6 +8,7 @@ module Data.User exposing
     , initUser
     , isIdExist
     , isValid
+    , replace
     , setEmail
     , setId
     , setLevel
@@ -123,20 +124,6 @@ getOnlyIds list =
     list |> Array.fromList |> Array.map (\n -> n.id) |> Array.toList
 
 
-encode : Model -> Encode.Value
-encode user =
-    Encode.object
-        [ ( "id", Encode.string user.id )
-        , ( "name", Encode.string user.name )
-        , ( "email", Encode.string user.email )
-        , ( "msisdn", Encode.string user.msisdn )
-        , ( "level", Encode.string user.level )
-        , ( "year", Encode.string user.year )
-        , ( "region_id", Encode.string user.region.id )
-        , ( "password", Encode.string user.password )
-        ]
-
-
 isValid : Model -> Bool
 isValid model =
     hasValidName model.name
@@ -165,16 +152,11 @@ hasValidEmail email =
 
 hasValidMsisdn : String -> Bool
 hasValidMsisdn msisdn =
-    let
-        a =
-            msisdn
-                |> String.length
-                |> (>) 14
-
-        b =
-            msisdn |> String.all Char.isDigit
-    in
-    a && b
+    (msisdn
+        |> String.length
+        |> (<) 9
+    )
+        && (msisdn |> String.all Char.isDigit)
 
 
 hasValidLevel : String -> Bool
@@ -201,7 +183,35 @@ hasValidRegionId region =
 
 hasValidPassword : String -> Bool
 hasValidPassword password =
-    password |> String.length |> (<) 3
+    password |> String.length |> (<) 0
+
+
+replace : Model -> List Model -> List Model
+replace model list =
+    list |> List.map (switch model)
+
+
+switch : Model -> Model -> Model
+switch replacer variable =
+    if replacer.id == variable.id then
+        replacer
+
+    else
+        variable
+
+
+encode : Model -> Encode.Value
+encode user =
+    Encode.object
+        [ ( "id", Encode.string user.id )
+        , ( "name", Encode.string user.name )
+        , ( "email", Encode.string user.email )
+        , ( "msisdn", Encode.string user.msisdn )
+        , ( "level", Encode.string user.level )
+        , ( "year", Encode.string user.year )
+        , ( "region_id", Encode.string user.region.id )
+        , ( "password", Encode.string user.password )
+        ]
 
 
 decode : Decode.Decoder Model

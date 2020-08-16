@@ -17,8 +17,10 @@ type Msg
     | ShowDetail Agent.Model
     | AgentsReceived AgentData
     | AddOne Agent.Model
+    | UpdateOne Agent.Model
     | Form Field
     | Save
+    | Update
     | DetailMode ShowDetailMode
     | OnEdit
     | SearchList String
@@ -121,6 +123,18 @@ update model msg =
         SearchList val ->
             ( { model | searchWord = val }, Cmd.none )
 
+        Update ->
+            ( { model | isLoading = True }, Ports.sendToJs (Ports.UpdateAgent model.selectedAgent) )
+
+        UpdateOne region ->
+            ( { model
+                | isLoading = False
+                , agents = Agent.replace region model.agents
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
+
 
 view : Model -> Html.Html Msg
 view model =
@@ -141,10 +155,10 @@ view model =
                         renderDetails model.selectedAgent
 
                     Edit ->
-                        renderEditableDetails model.selectedAgent
+                        renderEditableDetails model
 
                     New ->
-                        renderNewDetails model model.selectedAgent
+                        renderNewDetails model
                 ]
             ]
         ]
@@ -281,23 +295,24 @@ renderDetails model =
         ]
 
 
-renderEditableDetails : Agent.Model -> Html.Html Msg
+renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
-    form [ onSubmit Save ]
-        [ renderField "text" "name" model.name "eg. Smith" True Name
-        , renderField "number" "msisdn" model.msisdn "e.g +491763500232450" True Msisdn
-        , renderField "number" "pin" model.pin "e.g 0000" True Pin
-        , renderField "text" "constituency" model.constituency.name "e.g P" True Constituency
-        , renderField "text" "poll" model.poll.name "e.g Beach Road" True Poll
+    form [ onSubmit Update ]
+        [ renderField "text" "name" model.selectedAgent.name "eg. Smith" True Name
+        , renderField "number" "msisdn" model.selectedAgent.msisdn "e.g +491763500232450" True Msisdn
+        , renderField "number" "pin" model.selectedAgent.pin "e.g 0000" True Pin
+        , renderField "text" "constituency" model.selectedAgent.constituency.name "e.g P" True Constituency
+        , renderField "text" "poll" model.selectedAgent.poll.name "e.g Beach Road" True Poll
+        , renderSubmitBtn model.isLoading (Agent.isValid model.selectedAgent) "Save" "btn btn-danger" True
         ]
 
 
-renderNewDetails : Model -> Agent.Model -> Html.Html Msg
-renderNewDetails model selectedAgent =
+renderNewDetails : Model -> Html.Html Msg
+renderNewDetails model =
     form [ onSubmit Save ]
-        [ renderField "text" "name" selectedAgent.name "eg. Smith" True Name
-        , renderField "number" "msisdn" selectedAgent.msisdn "eg. +491763500232450" True Msisdn
-        , renderField "number" "pin" selectedAgent.pin "e.g 0000" True Pin
+        [ renderField "text" "name" model.selectedAgent.name "eg. Smith" True Name
+        , renderField "number" "msisdn" model.selectedAgent.msisdn "eg. +491763500232450" True Msisdn
+        , renderField "number" "pin" model.selectedAgent.pin "e.g 0000" True Pin
         , renderConstituencies "constituency" Constituency model.constituencies
         , renderPolls "poll" Poll model.polls
         , renderSubmitBtn model.isLoading (Agent.isValid model.selectedAgent) "Save" "btn btn-danger" True

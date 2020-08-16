@@ -1,23 +1,35 @@
 import Elm from "./Main.elm";
-import { getAgents, addAgent } from "./api/agents";
-import { getUsers, addUser } from "./api/users";
-import { getConstituencies, addConstituency } from "./api/constituencies";
-import { getCandidates, addCandidate } from "./api/candidates";
-import { getParties, addParty } from "./api/parties";
-import { getPolls, addPoll } from "./api/polls";
-import { getRegions, deleteRegion, addRegion } from "./api/regions";
+import { getAgents, addAgent, updateAgent } from "./api/agents";
+import { getUsers, addUser, updateUser } from "./api/users";
+import {
+  getConstituencies,
+  addConstituency,
+  updateConstituency,
+} from "./api/constituencies";
+import { getCandidates, addCandidate, updateCandidate } from "./api/candidates";
+import { getParties, addParty, updateParty } from "./api/parties";
+import { getPolls, addPoll, updatePoll } from "./api/polls";
+import {
+  getRegions,
+  deleteRegion,
+  addRegion,
+  updateRegion,
+} from "./api/regions";
 import {
   getParentConstituencies,
   addParentConstituency,
+  updateParentConstituency,
 } from "./api/parentConstituencies";
 import { getApproves } from "./api/approves";
 import {
   getNationalAnalysis,
   addNationalAnalysis,
+  updateNationalAnalysis,
 } from "./api/nationalAnalysis";
 import {
   getRegionalAnalysis,
   addRegionalAnalysis,
+  updateRegionalAnalysis,
 } from "./api/regionalAnalysis";
 import { ROLE } from "./constants";
 import {
@@ -43,6 +55,7 @@ import {
   normalizeParentConstituency,
   normalizeRegionalAnalysis,
   normalizeNationalAnalysis,
+  normalizeApprove,
 } from "./api/helper";
 import io from "socket.io-client";
 import feathers from "@feathersjs/client";
@@ -379,14 +392,83 @@ async function create() {
         break;
       }
 
-      case "UpdateApprove": {
-        console.log("[Update Approve], ", payload);
+      case "UpdateRegion": {
+        const region = { ...payload };
+        const updateRegionResp = await updateRegion({ service, region });
+        break;
+      }
+
+      case "UpdateUser": {
+        const user = { ...payload };
+        const updateUserResp = await updateUser({ service, user });
+        console.log("user, ", user);
+        break;
+      }
+
+      case "UpdateAgent": {
+        const agent = { ...payload, year };
+        const updateAgentResp = await updateAgent({ service, agent });
+        console.log("agent, ", agent);
+
+        break;
+      }
+
+      case "UpdateConstituency": {
+        const constituency = { ...payload, year };
+        const updateConstituencyResp = await updateConstituency({
+          service,
+          constituency,
+        });
+        console.log("constituency, ", constituency);
 
         break;
       }
 
       case "UpdateCandidate": {
-        console.log("[Update Candidate], ", payload);
+        const candidate = { ...payload, year };
+        const updateCandidateResp = await updateCandidate({
+          service,
+          candidate,
+        });
+        console.log("candidate, ", candidate);
+
+        break;
+      }
+
+      case "UpdateParty": {
+        const party = { ...payload };
+        const updatePartyResp = await updateParty({ service, party });
+        console.log("party, ", party);
+
+        break;
+      }
+
+      case "UpdatePoll": {
+        const poll = { ...payload, year };
+        const updatePollResp = await updatePoll({ service, poll });
+        console.log("poll, ", poll);
+
+        break;
+      }
+
+      case "UpdateRegionalSummary": {
+        const regionalAnalysis = { ...payload, region_id: regionId, year };
+        const updateRegionalAnalysisResp = await updateRegionalAnalysis({
+          service,
+          regionalAnalysis,
+        });
+        console.log("regional, ", regionalAnalysis);
+
+        break;
+      }
+
+      case "UpdateNationalSummary": {
+        const nationalAnalysis = { ...payload, year };
+        const updateNationalAnalysisResp = await updateNationalAnalysis({
+          service,
+          nationalAnalysis,
+        });
+        console.log("national, ", nationalAnalysis);
 
         break;
       }
@@ -512,26 +594,84 @@ async function create() {
       });
 
     // When a model is updated
-    service.service("agents").on("updated", (d, c) => {
-      console.log("agent updated");
+    service.service("agents").on("updated", (agent, c) => {
+      app.ports.msgForElm.send({
+        type: "OneAgentUpdated",
+        payload: normalizeAgent(agent),
+      });
     });
-    service.service("regions").on("updated", (d, c) => {
-      console.log("region updated");
+
+    service.service("regions").on("updated", (region, c) => {
+      app.ports.msgForElm.send({
+        type: "OneRegionUpdated",
+        payload: normalizeRegion(region),
+      });
     });
 
-    service.service("constituencies").on("updated", (d, c) => {});
+    service.service("users").on("updated", (user, c) => {
+      app.ports.msgForElm.send({
+        type: "OneUserUpdated",
+        payload: normalizeUser(user),
+      });
+    });
 
-    service.service("approve_list").on("updated", (d, c) => {});
+    service.service("constituencies").on("updated", (constituency, c) => {
+      app.ports.msgForElm.send({
+        type: "OneConstituencyUpdated",
+        payload: normalizeConstituency(constituency),
+      });
+    });
 
-    service.service("candidates").on("updated", (d, c) => {});
+    service.service("approve_list").on("updated", (approve, c) => {
+      app.ports.msgForElm.send({
+        type: "OneApproveUpdated",
+        payload: normalizeApprove(approve),
+      });
+    });
 
-    service.service("national_analysis").on("updated", (d, c) => {});
+    service.service("candidates").on("updated", (candidate, c) => {
+      app.ports.msgForElm.send({
+        type: "OneCandidateUpdated",
+        payload: normalizeCandidate(candidate),
+      });
+    });
 
-    service.service("parent_constituencies").on("updated", (d, c) => {});
+    service.service("polls").on("updated", (poll, c) => {
+      app.ports.msgForElm.send({
+        type: "OnePollUpdated",
+        payload: normalizePoll(poll),
+      });
+    });
 
-    service.service("parties").on("updated", (d, c) => {});
+    service.service("national_analysis").on("updated", (national, c) => {
+      app.ports.msgForElm.send({
+        type: "OneNationalAnalysisUpdated",
+        payload: normalizeNationalAnalysis(national),
+      });
+    });
 
-    service.service("regional_analysis").on("updated", (d, c) => {});
+    service
+      .service("parent_constituencies")
+      .on("updated", (parentConstituency, c) => {
+        app.ports.msgForElm.send({
+          type: "OneParentConstituencyUpdated",
+          payload: normalizeParentConstituency(parentConstituency),
+        });
+      });
+
+    service.service("parties").on("updated", (party, c) => {
+      app.ports.msgForElm.send({
+        type: "OnePartyUpdated",
+        payload: normalizeParty(party),
+      });
+    });
+
+    service.service("regional_analysis").on("updated", (regional, c) => {
+      app.ports.msgForElm.send({
+        type: "OneRegionalAnalysisUpdated",
+        payload: normalizeRegionalAnalysis(regional),
+      });
+    });
   };
 
   app.ports.msgForJs.subscribe(handlePortMsg);

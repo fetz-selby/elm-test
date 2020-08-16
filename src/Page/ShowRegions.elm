@@ -14,8 +14,10 @@ type Msg
     | ShowDetail Region.Model
     | RegionsReceived RegionData
     | AddOne Region.Model
+    | UpdateOne Region.Model
     | Form Field
     | Save
+    | Update
     | DetailMode ShowDetailMode
     | OnEdit
     | SearchList String
@@ -67,7 +69,7 @@ view model =
                         renderDetails model.selectedRegion
 
                     Edit ->
-                        renderEditableDetails model.selectedRegion
+                        renderEditableDetails model
 
                     New ->
                         renderNewDetails model
@@ -125,6 +127,18 @@ update model msg =
 
         OnAdd ->
             ( model, Cmd.none )
+
+        Update ->
+            ( { model | isLoading = True }, Ports.sendToJs (Ports.UpdateRegion model.selectedRegion) )
+
+        UpdateOne region ->
+            ( { model
+                | isLoading = False
+                , regions = Region.replace region model.regions
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
 
 
 renderHeader : Html.Html Msg
@@ -219,11 +233,12 @@ renderDetails model =
         ]
 
 
-renderEditableDetails : Region.Model -> Html.Html Msg
+renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
-    form [ onSubmit Save ]
-        [ renderField "text" "region" model.name "eg.Ashanti" False Name
-        , renderField "number" "seat" model.seats "e.g 30" True Seats
+    form [ onSubmit Update ]
+        [ renderField "text" "region" model.selectedRegion.name "eg.Ashanti" True Name
+        , renderField "number" "seat" model.selectedRegion.seats "e.g 30" True Seats
+        , renderSubmitBtn model.isLoading (Region.isValid model.selectedRegion) "Save" "btn btn-danger" True
         ]
 
 

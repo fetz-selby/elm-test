@@ -9,6 +9,7 @@ module Data.ParentConstituency exposing
     , initParentConstituency
     , isIdExist
     , isValid
+    , replace
     , setId
     , setName
     , setRegionId
@@ -93,6 +94,20 @@ isValid model =
 hasValidName : String -> Bool
 hasValidName name =
     name |> String.length |> (<) 2
+
+
+replace : Model -> List Model -> List Model
+replace model list =
+    list |> List.map (switch model)
+
+
+switch : Model -> Model -> Model
+switch replacer variable =
+    if replacer.id == variable.id then
+        replacer
+
+    else
+        variable
 
 
 encode : Model -> Encode.Value

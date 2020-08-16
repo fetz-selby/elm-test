@@ -17,8 +17,10 @@ type Msg
     | ShowDetail Constituency.Model
     | ConstituenciesReceived ConstituencyData
     | AddOne Constituency.Model
+    | UpdateOne Constituency.Model
     | Form Field
     | Save
+    | Update
     | DetailMode ShowDetailMode
     | OnEdit
     | SearchList String
@@ -133,6 +135,18 @@ update model msg =
         SearchList val ->
             ( { model | searchWord = val }, Cmd.none )
 
+        Update ->
+            ( { model | isLoading = True }, Ports.sendToJs (Ports.UpdateConstituency model.selectedConstituency) )
+
+        UpdateOne constituency ->
+            ( { model
+                | isLoading = False
+                , constituencies = Constituency.replace constituency model.constituencies
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
+
 
 view : Model -> Html.Html Msg
 view model =
@@ -153,10 +167,10 @@ view model =
                         renderDetails model.selectedConstituency
 
                     Edit ->
-                        renderEditableDetails model model.selectedConstituency
+                        renderEditableDetails model
 
                     New ->
-                        renderNewDetails model model.selectedConstituency
+                        renderNewDetails model
                 ]
             ]
         ]
@@ -341,32 +355,32 @@ renderDetails model =
         ]
 
 
-renderEditableDetails : Model -> Constituency.Model -> Html.Html Msg
-renderEditableDetails model selectedConstituency =
-    form [ onSubmit Save ]
-        [ renderField "text" "constituency" selectedConstituency.name "eg.Bekwai" True Constituency
+renderEditableDetails : Model -> Html.Html Msg
+renderEditableDetails model =
+    form [ onSubmit Update ]
+        [ renderField "text" "constituency" model.selectedConstituency.name "eg.Bekwai" True Constituency
         , renderParties "seat won by" SeatWonId model.parties
-        , renderField "number" "casted votes" selectedConstituency.castedVotes "e.g 2342" True CastedVotes
-        , renderField "number" "reg votes" selectedConstituency.regVotes "e.g 432" True RegVotes
-        , renderField "number" "rejected votes" selectedConstituency.rejectVotes "e.g 180" True RejectVotes
-        , renderField "number" "total votes" selectedConstituency.totalVotes "e.g 234" True TotalVotes
+        , renderField "number" "casted votes" model.selectedConstituency.castedVotes "e.g 2342" True CastedVotes
+        , renderField "number" "reg votes" model.selectedConstituency.regVotes "e.g 432" True RegVotes
+        , renderField "number" "rejected votes" model.selectedConstituency.rejectVotes "e.g 180" True RejectVotes
+        , renderField "number" "total votes" model.selectedConstituency.totalVotes "e.g 234" True TotalVotes
         , renderGenericList "is declared" IsDeclared getIsDeclaredList
         , renderGenericList "is auto compute" AutoCompute getAutoComputeList
-        , renderField "text" "parent id" selectedConstituency.parent.name "e.g Bantama" True ParentId
+        , renderSubmitBtn model.isLoading (Constituency.isValid model.selectedConstituency) "Save" "btn btn-danger" True
         ]
 
 
-renderNewDetails : Model -> Constituency.Model -> Html.Html Msg
-renderNewDetails model constituencyModel =
+renderNewDetails : Model -> Html.Html Msg
+renderNewDetails model =
     form [ onSubmit Save ]
         [ renderParentConstituencies "parent constituency" ParentId model.parentConstituencies
-        , renderField "text" "constituency" constituencyModel.name "eg.Bekwai" True Constituency
-        , renderField "number" "casted votes" constituencyModel.castedVotes "e.g 2343" True CastedVotes
-        , renderField "number" "reg votes" constituencyModel.regVotes "e.g 432" True RegVotes
-        , renderField "number" "rejected votes" constituencyModel.rejectVotes "e.g 180" True RejectVotes
-        , renderField "number" "total votes" constituencyModel.totalVotes "e.g 234" True TotalVotes
+        , renderField "text" "constituency" model.selectedConstituency.name "eg.Bekwai" True Constituency
+        , renderField "number" "casted votes" model.selectedConstituency.castedVotes "e.g 2343" True CastedVotes
+        , renderField "number" "reg votes" model.selectedConstituency.regVotes "e.g 432" True RegVotes
+        , renderField "number" "rejected votes" model.selectedConstituency.rejectVotes "e.g 180" True RejectVotes
+        , renderField "number" "total votes" model.selectedConstituency.totalVotes "e.g 234" True TotalVotes
         , renderGenericList "is auto compute" AutoCompute getAutoComputeList
-        , renderSubmitBtn model.isLoading (Constituency.isValid constituencyModel) "Save" "btn btn-danger" True
+        , renderSubmitBtn model.isLoading (Constituency.isValid model.selectedConstituency) "Save" "btn btn-danger" True
         ]
 
 

@@ -15,6 +15,7 @@ type Msg
     | ShowDetail ParentConstituency.Model
     | ParentConstituenciesReceived ParentConstituencyData
     | AddOne ParentConstituency.Model
+    | UpdateOne ParentConstituency.Model
     | Form Field
     | Save
     | Update
@@ -93,9 +94,6 @@ update model msg =
         Save ->
             ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveParentConstituency model.selectedParentConstituency) ] )
 
-        Update ->
-            ( model, Cmd.batch [ Ports.sendToJs (Ports.UpdateParentConstituency model.selectedParentConstituency) ] )
-
         DetailMode mode ->
             ( showDetailState mode model, Cmd.none )
 
@@ -104,6 +102,18 @@ update model msg =
 
         SearchList val ->
             ( { model | searchWord = val }, Cmd.none )
+
+        Update ->
+            ( { model | isLoading = True }, Ports.sendToJs (Ports.UpdateParentConstituency model.selectedParentConstituency) )
+
+        UpdateOne parent ->
+            ( { model
+                | isLoading = False
+                , parentConstituencies = ParentConstituency.replace parent model.parentConstituencies
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
 
 
 view : Model -> Html.Html Msg
@@ -125,10 +135,10 @@ view model =
                         renderDetails model.selectedParentConstituency
 
                     Edit ->
-                        renderEditableDetails model.selectedParentConstituency model.isLoading
+                        renderEditableDetails model
 
                     New ->
-                        renderNewDetails model.selectedParentConstituency model.isLoading
+                        renderNewDetails model
                 ]
             ]
         ]
@@ -224,20 +234,20 @@ renderDetails model =
         ]
 
 
-renderEditableDetails : ParentConstituency.Model -> Bool -> Html.Html Msg
-renderEditableDetails model isLoading =
+renderEditableDetails : Model -> Html.Html Msg
+renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderField "text" "name" model.name "eg. Bantama" True Name
-        , renderField "text" "region" model.region.name "e.g Ashanti" False Region
-        , renderSubmitBtn isLoading (ParentConstituency.isValid model) "Update" "btn btn-danger" True
+        [ renderField "text" "name" model.selectedParentConstituency.name "eg. Bantama" True Name
+        , renderField "text" "region" model.selectedParentConstituency.region.name "e.g Ashanti" False Region
+        , renderSubmitBtn model.isLoading (ParentConstituency.isValid model.selectedParentConstituency) "Save" "btn btn-danger" True
         ]
 
 
-renderNewDetails : ParentConstituency.Model -> Bool -> Html.Html Msg
-renderNewDetails selectedParentConstituency isLoading =
+renderNewDetails : Model -> Html.Html Msg
+renderNewDetails model =
     form [ onSubmit Save ]
-        [ renderField "text" "name" selectedParentConstituency.name "eg. Bantama" True Name
-        , renderSubmitBtn isLoading (ParentConstituency.isValid selectedParentConstituency) "Save" "btn btn-danger" True
+        [ renderField "text" "name" model.selectedParentConstituency.name "eg. Bantama" True Name
+        , renderSubmitBtn model.isLoading (ParentConstituency.isValid model.selectedParentConstituency) "Save" "btn btn-danger" True
         ]
 
 

@@ -16,8 +16,10 @@ type Msg
     | ShowDetail NationalAnalysis.Model
     | NationalAnalysisReceived NationalAnalysisData
     | AddOne NationalAnalysis.Model
+    | UpdateOne NationalAnalysis.Model
     | Form Field
     | Save
+    | Update
     | DetailMode ShowDetailMode
     | OnEdit
     | SearchList String
@@ -74,10 +76,10 @@ view model =
                         renderDetails model.selectedNationalAnalysis
 
                     Edit ->
-                        renderEditableDetails model.selectedNationalAnalysis
+                        renderEditableDetails model
 
                     New ->
-                        renderNewDetails model model.selectedNationalAnalysis
+                        renderNewDetails model
                 ]
             ]
         ]
@@ -143,6 +145,18 @@ update model msg =
 
         SearchList val ->
             ( { model | searchWord = val }, Cmd.none )
+
+        Update ->
+            ( { model | isLoading = True }, Ports.sendToJs (Ports.UpdateNationalSummary model.selectedNationalAnalysis) )
+
+        UpdateOne national ->
+            ( { model
+                | isLoading = False
+                , nationalAnalysis = NationalAnalysis.replace national model.nationalAnalysis
+                , showDetailMode = View
+              }
+            , Cmd.none
+            )
 
 
 renderHeader : Html.Html Msg
@@ -280,28 +294,28 @@ renderDetails model =
         ]
 
 
-renderEditableDetails : NationalAnalysis.Model -> Html.Html Msg
+renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
-    form [ onSubmit Save ]
-        [ renderField "text" "party" model.party.name "eg.XXX" True Party
-        , renderField "number" "votes" model.votes "e.g 23009" True Votes
-        , renderField "text" "type" model.candidateType "e.g M/P" True CandidateType
-        , renderField "number" "percentage" model.percentage "e.g 45.4" True Percentage
-        , renderField "number" "angle" model.angle "e.g 180" True Angle
-        , renderField "number" "bar" model.bar "e.g 234" True Bar
+    form [ onSubmit Update ]
+        [ renderField "text" "party" model.selectedNationalAnalysis.party.name "eg.XXX" True Party
+        , renderField "number" "votes" model.selectedNationalAnalysis.votes "e.g 23009" True Votes
+        , renderField "text" "type" model.selectedNationalAnalysis.candidateType "e.g M/P" True CandidateType
+        , renderField "number" "percentage" model.selectedNationalAnalysis.percentage "e.g 45.4" True Percentage
+        , renderField "number" "angle" model.selectedNationalAnalysis.angle "e.g 180" True Angle
+        , renderField "number" "bar" model.selectedNationalAnalysis.bar "e.g 234" True Bar
         ]
 
 
-renderNewDetails : Model -> NationalAnalysis.Model -> Html.Html Msg
-renderNewDetails model nationalAnalysis =
+renderNewDetails : Model -> Html.Html Msg
+renderNewDetails model =
     form [ onSubmit Save ]
         [ renderParties "party" Party model.parties
-        , renderField "number" "votes" nationalAnalysis.votes "e.g 23009" True Votes
+        , renderField "number" "votes" model.selectedNationalAnalysis.votes "e.g 23009" True Votes
         , renderGenericList "type" CandidateType getTypeList
-        , renderField "number" "percentage" nationalAnalysis.percentage "e.g 45.4" True Percentage
-        , renderField "number" "angle" nationalAnalysis.angle "e.g 180" True Angle
-        , renderField "number" "bar" nationalAnalysis.bar "e.g 234" True Bar
-        , renderSubmitBtn model.isLoading (NationalAnalysis.isValid nationalAnalysis) "Save" "btn btn-danger" True
+        , renderField "number" "percentage" model.selectedNationalAnalysis.percentage "e.g 45.4" True Percentage
+        , renderField "number" "angle" model.selectedNationalAnalysis.angle "e.g 180" True Angle
+        , renderField "number" "bar" model.selectedNationalAnalysis.bar "e.g 234" True Bar
+        , renderSubmitBtn model.isLoading (NationalAnalysis.isValid model.selectedNationalAnalysis) "Save" "btn btn-danger" True
         ]
 
 

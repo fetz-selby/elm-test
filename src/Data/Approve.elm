@@ -7,6 +7,8 @@ module Data.Approve exposing
     , filter
     , initApprove
     , isIdExist
+    , isValid
+    , replace
     , setAgent
     , setCandidateType
     , setConstituency
@@ -18,7 +20,7 @@ module Data.Approve exposing
     )
 
 import Array
-import Data.Agent as Agent
+import Data.Agent as Agent exposing (replace)
 import Data.Constituency as Constituency
 import Data.Poll as Poll
 import Data.Region as Region
@@ -141,6 +143,25 @@ convertIsApproveToString val =
 
     else
         "N"
+
+
+isValid : Model -> Bool
+isValid model =
+    True
+
+
+replace : Model -> List Model -> List Model
+replace model list =
+    list |> List.map (switch model)
+
+
+switch : Model -> Model -> Model
+switch replacer variable =
+    if replacer.id == variable.id then
+        replacer
+
+    else
+        variable
 
 
 encode : Model -> Encode.Value
