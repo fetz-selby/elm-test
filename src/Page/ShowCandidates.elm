@@ -341,10 +341,10 @@ renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
         [ renderField "text" "name" model.selectedCandidate.name "eg. Smith" True Name
-        , renderField "text" "constituency" model.selectedCandidate.constituency.name "e.g Bantama" True Constituency
-        , renderField "text" "type" model.selectedCandidate.candidateType "e.g M/P" True CandidateType
+        , renderConstituencies "constituency" Constituency model.constituencies
+        , renderParties "party" Party model.parties
+        , renderGenericList "type" CandidateType getTypeList
         , renderField "number" "votes" model.selectedCandidate.votes "e.g 1002" True Votes
-        , renderField "text" "party" model.selectedCandidate.party.name "e.g XXX" True Party
         , renderField "text" "avatar path" model.selectedCandidate.avatarPath "e.g XXX" True AvatarPath
         , renderField "number" "percentage" model.selectedCandidate.percentage "e.g 45.4" True Percentage
         , renderField "number" "angle" model.selectedCandidate.angle "e.g 180" True Angle

@@ -297,12 +297,13 @@ renderDetails model =
 renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderField "text" "party" model.selectedNationalAnalysis.party.name "eg.XXX" True Party
+        [ renderParties "party" Party model.parties
         , renderField "number" "votes" model.selectedNationalAnalysis.votes "e.g 23009" True Votes
-        , renderField "text" "type" model.selectedNationalAnalysis.candidateType "e.g M/P" True CandidateType
+        , renderGenericList "type" CandidateType getTypeList
         , renderField "number" "percentage" model.selectedNationalAnalysis.percentage "e.g 45.4" True Percentage
         , renderField "number" "angle" model.selectedNationalAnalysis.angle "e.g 180" True Angle
         , renderField "number" "bar" model.selectedNationalAnalysis.bar "e.g 234" True Bar
+        , renderSubmitBtn model.isLoading (NationalAnalysis.isValid model.selectedNationalAnalysis) "Save" "btn btn-danger" True
         ]
 
 

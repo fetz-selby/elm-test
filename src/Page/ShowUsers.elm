@@ -328,10 +328,11 @@ renderEditableDetails model =
     form [ onSubmit Update ]
         [ renderField "text" "name" model.selectedUser.name "eg. Smith" True Name
         , renderField "email" "email" model.selectedUser.email "eg. election@code.arbeitet.com" True Email
+        , renderPasswordField "password" model.selectedUser.password "eg. password" True Password
         , renderField "number" "msisdn" model.selectedUser.msisdn "e.g +491763500232450" True Msisdn
-        , renderField "text" "level" model.selectedUser.level "e.g S/A/U" True Level
+        , renderGenericList "level" Level getLevelList
         , renderField "number" "year" model.selectedUser.year "e.g 2020" True Year
-        , renderField "text" "region" model.selectedUser.region.name "e.g Beach Road" True Region
+        , renderRegions "region" Region model.regions
         , renderSubmitBtn model.isLoading (User.isValid model.selectedUser) "Save" "btn btn-danger" True
         ]
 

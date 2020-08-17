@@ -301,8 +301,8 @@ renderEditableDetails model =
         [ renderField "text" "name" model.selectedAgent.name "eg. Smith" True Name
         , renderField "number" "msisdn" model.selectedAgent.msisdn "e.g +491763500232450" True Msisdn
         , renderField "number" "pin" model.selectedAgent.pin "e.g 0000" True Pin
-        , renderField "text" "constituency" model.selectedAgent.constituency.name "e.g P" True Constituency
-        , renderField "text" "poll" model.selectedAgent.poll.name "e.g Beach Road" True Poll
+        , renderConstituencies "constituency" Constituency model.constituencies
+        , renderPolls "poll" Poll model.polls
         , renderSubmitBtn model.isLoading (Agent.isValid model.selectedAgent) "Save" "btn btn-danger" True
         ]
 

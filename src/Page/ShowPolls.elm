@@ -280,7 +280,7 @@ renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
         [ renderField "text" "name" model.selectedPoll.name "eg. XXX" True Name
-        , renderField "text" "constituency" model.selectedPoll.constituency.name "eg. XXX" True Constituency
+        , renderConstituencies "constituency" Constituency model.constituencies
         , renderField "number" "rejected" model.selectedPoll.rejectedVotes "e.g 12" True RejectedVotes
         , renderField "number" "valid" model.selectedPoll.validVotes "e.g 1002" True ValidVotes
         , renderField "number" "total" model.selectedPoll.totalVoters "e.g 9088" True TotalVoters
