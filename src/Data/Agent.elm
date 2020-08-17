@@ -37,7 +37,7 @@ type alias Model =
 
 initAgent : Model
 initAgent =
-    { id = ""
+    { id = "0"
     , name = ""
     , msisdn = ""
     , pin = ""

@@ -43,7 +43,7 @@ type alias Model =
 
 initRegionalAnalysis : Model
 initRegionalAnalysis =
-    { id = ""
+    { id = "0"
     , votes = "0"
     , candidateType = ""
     , percentage = "0.0"

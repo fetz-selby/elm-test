@@ -32,7 +32,7 @@ type alias Model =
 
 initParentConstituency : Model
 initParentConstituency =
-    { id = "", name = "", region = Region.initRegion }
+    { id = "0", name = "", region = Region.initRegion }
 
 
 isIdExist : Model -> List Model -> Bool

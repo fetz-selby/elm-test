@@ -41,11 +41,11 @@ type alias Model =
 
 initUser : Model
 initUser =
-    { id = ""
+    { id = "0"
     , name = ""
     , email = ""
     , msisdn = ""
-    , level = "U"
+    , level = ""
     , year = ""
     , password = ""
     , region = Region.initRegion

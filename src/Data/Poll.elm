@@ -39,7 +39,7 @@ type alias Model =
 
 initPoll : Model
 initPoll =
-    { id = ""
+    { id = "0"
     , name = ""
     , year = ""
     , rejectedVotes = ""

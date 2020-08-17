@@ -47,7 +47,7 @@ type alias Model =
 
 initCandidate : Model
 initCandidate =
-    { id = ""
+    { id = "0"
     , name = ""
     , constituency = Constituency.initConstituency
     , party = Party.initParty

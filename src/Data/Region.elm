@@ -33,7 +33,7 @@ type alias Model =
 
 initRegion : Model
 initRegion =
-    { id = "", name = "", seats = "0" }
+    { id = "0", name = "", seats = "0" }
 
 
 isIdExist : Model -> List Model -> Bool

@@ -38,7 +38,7 @@ type alias Model =
 
 initNationalAnalysis : Model
 initNationalAnalysis =
-    { id = ""
+    { id = "0"
     , votes = "0"
     , candidateType = ""
     , percentage = "0.0"

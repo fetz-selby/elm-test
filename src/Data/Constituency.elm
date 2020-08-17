@@ -48,7 +48,7 @@ type alias Model =
 
 initConstituency : Model
 initConstituency =
-    { id = ""
+    { id = "0"
     , name = ""
     , autoCompute = False
     , castedVotes = "0"

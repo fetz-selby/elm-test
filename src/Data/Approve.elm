@@ -47,7 +47,7 @@ type alias Model =
 
 initApprove : Model
 initApprove =
-    { id = ""
+    { id = "0"
     , message = ""
     , constituency = Constituency.initConstituency
     , region = Region.initRegion
