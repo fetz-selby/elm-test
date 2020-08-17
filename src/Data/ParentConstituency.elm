@@ -5,6 +5,7 @@ module Data.ParentConstituency exposing
     , decodeList
     , encode
     , filter
+    , getFirstSelect
     , getId
     , initParentConstituency
     , isIdExist
@@ -108,6 +109,11 @@ switch replacer variable =
 
     else
         variable
+
+
+getFirstSelect : Model
+getFirstSelect =
+    { id = "0", name = "Select Parent", region = Region.initRegion }
 
 
 encode : Model -> Encode.Value

@@ -5,6 +5,7 @@ module Data.Poll exposing
     , decodeList
     , encode
     , filter
+    , getFirstSelect
     , getId
     , initPoll
     , isIdExist
@@ -160,6 +161,18 @@ switch replacer variable =
 
     else
         variable
+
+
+getFirstSelect : Model
+getFirstSelect =
+    { id = "0"
+    , name = "Select Poll"
+    , year = ""
+    , rejectedVotes = ""
+    , validVotes = ""
+    , totalVoters = ""
+    , constituency = Constituency.initConstituency
+    }
 
 
 encode : Model -> Encode.Value

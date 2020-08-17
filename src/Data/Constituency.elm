@@ -6,6 +6,7 @@ module Data.Constituency exposing
     , default
     , encode
     , filter
+    , getFirstSelect
     , getId
     , initConstituency
     , isIdExist
@@ -201,6 +202,21 @@ getId model =
 
         Nothing ->
             0
+
+
+getFirstSelect : Model
+getFirstSelect =
+    { id = "0"
+    , name = "Select Constituency"
+    , autoCompute = False
+    , castedVotes = "0"
+    , isDeclared = False
+    , parent = ParentConstituency.initParentConstituency
+    , regVotes = "0"
+    , rejectVotes = "0"
+    , seatWonId = Party.initParty
+    , totalVotes = "0"
+    }
 
 
 replace : Model -> List Model -> List Model

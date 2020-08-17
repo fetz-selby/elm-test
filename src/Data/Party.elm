@@ -5,6 +5,7 @@ module Data.Party exposing
     , decodeList
     , encode
     , filter
+    , getFirstSelect
     , getId
     , initParty
     , isIdExist
@@ -136,6 +137,11 @@ switch replacer variable =
 
     else
         variable
+
+
+getFirstSelect : Model
+getFirstSelect =
+    { id = "0", name = "Select Party", color = "", logoPath = "", orderQueue = "0" }
 
 
 encode : Model -> Encode.Value

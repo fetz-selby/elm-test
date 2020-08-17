@@ -5,6 +5,7 @@ module Data.Region exposing
     , decodeList
     , encode
     , filter
+    , getFirstSelect
     , getId
     , initRegion
     , isIdExist
@@ -43,15 +44,6 @@ isIdExist region list =
 getOnlyIds : List Model -> List String
 getOnlyIds list =
     list |> Array.fromList |> Array.map (\n -> n.id) |> Array.toList
-
-
-encode : Model -> Encode.Value
-encode region =
-    Encode.object
-        [ ( "id", Encode.string region.id )
-        , ( "name", Encode.string region.name )
-        , ( "seats", Encode.string region.seats )
-        ]
 
 
 filter : String -> List Model -> List Model
@@ -136,6 +128,20 @@ switch replacer variable =
 
     else
         variable
+
+
+getFirstSelect : Model
+getFirstSelect =
+    { id = "0", name = "Select Region", seats = "0" }
+
+
+encode : Model -> Encode.Value
+encode region =
+    Encode.object
+        [ ( "id", Encode.string region.id )
+        , ( "name", Encode.string region.name )
+        , ( "seats", Encode.string region.seats )
+        ]
 
 
 decode : Decode.Decoder Model

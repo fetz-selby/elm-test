@@ -197,13 +197,14 @@ regionItem item =
     option [ value item.id ] [ Html.text item.name ]
 
 
-renderGenericList : String -> (String -> Field) -> List { id : String, name : String } -> Html.Html Msg
-renderGenericList fieldLabel field itemsList =
+renderGenericList : String -> String -> (String -> Field) -> List { id : String, name : String } -> Html.Html Msg
+renderGenericList fieldLabel initialValue field itemsList =
     div [ class "form-group" ]
         [ label [] [ Html.text fieldLabel ]
         , select
             [ class "form-control"
             , onChange (Form << field)
+            , value initialValue
             ]
             (List.map genericItem itemsList)
         ]
@@ -321,16 +322,12 @@ renderDetails model =
 
 renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
-    let
-        _ =
-            Debug.log "Edit" model.selectedUser
-    in
     form [ onSubmit Update ]
         [ renderField "text" "name" model.selectedUser.name "eg. Smith" True Name
         , renderField "email" "email" model.selectedUser.email "eg. election@code.arbeitet.com" True Email
         , renderPasswordField "password" model.selectedUser.password "eg. password" True Password
         , renderField "number" "msisdn" model.selectedUser.msisdn "e.g +491763500232450" True Msisdn
-        , renderGenericList "level" Level getLevelList
+        , renderGenericList "level" model.selectedUser.level Level getLevelList
         , renderField "number" "year" model.selectedUser.year "e.g 2020" True Year
         , renderRegions "region" Region model.regions
         , renderSubmitBtn model.isLoading (User.isValid model.selectedUser) "Save" "btn btn-danger" True
@@ -344,7 +341,7 @@ renderNewDetails model =
         , renderField "email" "email" model.selectedUser.email "eg. election@code.arbeitet.com" True Email
         , renderPasswordField "password" model.selectedUser.password "eg. password" True Password
         , renderField "number" "msisdn" model.selectedUser.msisdn "eg. +491763500232450" True Msisdn
-        , renderGenericList "level" Level getLevelList
+        , renderGenericList "level" model.selectedUser.level Level getLevelList
         , renderField "number" "year" model.selectedUser.year "e.g 2020" True Year
         , renderRegions "region" Region model.regions
         , renderSubmitBtn model.isLoading (User.isValid model.selectedUser) "Save" "btn btn-danger" True

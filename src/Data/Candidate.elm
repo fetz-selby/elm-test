@@ -5,6 +5,7 @@ module Data.Candidate exposing
     , decodeList
     , encode
     , filter
+    , getFirstSelect
     , getId
     , initCandidate
     , isIdExist
@@ -223,6 +224,21 @@ switch replacer variable =
 
     else
         variable
+
+
+getFirstSelect : Model
+getFirstSelect =
+    { id = "0"
+    , name = "Select Candidate"
+    , constituency = Constituency.initConstituency
+    , party = Party.initParty
+    , votes = "0"
+    , candidateType = ""
+    , avatarPath = ""
+    , angle = "0.0"
+    , percentage = "0.0"
+    , barRatio = "0.0"
+    }
 
 
 encode : Model -> Encode.Value
