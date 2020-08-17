@@ -5,6 +5,8 @@ const sort = (a, b) =>
     ? -1
     : 1;
 
+export const PASS = "thequickfoxjumpedoverthelazydog";
+
 export const flatenConstituenciesWithRegionIdIncluded = (
   parentConstituencies,
   constituencies
@@ -135,6 +137,7 @@ export const normalizeUser = (user) => ({
   name: user && user.name ? user.name : "Unknown",
   email: user && user.email ? user.email : "election@code.arbeitet.com",
   msisdn: user && user.msisdn ? user.msisdn.toString() : "+000000000",
+  password: PASS,
   level: user && user.level ? user.level.toString() : "U",
   year: user && user.year ? user.year.toString() : "U",
   region:

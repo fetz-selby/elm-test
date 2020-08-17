@@ -1,5 +1,6 @@
 module Data.ParentConstituency exposing
     ( Model
+    , addIfNotExist
     , convertModelToLower
     , decode
     , decodeList
@@ -114,6 +115,15 @@ switch replacer variable =
 getFirstSelect : Model
 getFirstSelect =
     { id = "0", name = "Select Parent", region = Region.initRegion }
+
+
+addIfNotExist : Model -> List Model -> List Model
+addIfNotExist model list =
+    if list |> List.any (\n -> n.id == model.id) then
+        list
+
+    else
+        model :: list
 
 
 encode : Model -> Encode.Value

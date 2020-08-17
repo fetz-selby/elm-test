@@ -1,5 +1,6 @@
 module Data.Poll exposing
     ( Model
+    , addIfNotExist
     , convertModelToLower
     , decode
     , decodeList
@@ -173,6 +174,15 @@ getFirstSelect =
     , totalVoters = ""
     , constituency = Constituency.initConstituency
     }
+
+
+addIfNotExist : Model -> List Model -> List Model
+addIfNotExist model list =
+    if list |> List.any (\n -> n.id == model.id) then
+        list
+
+    else
+        model :: list
 
 
 encode : Model -> Encode.Value

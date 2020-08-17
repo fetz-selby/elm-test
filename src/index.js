@@ -56,6 +56,7 @@ import {
   normalizeRegionalAnalysis,
   normalizeNationalAnalysis,
   normalizeApprove,
+  PASS,
 } from "./api/helper";
 import io from "socket.io-client";
 import feathers from "@feathersjs/client";
@@ -400,6 +401,11 @@ async function create() {
 
       case "UpdateUser": {
         const user = { ...payload };
+
+        if (user.password === PASS) {
+          delete user.password;
+        }
+
         const updateUserResp = await updateUser({ service, user });
         console.log("user, ", user);
         break;
@@ -447,6 +453,17 @@ async function create() {
         const poll = { ...payload, year };
         const updatePollResp = await updatePoll({ service, poll });
         console.log("poll, ", poll);
+
+        break;
+      }
+
+      case "UpdateParentConstituency": {
+        const parentConstituency = { ...payload, region_id: regionId };
+        const updateParentConstituencyResp = await updateParentConstituency({
+          service,
+          parentConstituency,
+        });
+        console.log("parentConstituency, ", parentConstituency);
 
         break;
       }

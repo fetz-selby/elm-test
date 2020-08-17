@@ -330,9 +330,9 @@ renderDetails model =
             , renderField "number" "votes" model.votes "e.g 1002" False Votes
             , renderField "text" "party" model.party.name "e.g XXX" False Party
             , renderField "text" "avatar path" model.avatarPath "e.g XXX" False AvatarPath
-            , renderField "number" "percentage" model.percentage "e.g 45.4" False Percentage
-            , renderField "number" "angle" model.angle "e.g 180" False Angle
-            , renderField "number" "bar" model.barRatio "e.g 234" False BarRatio
+            , renderField "text" "percentage" model.percentage "e.g 45.4" False Percentage
+            , renderField "text" "angle" model.angle "e.g 180" False Angle
+            , renderField "text" "bar" model.barRatio "e.g 234" False BarRatio
             ]
         ]
 
@@ -341,15 +341,15 @@ renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
         [ renderField "text" "name" model.selectedCandidate.name "eg. Smith" True Name
-        , renderConstituencies "constituency" Constituency model.constituencies
-        , renderParties "party" Party model.parties
+        , renderConstituencies "constituency" Constituency (Constituency.addIfNotExist Constituency.getFirstSelect model.constituencies)
+        , renderParties "party" Party (Party.addIfNotExist Party.getFirstSelect model.parties)
         , renderGenericList "type" CandidateType getTypeList
         , renderField "number" "votes" model.selectedCandidate.votes "e.g 1002" True Votes
         , renderField "text" "avatar path" model.selectedCandidate.avatarPath "e.g XXX" True AvatarPath
-        , renderField "number" "percentage" model.selectedCandidate.percentage "e.g 45.4" True Percentage
-        , renderField "number" "angle" model.selectedCandidate.angle "e.g 180" True Angle
-        , renderField "number" "bar" model.selectedCandidate.barRatio "e.g 234" True BarRatio
-        , renderSubmitBtn model.isLoading (Candidate.isValid model.selectedCandidate) "Save" "btn btn-danger" True
+        , renderField "text" "percentage" model.selectedCandidate.percentage "e.g 45.4" True Percentage
+        , renderField "text" "angle" model.selectedCandidate.angle "e.g 180" True Angle
+        , renderField "text" "bar" model.selectedCandidate.barRatio "e.g 234" True BarRatio
+        , renderSubmitBtn model.isLoading (Candidate.isValid model.selectedCandidate) "Update" "btn btn-danger" True
         ]
 
 
@@ -357,14 +357,14 @@ renderNewDetails : Model -> Html.Html Msg
 renderNewDetails model =
     form [ onSubmit Save ]
         [ renderField "text" "name" model.selectedCandidate.name "eg. Smith" True Name
-        , renderConstituencies "constituency" Constituency model.constituencies
-        , renderParties "party" Party model.parties
+        , renderConstituencies "constituency" Constituency (Constituency.addIfNotExist Constituency.getFirstSelect model.constituencies)
+        , renderParties "party" Party (Party.addIfNotExist Party.getFirstSelect model.parties)
         , renderGenericList "type" CandidateType getTypeList
         , renderField "number" "votes" model.selectedCandidate.votes "e.g 1002" True Votes
         , renderField "text" "avatar path" model.selectedCandidate.avatarPath "e.g XXX" True AvatarPath
-        , renderField "number" "percentage" model.selectedCandidate.percentage "e.g 45.4" True Percentage
-        , renderField "number" "angle" model.selectedCandidate.angle "e.g 180" True Angle
-        , renderField "number" "bar" model.selectedCandidate.barRatio "e.g 234" True BarRatio
+        , renderField "text" "percentage" model.selectedCandidate.percentage "e.g 45.4" True Percentage
+        , renderField "text" "angle" model.selectedCandidate.angle "e.g 180" True Angle
+        , renderField "text" "bar" model.selectedCandidate.barRatio "e.g 234" True BarRatio
         , renderSubmitBtn model.isLoading (Candidate.isValid model.selectedCandidate) "Save" "btn btn-danger" True
         ]
 

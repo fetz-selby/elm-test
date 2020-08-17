@@ -238,7 +238,7 @@ renderEditableDetails model =
     form [ onSubmit Update ]
         [ renderField "text" "region" model.selectedRegion.name "eg.Ashanti" True Name
         , renderField "number" "seat" model.selectedRegion.seats "e.g 30" True Seats
-        , renderSubmitBtn model.isLoading (Region.isValid model.selectedRegion) "Save" "btn btn-danger" True
+        , renderSubmitBtn model.isLoading (Region.isValid model.selectedRegion) "Update" "btn btn-danger" True
         ]
 
 

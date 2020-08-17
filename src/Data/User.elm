@@ -1,5 +1,6 @@
 module Data.User exposing
     ( Model
+    , addIfNotExist
     , convertModelToLower
     , decode
     , decodeList
@@ -156,6 +157,10 @@ hasValidMsisdn msisdn =
         |> String.length
         |> (<) 9
     )
+        && (msisdn
+                |> String.length
+                |> (>=) 14
+           )
         && (msisdn |> String.all Char.isDigit)
 
 
@@ -166,14 +171,10 @@ hasValidLevel level =
 
 hasValidYear : String -> Bool
 hasValidYear year =
-    let
-        a =
-            year |> String.length |> (==) 4
-
-        b =
-            year |> String.all Char.isDigit
-    in
-    a && b
+    (year |> String.length |> (==) 4)
+        && (year
+                |> String.all Char.isDigit
+           )
 
 
 hasValidRegionId : Region.Model -> Bool
@@ -200,6 +201,15 @@ switch replacer variable =
         variable
 
 
+addIfNotExist : Model -> List Model -> List Model
+addIfNotExist model list =
+    if list |> List.any (\n -> n.id == model.id) then
+        list
+
+    else
+        model :: list
+
+
 encode : Model -> Encode.Value
 encode user =
     Encode.object
@@ -223,7 +233,7 @@ decode =
         |> JDP.required "msisdn" Decode.string
         |> JDP.required "level" Decode.string
         |> JDP.required "year" Decode.string
-        |> JDP.required "id" Decode.string
+        |> JDP.required "password" Decode.string
         |> JDP.required "region" Region.decode
 
 

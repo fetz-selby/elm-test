@@ -1,5 +1,6 @@
 module Data.Agent exposing
     ( Model
+    , addIfNotExist
     , convertModelToLower
     , decode
     , decodeList
@@ -128,6 +129,10 @@ hasValidMsisdn msisdn =
         |> String.length
         |> (<) 9
     )
+        && (msisdn
+                |> String.length
+                |> (>=) 13
+           )
         && (msisdn |> String.all Char.isDigit)
 
 
@@ -162,6 +167,15 @@ switch replacer variable =
 
     else
         variable
+
+
+addIfNotExist : Model -> List Model -> List Model
+addIfNotExist model list =
+    if list |> List.any (\n -> n.id == model.id) then
+        list
+
+    else
+        model :: list
 
 
 encode : Model -> Encode.Value

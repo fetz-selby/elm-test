@@ -359,21 +359,21 @@ renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
         [ renderField "text" "constituency" model.selectedConstituency.name "eg.Bekwai" True Constituency
-        , renderParties "seat won by" SeatWonId model.parties
+        , renderParties "seat won by" SeatWonId (Party.addIfNotExist Party.getFirstSelect model.parties)
         , renderField "number" "casted votes" model.selectedConstituency.castedVotes "e.g 2342" True CastedVotes
         , renderField "number" "reg votes" model.selectedConstituency.regVotes "e.g 432" True RegVotes
         , renderField "number" "rejected votes" model.selectedConstituency.rejectVotes "e.g 180" True RejectVotes
         , renderField "number" "total votes" model.selectedConstituency.totalVotes "e.g 234" True TotalVotes
         , renderGenericList "is declared" IsDeclared getIsDeclaredList
         , renderGenericList "is auto compute" AutoCompute getAutoComputeList
-        , renderSubmitBtn model.isLoading (Constituency.isValid model.selectedConstituency) "Save" "btn btn-danger" True
+        , renderSubmitBtn model.isLoading (Constituency.isValid model.selectedConstituency) "Update" "btn btn-danger" True
         ]
 
 
 renderNewDetails : Model -> Html.Html Msg
 renderNewDetails model =
     form [ onSubmit Save ]
-        [ renderParentConstituencies "parent constituency" ParentId model.parentConstituencies
+        [ renderParentConstituencies "parent constituency" ParentId (ParentConstituency.addIfNotExist ParentConstituency.getFirstSelect model.parentConstituencies)
         , renderField "text" "constituency" model.selectedConstituency.name "eg.Bekwai" True Constituency
         , renderField "number" "casted votes" model.selectedConstituency.castedVotes "e.g 2343" True CastedVotes
         , renderField "number" "reg votes" model.selectedConstituency.regVotes "e.g 432" True RegVotes

@@ -239,7 +239,7 @@ renderEditableDetails model =
     form [ onSubmit Update ]
         [ renderField "text" "name" model.selectedParentConstituency.name "eg. Bantama" True Name
         , renderField "text" "region" model.selectedParentConstituency.region.name "e.g Ashanti" False Region
-        , renderSubmitBtn model.isLoading (ParentConstituency.isValid model.selectedParentConstituency) "Save" "btn btn-danger" True
+        , renderSubmitBtn model.isLoading (ParentConstituency.isValid model.selectedParentConstituency) "Update" "btn btn-danger" True
         ]
 
 

@@ -1,5 +1,6 @@
 module Data.Constituency exposing
     ( Model
+    , addIfNotExist
     , convertModelToLower
     , decode
     , decodeList
@@ -233,6 +234,15 @@ switch replacer variable =
         variable
 
 
+addIfNotExist : Model -> List Model -> List Model
+addIfNotExist model list =
+    if list |> List.any (\n -> n.id == model.id) then
+        list
+
+    else
+        model :: list
+
+
 encode : Model -> Encode.Value
 encode constituency =
     Encode.object
@@ -243,6 +253,7 @@ encode constituency =
         , ( "is_declared", Encode.string (convertBoolToYNString constituency.isDeclared) )
         , ( "parent_id", Encode.string constituency.parent.id )
         , ( "reg_votes", Encode.string constituency.regVotes )
+        , ( "reject_votes", Encode.string constituency.rejectVotes )
         , ( "seat_won_id", Encode.string constituency.seatWonId.id )
         , ( "total_votes", Encode.string constituency.totalVotes )
         ]

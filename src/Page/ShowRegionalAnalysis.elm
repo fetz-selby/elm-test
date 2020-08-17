@@ -329,26 +329,25 @@ renderDetails model =
 renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderField "text" "region" model.selectedRegionalAnalysis.region.name "eg.Ashanti" True Region
+        [ renderParties "party" Party (Party.addIfNotExist Party.getFirstSelect model.parties)
         , renderGenericList "type" CandidateType getTypeList
-        , renderField "number" "votes" model.selectedRegionalAnalysis.votes "e.g 1002" True Votes
-        , renderField "text" "party" model.selectedRegionalAnalysis.party.name "e.g XXX" True Party
-        , renderField "number" "percentage" model.selectedRegionalAnalysis.percentage "e.g 45.4" True Percentage
-        , renderField "number" "angle" model.selectedRegionalAnalysis.angle "e.g 180" True Angle
-        , renderField "number" "bar" model.selectedRegionalAnalysis.bar "e.g 234" True Bar
-        , renderSubmitBtn model.isLoading (RegionalAnalysis.isValid model.selectedRegionalAnalysis) "Save" "btn btn-danger" True
+        , renderField "text" "votes" model.selectedRegionalAnalysis.votes "e.g 1002" True Votes
+        , renderField "text" "percentage" model.selectedRegionalAnalysis.percentage "e.g 45.4" True Percentage
+        , renderField "text" "angle" model.selectedRegionalAnalysis.angle "e.g 180" True Angle
+        , renderField "text" "bar" model.selectedRegionalAnalysis.bar "e.g 234" True Bar
+        , renderSubmitBtn model.isLoading (RegionalAnalysis.isValid model.selectedRegionalAnalysis) "Update" "btn btn-danger" True
         ]
 
 
 renderNewDetails : Model -> Html.Html Msg
 renderNewDetails model =
     form [ onSubmit Save ]
-        [ renderParties "party" Party model.parties
+        [ renderParties "party" Party (Party.addIfNotExist Party.getFirstSelect model.parties)
         , renderGenericList "type" CandidateType getTypeList
-        , renderField "number" "votes" model.selectedRegionalAnalysis.votes "e.g 1002" True Votes
-        , renderField "number" "percentage" model.selectedRegionalAnalysis.percentage "e.g 45.4" True Percentage
-        , renderField "number" "angle" model.selectedRegionalAnalysis.angle "e.g 180" True Angle
-        , renderField "number" "bar" model.selectedRegionalAnalysis.bar "e.g 234" True Bar
+        , renderField "text" "votes" model.selectedRegionalAnalysis.votes "e.g 1002" True Votes
+        , renderField "text" "percentage" model.selectedRegionalAnalysis.percentage "e.g 45.4" True Percentage
+        , renderField "text" "angle" model.selectedRegionalAnalysis.angle "e.g 180" True Angle
+        , renderField "text" "bar" model.selectedRegionalAnalysis.bar "e.g 234" True Bar
         , renderSubmitBtn model.isLoading (RegionalAnalysis.isValid model.selectedRegionalAnalysis) "Save" "btn btn-danger" True
         ]
 

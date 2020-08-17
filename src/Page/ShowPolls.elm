@@ -280,11 +280,11 @@ renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
         [ renderField "text" "name" model.selectedPoll.name "eg. XXX" True Name
-        , renderConstituencies "constituency" Constituency model.constituencies
+        , renderConstituencies "constituency" Constituency (Constituency.addIfNotExist Constituency.getFirstSelect model.constituencies)
         , renderField "number" "rejected" model.selectedPoll.rejectedVotes "e.g 12" True RejectedVotes
         , renderField "number" "valid" model.selectedPoll.validVotes "e.g 1002" True ValidVotes
         , renderField "number" "total" model.selectedPoll.totalVoters "e.g 9088" True TotalVoters
-        , renderSubmitBtn model.isLoading (Poll.isValid model.selectedPoll) "Save" "btn btn-danger" True
+        , renderSubmitBtn model.isLoading (Poll.isValid model.selectedPoll) "Update" "btn btn-danger" True
         ]
 
 
@@ -292,7 +292,7 @@ renderNewDetails : Model -> Html.Html Msg
 renderNewDetails model =
     form [ onSubmit Save ]
         [ renderField "text" "name" model.selectedPoll.name "eg. XXX" True Name
-        , renderConstituencies "constituency" Constituency model.constituencies
+        , renderConstituencies "constituency" Constituency (Constituency.addIfNotExist Constituency.getFirstSelect model.constituencies)
         , renderField "number" "rejected" model.selectedPoll.rejectedVotes "e.g 12" True RejectedVotes
         , renderField "number" "valid" model.selectedPoll.validVotes "e.g 1002" True ValidVotes
         , renderField "number" "total" model.selectedPoll.totalVoters "e.g 9088" True TotalVoters

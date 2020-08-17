@@ -244,7 +244,7 @@ renderEditableDetails model =
         , renderField "text" "color" model.selectedParty.color "e.g #fefefe" True Color
         , renderField "text" "logo path" model.selectedParty.logoPath "e.g /path/to/avatar.jpg" True LogoPath
         , renderField "number" "order queue" model.selectedParty.orderQueue "e.g 12" True OrderQueue
-        , renderSubmitBtn model.isLoading (Party.isValid model.selectedParty) "Save" "btn btn-danger" True
+        , renderSubmitBtn model.isLoading (Party.isValid model.selectedParty) "Update" "btn btn-danger" True
         ]
 
 

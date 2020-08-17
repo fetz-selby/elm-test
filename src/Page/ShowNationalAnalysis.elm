@@ -297,20 +297,20 @@ renderDetails model =
 renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderParties "party" Party model.parties
+        [ renderParties "party" Party (Party.addIfNotExist Party.getFirstSelect model.parties)
         , renderField "number" "votes" model.selectedNationalAnalysis.votes "e.g 23009" True Votes
         , renderGenericList "type" CandidateType getTypeList
         , renderField "number" "percentage" model.selectedNationalAnalysis.percentage "e.g 45.4" True Percentage
         , renderField "number" "angle" model.selectedNationalAnalysis.angle "e.g 180" True Angle
         , renderField "number" "bar" model.selectedNationalAnalysis.bar "e.g 234" True Bar
-        , renderSubmitBtn model.isLoading (NationalAnalysis.isValid model.selectedNationalAnalysis) "Save" "btn btn-danger" True
+        , renderSubmitBtn model.isLoading (NationalAnalysis.isValid model.selectedNationalAnalysis) "Update" "btn btn-danger" True
         ]
 
 
 renderNewDetails : Model -> Html.Html Msg
 renderNewDetails model =
     form [ onSubmit Save ]
-        [ renderParties "party" Party model.parties
+        [ renderParties "party" Party (Party.addIfNotExist Party.getFirstSelect model.parties)
         , renderField "number" "votes" model.selectedNationalAnalysis.votes "e.g 23009" True Votes
         , renderGenericList "type" CandidateType getTypeList
         , renderField "number" "percentage" model.selectedNationalAnalysis.percentage "e.g 45.4" True Percentage

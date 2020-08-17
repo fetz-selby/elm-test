@@ -1,5 +1,6 @@
 module Data.Candidate exposing
     ( Model
+    , addIfNotExist
     , convertModelToLower
     , decode
     , decodeList
@@ -241,6 +242,15 @@ getFirstSelect =
     }
 
 
+addIfNotExist : Model -> List Model -> List Model
+addIfNotExist model list =
+    if list |> List.any (\n -> n.id == model.id) then
+        list
+
+    else
+        model :: list
+
+
 encode : Model -> Encode.Value
 encode candidate =
     Encode.object
@@ -249,7 +259,7 @@ encode candidate =
         , ( "constituency_id", Encode.string candidate.constituency.id )
         , ( "party_id", Encode.string candidate.party.id )
         , ( "votes", Encode.string candidate.votes )
-        , ( "type", Encode.string candidate.candidateType )
+        , ( "group_type", Encode.string candidate.candidateType )
         , ( "avatar_path", Encode.string candidate.avatarPath )
         , ( "angle", Encode.string candidate.angle )
         , ( "percentage", Encode.string candidate.percentage )

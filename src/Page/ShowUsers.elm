@@ -329,8 +329,8 @@ renderEditableDetails model =
         , renderField "number" "msisdn" model.selectedUser.msisdn "e.g +491763500232450" True Msisdn
         , renderGenericList "level" model.selectedUser.level Level getLevelList
         , renderField "number" "year" model.selectedUser.year "e.g 2020" True Year
-        , renderRegions "region" Region (Region.getFirstSelect :: model.regions)
-        , renderSubmitBtn model.isLoading (User.isValid model.selectedUser) "Save" "btn btn-danger" True
+        , renderRegions "region" Region (Region.addIfNotExist Region.getFirstSelect model.regions)
+        , renderSubmitBtn model.isLoading (User.isValid model.selectedUser) "Update" "btn btn-danger" True
         ]
 
 
@@ -343,7 +343,7 @@ renderNewDetails model =
         , renderField "number" "msisdn" model.selectedUser.msisdn "eg. +491763500232450" True Msisdn
         , renderGenericList "level" model.selectedUser.level Level getLevelList
         , renderField "number" "year" model.selectedUser.year "e.g 2020" True Year
-        , renderRegions "region" Region (Region.getFirstSelect :: model.regions)
+        , renderRegions "region" Region (Region.addIfNotExist Region.getFirstSelect model.regions)
         , renderSubmitBtn model.isLoading (User.isValid model.selectedUser) "Save" "btn btn-danger" True
         ]
 
