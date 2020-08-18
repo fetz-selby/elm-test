@@ -20,7 +20,7 @@ import {
   addParentConstituency,
   updateParentConstituency,
 } from "./api/parentConstituencies";
-import { getApproves } from "./api/approves";
+import { getApproves, updateApprove, removeApprove } from "./api/approves";
 import {
   getNationalAnalysis,
   addNationalAnalysis,
@@ -490,6 +490,17 @@ async function create() {
         break;
       }
 
+      case "UpdateApprove": {
+        const approve = { ...payload, year, regionId };
+        const updateApproveResp = await updateApprove({
+          service,
+          approve,
+        });
+        console.log("approve, ", approve);
+
+        break;
+      }
+
       case "DeleteRegion": {
         console.log("Delete ID, ", payload);
         const deleteResp = await deleteRegion({ service, id: payload });
@@ -499,7 +510,8 @@ async function create() {
       }
 
       case "DeleteApprove": {
-        console.log("[Approve Id], ", payload);
+        console.log("[Delete Id], ", payload);
+        const approveId = await removeApprove({ service, id: payload });
 
         break;
       }
@@ -518,7 +530,13 @@ async function create() {
 
     service.service("constituencies").on("removed", (d, c) => {});
 
-    service.service("approve_list").on("removed", (d, c) => {});
+    service.service("approve_list").on("removed", (approve, c) => {
+      console.log("[in remove], ", approve);
+      app.ports.msgForElm.send({
+        type: "OneApproveUpdated",
+        payload: normalizeApprove(approve),
+      });
+    });
 
     service.service("candidates").on("removed", (d, c) => {});
 

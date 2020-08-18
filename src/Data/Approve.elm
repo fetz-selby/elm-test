@@ -5,9 +5,11 @@ module Data.Approve exposing
     , decodeList
     , encode
     , filter
+    , getId
     , initApprove
     , isIdExist
     , isValid
+    , remove
     , replace
     , setAgent
     , setCandidateType
@@ -147,7 +149,12 @@ convertIsApproveToString val =
 
 isValid : Model -> Bool
 isValid model =
-    True
+    hasValidId model.id
+
+
+hasValidId : String -> Bool
+hasValidId id =
+    (id |> String.all Char.isDigit) && (id |> getValue |> (<) 0)
 
 
 replace : Model -> List Model -> List Model
@@ -162,6 +169,31 @@ switch replacer variable =
 
     else
         variable
+
+
+remove : Model -> List Model -> List Model
+remove model list =
+    list |> List.filter (\n -> n.id == model.id |> not)
+
+
+getValue : String -> Int
+getValue val =
+    case String.toInt val of
+        Just v ->
+            v
+
+        Nothing ->
+            0
+
+
+getId : Model -> Int
+getId model =
+    case String.toInt model.id of
+        Just val ->
+            val
+
+        Nothing ->
+            0
 
 
 encode : Model -> Encode.Value

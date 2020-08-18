@@ -10,7 +10,6 @@ import Ports
 
 type Msg
     = FetchApproves
-    | AddApprove
     | ShowDetail Approve.Model
     | ApprovesReceived ApproveData
     | AddOne Approve.Model
@@ -89,9 +88,6 @@ update model msg =
         FetchApproves ->
             ( model, Cmd.none )
 
-        AddApprove ->
-            ( model, Cmd.none )
-
         ShowDetail approve ->
             ( { model | showDetailMode = View, selectedApprove = approve }, Cmd.none )
 
@@ -106,7 +102,7 @@ update model msg =
 
         Reject ->
             -- Show warning before proceeding
-            ( model, Cmd.batch [ Ports.sendToJs (Ports.DeleteApprove model.selectedApprove.id) ] )
+            ( { model | isLoading = True }, Ports.sendToJs (Ports.DeleteApprove <| model.selectedApprove.id) )
 
         OnEdit ->
             ( { model | showDetailMode = Edit }, Cmd.none )
@@ -118,12 +114,12 @@ update model msg =
             ( { model | searchWord = val }, Cmd.none )
 
         Update ->
-            ( { model | isLoading = True }, Ports.sendToJs (Ports.UpdateApprove model.selectedApprove) )
+            ( { model | isLoading = True }, Ports.sendToJs (Ports.UpdateApprove <| Approve.setIsApproved True <| model.selectedApprove) )
 
         UpdateOne approve ->
             ( { model
                 | isLoading = False
-                , approves = Approve.replace approve model.approves
+                , approves = Approve.remove approve model.approves
                 , showDetailMode = View
               }
             , Cmd.none
@@ -137,8 +133,7 @@ renderHeader =
             [ input [ class "search-input", placeholder "Type to search", onInput SearchList ] []
             ]
         , div [ class "col-md-3" ]
-            [ button [ class "btn btn-primary new-button", onClick AddApprove ] [ Html.text "New" ]
-            ]
+            []
         ]
 
 
@@ -220,6 +215,7 @@ renderDetails model =
             , renderField "type" model.selectedApprove.candidateType "e.g M/P" False CandidateType
             , renderField "msisdn" model.selectedApprove.msisdn "e.g +XXX XXXX" False Msisdn
             , renderField "posted ts" model.selectedApprove.postedTs "e.g 12.01.2020 16:54 32" False PostedTs
+            , renderSubmitBtn model.isLoading (Approve.isValid model.selectedApprove) "Reject" "btn btn-danger" True
             ]
         ]
 
@@ -234,7 +230,7 @@ renderEditableDetails model =
         , renderField "type" model.selectedApprove.candidateType "e.g M/P" False CandidateType
         , renderField "msisdn" model.selectedApprove.msisdn "e.g +XXX XXXX" False Msisdn
         , renderField "posted ts" model.selectedApprove.postedTs "e.g 12.01.2020 16:54 32" False PostedTs
-        , renderSubmitBtn model.isLoading (Approve.isValid model.selectedApprove) "Save" "btn btn-danger" True
+        , renderSubmitBtn model.isLoading (Approve.isValid model.selectedApprove) "Approve" "btn btn-danger" True
         ]
 
 
