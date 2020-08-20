@@ -64,7 +64,7 @@ type OutgoingMsg
     | UpdateApprove Approve.Model
     | UpdateRegionalSummary RegionalAnalysis.Model
     | UpdateNationalSummary NationalAnalysis.Model
-    | FetchUser Login.Data
+    | FetchUser Login.Model
 
 
 port msgForJs : PortData -> Cmd msg
@@ -223,4 +223,4 @@ toPortData msg =
             { action = "UpdateNationalSummary", payload = NationalAnalysis.encode national }
 
         FetchUser cred ->
-            { action = "UpdateNationalSummary", payload = Encode.null }
+            { action = "FetchUser", payload = Login.encode cred }

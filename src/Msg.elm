@@ -25,6 +25,7 @@ import Page.ShowRegionalAnalysis as ShowRegionalAnalysis
 import Page.ShowRegions as ShowRegions
 import Page.ShowUsers as ShowUsers
 import View.GeneralSidebar as GeneralSidebar
+import View.LoginView as ViewLogin
 
 
 type Msg
@@ -40,6 +41,7 @@ type Msg
     | ShowRegionalAnalysis ShowRegionalAnalysis.Msg
     | ShowNationalAnalysis ShowNationalAnalysis.Msg
     | ShowSidebar GeneralSidebar.Msg
+    | ViewLogin ViewLogin.Msg
     | IncomingMsgError IncomingAppError
 
 
@@ -55,6 +57,7 @@ type IncomingAppError
     | FailedToLoadNationalAnalysis
     | FailedToLoadAgents
     | FailedToLoadUsers
+    | FailedToLoadLogin
     | NoDecoderMatchFound
 
 

@@ -2,6 +2,7 @@ module View exposing (view)
 
 import Html exposing (div)
 import Html.Attributes exposing (class)
+import LandingApp exposing (LandingApp(..))
 import Model
 import Msg exposing (Msg(..))
 import Page exposing (Page(..))
@@ -13,15 +14,25 @@ import Page.ShowNationalAnalysis
 import Page.ShowParentConstituencies
 import Page.ShowParties
 import Page.ShowPolls
-import Page.ShowRegionalAnalysis
+import Page.ShowRegionalAnalysis exposing (renderField)
 import Page.ShowRegions
 import Page.ShowUsers
 import Sidebar exposing (Sidebar(..))
 import View.GeneralSidebar
+import View.LoginView
 
 
 view : Model.Model -> Html.Html Msg
 view model =
+    if model.isLogin then
+        landingView model
+
+    else
+        renderApp model
+
+
+renderApp : Model.Model -> Html.Html Msg
+renderApp model =
     div [ class "row container" ]
         [ div [ class "col-md-2 col-lg-2 sidebar-container" ]
             [ sidebarView model
@@ -43,6 +54,18 @@ sidebarView { sidebar } =
                 |> Html.map Msg.ShowSidebar
 
         Other ->
+            div [] []
+
+
+landingView : Model.Model -> Html.Html Msg
+landingView { landingApp } =
+    case landingApp of
+        GeneralLogin model ->
+            model
+                |> View.LoginView.view
+                |> Html.map Msg.ViewLogin
+
+        SpecialPage ->
             div [] []
 
 

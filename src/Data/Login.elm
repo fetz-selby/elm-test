@@ -1,6 +1,7 @@
 module Data.Login exposing
     ( Model
     , convertModelToLower
+    , encode
     , initLogin
     , isValid
     , modifyEmail
@@ -8,6 +9,7 @@ module Data.Login exposing
     )
 
 import Email
+import Json.Encode as Encode
 
 
 type alias Model =
@@ -18,7 +20,7 @@ type alias Model =
 
 initLogin : Model
 initLogin =
-    { email = "", password = "0" }
+    { email = "", password = "" }
 
 
 convertModelToLower : Model -> Model
@@ -54,3 +56,11 @@ hasValidEmail email =
 hasValidPassword : String -> Bool
 hasValidPassword password =
     password |> String.length |> (<) 0
+
+
+encode : Model -> Encode.Value
+encode login =
+    Encode.object
+        [ ( "email", Encode.string login.email )
+        , ( "password", Encode.string login.password )
+        ]

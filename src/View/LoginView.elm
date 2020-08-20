@@ -1,17 +1,15 @@
-module View.Login exposing (Model, Msg(..), update, view)
+module View.LoginView exposing (Model, Msg(..), default, update, view)
 
-import Data.Login as LoginData
-import Email
+import Data.Login as Login
 import Html exposing (button, div, form, input, label)
 import Html.Attributes exposing (class, classList, disabled, placeholder, readonly, type_, value)
-import Html.Events exposing (onClick, onInput, onSubmit)
-import Json.Decode as Decode
+import Html.Events exposing (onInput, onSubmit)
 import Ports
 
 
 type Msg
     = FetchCred
-    | LoginReady LoginData.Model
+    | LoginReady Login.Model
     | Form Field
 
 
@@ -22,8 +20,13 @@ type Field
 
 type Model
     = Loading
-    | Loaded LoginData.Model
+    | Loaded Login.Model
     | Error
+
+
+default : Model
+default =
+    Loaded Login.initLogin
 
 
 view : Model -> Html.Html Msg
@@ -57,17 +60,17 @@ update model msg =
             ( Loaded data, Cmd.none )
 
 
-renderWhenLoaded : LoginData.Model -> Html.Html Msg
+renderWhenLoaded : Login.Model -> Html.Html Msg
 renderWhenLoaded data =
     renderView data
 
 
-renderView : Data -> Html.Html Msg
-renderView data =
+renderView : Login.Model -> Html.Html Msg
+renderView model =
     form [ onSubmit FetchCred ]
-        [ renderField "text" "email" data.email "alpha@code-arbeitet.com" False Email
-        , renderField "password" "password" data.password "alpha@code-arbeitet.com" False Password
-        , renderSubmitBtn False (isValidData data) "Login" "btn btn-danger" True
+        [ renderField "text" "email" model.email "alpha@code-arbeitet.com" True Email
+        , renderField "password" "password" model.password "" True Password
+        , renderSubmitBtn False (Login.isValid model) "Login" "btn btn-danger" True
         ]
 
 
@@ -124,7 +127,7 @@ emailChange email model =
             Loading
 
         Loaded data ->
-            Loaded <| LoignData.modifyEmail email data
+            Loaded <| Login.modifyEmail email data
 
         Error ->
             Error
@@ -137,16 +140,10 @@ passwordChange password model =
             Loading
 
         Loaded data ->
-            Loaded <| LoginData.modifyPassword password data
+            Loaded <| Login.modifyPassword password data
 
         Error ->
             Error
-
-
-isValidData : LoginData.Model -> Bool
-isValidData data =
-    hasValidEmail data.email
-        && hasValidPassword data.password
 
 
 fetch : Model -> Cmd Msg

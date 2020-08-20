@@ -1,5 +1,6 @@
 module Update exposing (update)
 
+import LandingApp as LandingApp
 import Model exposing (Model)
 import Msg as Msg
 import Page as Page
@@ -17,6 +18,7 @@ import Page.ShowUsers as ShowUsersPage
 import Ports
 import Sidebar as Sidebar
 import View.GeneralSidebar as GeneralSidebar
+import View.LoginView as LoginView
 
 
 update : Msg.Msg -> Model -> ( Model, Cmd Msg.Msg )
@@ -154,6 +156,17 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        Msg.ViewLogin landingMsg ->
+            case model.landingApp of
+                LandingApp.GeneralLogin submodel ->
+                    landingMsg
+                        |> LoginView.update submodel
+                        |> Tuple.mapFirst (updateWithLandingAppPage model)
+                        |> Tuple.mapSecond (Cmd.map Msg.ViewLogin)
+
+                _ ->
+                    ( model, Cmd.none )
+
         Msg.IncomingMsgError errMsg ->
             ( model, Cmd.none )
 
@@ -211,6 +224,11 @@ updateWithNationalPage model pageModel =
 updateWithUsersPage : Model -> ShowUsersPage.Model -> Model
 updateWithUsersPage model pageModel =
     { model | pages = Page.ShowUsers pageModel, pageTitle = "Users" }
+
+
+updateWithLandingAppPage : Model -> LoginView.Model -> Model
+updateWithLandingAppPage model pageModel =
+    { model | landingApp = LandingApp.GeneralLogin pageModel, isLogin = True }
 
 
 updateWithSidebarView : Model -> GeneralSidebar.Model -> ( Model, Cmd Msg.Msg )

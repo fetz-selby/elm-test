@@ -31,7 +31,7 @@ import {
   addRegionalAnalysis,
   updateRegionalAnalysis,
 } from "./api/regionalAnalysis";
-import { ROLE } from "./constants";
+import { ROLE, URL } from "./constants";
 import {
   flatenConstituenciesWithRegionIdIncluded,
   normalizeConstituencies,
@@ -60,6 +60,7 @@ import {
 } from "./api/helper";
 import io from "socket.io-client";
 import feathers from "@feathersjs/client";
+import axios from "axios";
 
 // init the elm app
 async function create() {
@@ -79,7 +80,7 @@ async function create() {
   const app = Elm.Elm.Main.init({ node, flags: "" + Date.now() });
 
   const handlePortMsg = async ({ action, payload }) => {
-    const socket = io("http://localhost:5002");
+    const socket = io(URL.BASE_URL + URL.PORT);
     // @feathersjs/client is exposed as the `feathers` global.
     const service = feathers();
     const { regionId, year, role } = setup;
@@ -90,6 +91,16 @@ async function create() {
     console.log("action, ", action);
 
     switch (action) {
+      case "FetchUser": {
+        console.log("credentials, ", payload);
+        try {
+          const user = await axios();
+        } catch (err) {
+          console.log("Login Error");
+        }
+        break;
+      }
+
       case "InitApp": {
         break;
       }
