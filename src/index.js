@@ -305,17 +305,15 @@ async function create() {
       }
 
       case "SaveAgent": {
-        const agent = { ...payload, year };
+        const agent = { ...payload, year, regionId };
         const addAgentResp = await addAgent({ service, agent });
         console.log("[AddAgent], ", addAgentResp);
-        // const addAgentResp = await addAgent({ service, agent });
-        // console.log("[AddAgent], ", addAgentResp);
 
         break;
       }
 
       case "SaveCandidate": {
-        const candidate = { ...payload, year };
+        const candidate = { ...payload, year, regionId };
         const addCandidateResp = await addCandidate({ service, candidate });
         // const addCandidateResp = await addCandidate({ service, candidate });
         // console.log("[AddAgent], ", addAgentResp);
@@ -324,7 +322,7 @@ async function create() {
       }
 
       case "SaveConstituency": {
-        const constituency = { ...payload, year };
+        const constituency = { ...payload, year, regionId };
         const addConstituencyResp = await addConstituency({
           service,
           constituency,
@@ -377,7 +375,7 @@ async function create() {
       }
 
       case "SavePoll": {
-        const poll = { ...payload, year };
+        const poll = { ...payload, year, regionId };
         const addPollResp = await addPoll({ service, poll });
 
         break;
@@ -412,7 +410,7 @@ async function create() {
       }
 
       case "UpdateAgent": {
-        const agent = { ...payload, year };
+        const agent = { ...payload, year, regionId };
         const updateAgentResp = await updateAgent({ service, agent });
         console.log("agent, ", agent);
 
@@ -420,7 +418,7 @@ async function create() {
       }
 
       case "UpdateConstituency": {
-        const constituency = { ...payload, year };
+        const constituency = { ...payload, year, regionId };
         const updateConstituencyResp = await updateConstituency({
           service,
           constituency,
@@ -431,7 +429,7 @@ async function create() {
       }
 
       case "UpdateCandidate": {
-        const candidate = { ...payload, year };
+        const candidate = { ...payload, year, regionId };
         const updateCandidateResp = await updateCandidate({
           service,
           candidate,
@@ -450,7 +448,7 @@ async function create() {
       }
 
       case "UpdatePoll": {
-        const poll = { ...payload, year };
+        const poll = { ...payload, year, regionId };
         const updatePollResp = await updatePoll({ service, poll });
         console.log("poll, ", poll);
 
@@ -551,10 +549,12 @@ async function create() {
     // When a model is created
 
     service.service("agents").on("created", (agent, c) => {
-      app.ports.msgForElm.send({
-        type: "OneAgentAdded",
-        payload: normalizeAgent(agent),
-      });
+      if (agent.regionId === regionId) {
+        app.ports.msgForElm.send({
+          type: "OneAgentAdded",
+          payload: normalizeAgent(agent),
+        });
+      }
     });
 
     service.service("users").on("created", (user, c) => {
@@ -572,19 +572,23 @@ async function create() {
     });
 
     service.service("constituencies").on("created", (constituency, c) => {
-      app.ports.msgForElm.send({
-        type: "OneConstituencyAdd",
-        payload: normalizeConstituency(constituency),
-      });
+      if (constituency.regionId === regionId) {
+        app.ports.msgForElm.send({
+          type: "OneConstituencyAdd",
+          payload: normalizeConstituency(constituency),
+        });
+      }
     });
 
     service.service("approve_list").on("created", (d, c) => {});
 
     service.service("candidates").on("created", (candidate, c) => {
-      app.ports.msgForElm.send({
-        type: "OneCandidateAdded",
-        payload: normalizeCandidate(candidate),
-      });
+      if (candidate.regionId === regionId) {
+        app.ports.msgForElm.send({
+          type: "OneCandidateAdded",
+          payload: normalizeCandidate(candidate),
+        });
+      }
     });
 
     service
@@ -599,10 +603,12 @@ async function create() {
     service
       .service("parent_constituencies")
       .on("created", (parentConstituency, c) => {
-        app.ports.msgForElm.send({
-          type: "OneParentConstituencyAdd",
-          payload: normalizeParentConstituency(parentConstituency),
-        });
+        if (parentConstituency.regionId === regionId) {
+          app.ports.msgForElm.send({
+            type: "OneParentConstituencyAdd",
+            payload: normalizeParentConstituency(parentConstituency),
+          });
+        }
       });
 
     service.service("parties").on("created", (party, c) => {
@@ -613,27 +619,33 @@ async function create() {
     });
 
     service.service("polls").on("created", (poll, c) => {
-      app.ports.msgForElm.send({
-        type: "OnePollAdded",
-        payload: normalizePoll(poll),
-      });
+      if (poll.regionId === regionId) {
+        app.ports.msgForElm.send({
+          type: "OnePollAdded",
+          payload: normalizePoll(poll),
+        });
+      }
     });
 
     service
       .service("regional_analysis")
       .on("created", (regionalAnalysis, c) => {
-        app.ports.msgForElm.send({
-          type: "OneRegionalAnalysisAdded",
-          payload: normalizeRegionalAnalysis(regionalAnalysis),
-        });
+        if (regionalAnalysis.regionId === regionId) {
+          app.ports.msgForElm.send({
+            type: "OneRegionalAnalysisAdded",
+            payload: normalizeRegionalAnalysis(regionalAnalysis),
+          });
+        }
       });
 
     // When a model is updated
     service.service("agents").on("updated", (agent, c) => {
-      app.ports.msgForElm.send({
-        type: "OneAgentUpdated",
-        payload: normalizeAgent(agent),
-      });
+      if (agent.regionId === regionId) {
+        app.ports.msgForElm.send({
+          type: "OneAgentUpdated",
+          payload: normalizeAgent(agent),
+        });
+      }
     });
 
     service.service("regions").on("updated", (region, c) => {
@@ -651,31 +663,39 @@ async function create() {
     });
 
     service.service("constituencies").on("updated", (constituency, c) => {
-      app.ports.msgForElm.send({
-        type: "OneConstituencyUpdated",
-        payload: normalizeConstituency(constituency),
-      });
+      if (constituency.regionId === regionId) {
+        app.ports.msgForElm.send({
+          type: "OneConstituencyUpdated",
+          payload: normalizeConstituency(constituency),
+        });
+      }
     });
 
     service.service("approve_list").on("updated", (approve, c) => {
-      app.ports.msgForElm.send({
-        type: "OneApproveUpdated",
-        payload: normalizeApprove(approve),
-      });
+      if (approve.regionId === regionId) {
+        app.ports.msgForElm.send({
+          type: "OneApproveUpdated",
+          payload: normalizeApprove(approve),
+        });
+      }
     });
 
     service.service("candidates").on("updated", (candidate, c) => {
-      app.ports.msgForElm.send({
-        type: "OneCandidateUpdated",
-        payload: normalizeCandidate(candidate),
-      });
+      if (candidate.regionId === regionId) {
+        app.ports.msgForElm.send({
+          type: "OneCandidateUpdated",
+          payload: normalizeCandidate(candidate),
+        });
+      }
     });
 
     service.service("polls").on("updated", (poll, c) => {
-      app.ports.msgForElm.send({
-        type: "OnePollUpdated",
-        payload: normalizePoll(poll),
-      });
+      if (poll.regionId === regionId) {
+        app.ports.msgForElm.send({
+          type: "OnePollUpdated",
+          payload: normalizePoll(poll),
+        });
+      }
     });
 
     service.service("national_analysis").on("updated", (national, c) => {
@@ -688,10 +708,12 @@ async function create() {
     service
       .service("parent_constituencies")
       .on("updated", (parentConstituency, c) => {
-        app.ports.msgForElm.send({
-          type: "OneParentConstituencyUpdated",
-          payload: normalizeParentConstituency(parentConstituency),
-        });
+        if (parentConstituency.regionId === regionId) {
+          app.ports.msgForElm.send({
+            type: "OneParentConstituencyUpdated",
+            payload: normalizeParentConstituency(parentConstituency),
+          });
+        }
       });
 
     service.service("parties").on("updated", (party, c) => {

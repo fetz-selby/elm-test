@@ -36,7 +36,7 @@ type alias Model =
 
 initParty : Model
 initParty =
-    { id = "0", name = "", color = "", logoPath = "", orderQueue = "0" }
+    { id = "23", name = "", color = "", logoPath = "", orderQueue = "0" }
 
 
 isIdExist : Model -> List Model -> Bool

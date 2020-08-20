@@ -299,7 +299,7 @@ renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
         [ renderField "text" "name" model.selectedAgent.name "eg. Smith" True Name
-        , renderField "number" "msisdn" model.selectedAgent.msisdn "e.g +491763500232450" True Msisdn
+        , renderField "text" "msisdn" model.selectedAgent.msisdn "e.g +491763500232450" True Msisdn
         , renderField "number" "pin" model.selectedAgent.pin "e.g 0000" True Pin
         , renderConstituencies "constituency" Constituency (Constituency.addIfNotExist Constituency.getFirstSelect model.constituencies)
         , renderPolls "poll" Poll (Poll.addIfNotExist Poll.getFirstSelect model.polls)
@@ -311,7 +311,7 @@ renderNewDetails : Model -> Html.Html Msg
 renderNewDetails model =
     form [ onSubmit Save ]
         [ renderField "text" "name" model.selectedAgent.name "eg. Smith" True Name
-        , renderField "number" "msisdn" model.selectedAgent.msisdn "eg. +491763500232450" True Msisdn
+        , renderField "text" "msisdn" model.selectedAgent.msisdn "eg. +491763500232450" True Msisdn
         , renderField "number" "pin" model.selectedAgent.pin "e.g 0000" True Pin
         , renderConstituencies "constituency" Constituency (Constituency.addIfNotExist Constituency.getFirstSelect model.constituencies)
         , renderPolls "poll" Poll (Poll.addIfNotExist Poll.getFirstSelect model.polls)

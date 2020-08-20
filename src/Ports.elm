@@ -4,6 +4,7 @@ import Data.Agent as Agent
 import Data.Approve as Approve
 import Data.Candidate as Candidate
 import Data.Constituency as Constituency
+import Data.Login as Login
 import Data.NationalAnalysis as NationalAnalysis
 import Data.ParentConstituency as ParentConstituency
 import Data.Party as Party
@@ -63,6 +64,7 @@ type OutgoingMsg
     | UpdateApprove Approve.Model
     | UpdateRegionalSummary RegionalAnalysis.Model
     | UpdateNationalSummary NationalAnalysis.Model
+    | FetchUser Login.Data
 
 
 port msgForJs : PortData -> Cmd msg
@@ -219,3 +221,6 @@ toPortData msg =
 
         UpdateNationalSummary national ->
             { action = "UpdateNationalSummary", payload = NationalAnalysis.encode national }
+
+        FetchUser cred ->
+            { action = "UpdateNationalSummary", payload = Encode.null }
