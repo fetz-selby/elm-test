@@ -167,6 +167,13 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        Msg.AppInit loginUser ->
+            let
+                _ =
+                    Debug.log "loginUser" loginUser
+            in
+            ( { model | user = loginUser, isLogin = False }, Cmd.none )
+
         Msg.IncomingMsgError errMsg ->
             ( model, Cmd.none )
 

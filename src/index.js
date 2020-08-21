@@ -1,5 +1,6 @@
 import Elm from "./Main.elm";
 import { getAgents, addAgent, updateAgent } from "./api/agents";
+import { getLogin } from "./api/login";
 import { getUsers, addUser, updateUser } from "./api/users";
 import {
   getConstituencies,
@@ -56,11 +57,11 @@ import {
   normalizeRegionalAnalysis,
   normalizeNationalAnalysis,
   normalizeApprove,
+  normalizeLoginUser,
   PASS,
 } from "./api/helper";
 import io from "socket.io-client";
 import feathers from "@feathersjs/client";
-import axios from "axios";
 
 // init the elm app
 async function create() {
@@ -70,10 +71,9 @@ async function create() {
   // init and show the app
   // let [regions, parentConstituencies] = [[], []];
   let setup = {
-    constituencyId: "",
     regionId: "1",
     year: "2016",
-    role: "admin",
+    level: "U",
   };
 
   const node = document.getElementById("app");
@@ -83,7 +83,7 @@ async function create() {
     const socket = io(URL.BASE_URL + URL.PORT);
     // @feathersjs/client is exposed as the `feathers` global.
     const service = feathers();
-    const { regionId, year, role } = setup;
+    const { regionId, year, level } = setup;
     const { ADMIN, USER } = ROLE;
 
     service.configure(feathers.socketio(socket));
@@ -93,8 +93,28 @@ async function create() {
     switch (action) {
       case "FetchUser": {
         console.log("credentials, ", payload);
+        const { email, password } = payload;
         try {
-          const user = await axios();
+          const user = await getLogin({ service, email, password });
+          if (user.error) {
+            console.log("Error occurred");
+            app.ports.msgForElm.send({
+              type: "LoginError",
+              payload: {},
+            });
+          } else {
+            const { year, region_id, level } = user;
+            setup = {
+              year,
+              regionId: region_id,
+              level,
+            };
+            console.log("Login success");
+            app.ports.msgForElm.send({
+              type: "LoginLoaded",
+              payload: { loginUser: normalizeLoginUser(user) },
+            });
+          }
         } catch (err) {
           console.log("Login Error");
         }

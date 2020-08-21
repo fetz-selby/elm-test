@@ -258,6 +258,24 @@ export const normalizeParentConstituency = (parentConstituency) => ({
       : normalizeRegion({}),
 });
 
+export const normalizeLoginUser = (loginUser) => ({
+  ...loginUser,
+  id: loginUser && loginUser.id ? loginUser.id.toString() : "0",
+  name: loginUser && loginUser.name ? loginUser.name.toString() : "Unknown",
+  email:
+    loginUser && loginUser.email
+      ? loginUser.email.toString()
+      : "unknown@codearbeitet.com",
+  region:
+    loginUser && loginUser.region ? loginUser.region.toString() : "Deutschland",
+  level: loginUser && loginUser.level ? loginUser.level.toString() : "U",
+  year: loginUser && loginUser.year ? loginUser.year.toString() : "0000",
+  msisdn:
+    loginUser && loginUser.msisdn
+      ? loginUser.msisdn.toString()
+      : "4917635710000",
+});
+
 export const normalizeApproves = (apporoves) =>
   apporoves && apporoves.length
     ? apporoves.map((approve) => normalizeApprove(approve))

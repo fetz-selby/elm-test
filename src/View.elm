@@ -14,7 +14,7 @@ import Page.ShowNationalAnalysis
 import Page.ShowParentConstituencies
 import Page.ShowParties
 import Page.ShowPolls
-import Page.ShowRegionalAnalysis exposing (renderField)
+import Page.ShowRegionalAnalysis
 import Page.ShowRegions
 import Page.ShowUsers
 import Sidebar exposing (Sidebar(..))

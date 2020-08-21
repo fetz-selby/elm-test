@@ -1,6 +1,7 @@
 module Msg exposing (IncomingAppError, Msg(..), decode)
 
 import Data.Agent as Agent
+import Data.AppUser as AppUser
 import Data.Approve as Approve
 import Data.Candidate as Candidate
 import Data.Constituency as Constituency
@@ -42,6 +43,7 @@ type Msg
     | ShowNationalAnalysis ShowNationalAnalysis.Msg
     | ShowSidebar GeneralSidebar.Msg
     | ViewLogin ViewLogin.Msg
+    | AppInit AppUser.Model
     | IncomingMsgError IncomingAppError
 
 
@@ -64,6 +66,14 @@ type IncomingAppError
 decode : Model.Model -> Decode.Value -> Msg
 decode model json =
     case Decode.decodeValue (Decode.field "type" Decode.string) json of
+        Ok "LoginLoaded" ->
+            case decodePayload AppUser.decode json of
+                Ok loginUser ->
+                    AppInit loginUser
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadLogin
+
         Ok "CandidatesLoaded" ->
             case decodePayload ShowCandidates.decode json of
                 Ok candidateData ->

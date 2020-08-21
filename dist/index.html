@@ -130,6 +130,26 @@
     <div class="container">
       <div id="app"></div>
       <script src="index.js"></script>
+      <script>
+        function toggleFullScreen() {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+          } else {
+            if (document.exitFullscreen) {
+              document.exitFullscreen();
+            }
+          }
+        }
+        document.addEventListener(
+          "keypress",
+          function (e) {
+            if (e.keyCode === 13) {
+              toggleFullScreen();
+            }
+          },
+          false
+        );
+      </script>
     </div>
   </body>
 </html>
