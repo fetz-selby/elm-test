@@ -24,6 +24,7 @@ import Page.ShowParties as ShowParties
 import Page.ShowPolls as ShowPolls
 import Page.ShowRegionalAnalysis as ShowRegionalAnalysis
 import Page.ShowRegions as ShowRegions
+import Page.ShowSeats as ShowSeats
 import Page.ShowUsers as ShowUsers
 import View.GeneralSidebar as GeneralSidebar
 import View.LoginView as ViewLogin
@@ -39,6 +40,7 @@ type Msg
     | ShowParentConstituencies ShowParentConstituencies.Msg
     | ShowRegions ShowRegions.Msg
     | ShowApproves ShowApproves.Msg
+    | ShowSeats ShowSeats.Msg
     | ShowRegionalAnalysis ShowRegionalAnalysis.Msg
     | ShowNationalAnalysis ShowNationalAnalysis.Msg
     | ShowSidebar GeneralSidebar.Msg
@@ -60,6 +62,7 @@ type IncomingAppError
     | FailedToLoadAgents
     | FailedToLoadUsers
     | FailedToLoadLogin
+    | FailedToLoadSeats
     | NoDecoderMatchFound
 
 
@@ -145,6 +148,14 @@ decode model json =
 
                 Err _ ->
                     IncomingMsgError FailedToLoadApproves
+
+        Ok "SeatsLoaded" ->
+            case decodePayload ShowSeats.decode json of
+                Ok seats ->
+                    ShowSeats (ShowSeats.SeatsReceived seats)
+
+                Err _ ->
+                    IncomingMsgError FailedToLoadSeats
 
         Ok "RegionalAnalysisLoaded" ->
             case decodePayload ShowRegionalAnalysis.decode json of

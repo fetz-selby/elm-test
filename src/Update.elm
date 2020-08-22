@@ -14,6 +14,7 @@ import Page.ShowParties as ShowPartiesPage
 import Page.ShowPolls as ShowPollsPage
 import Page.ShowRegionalAnalysis as ShowRegionalAnalysisPage
 import Page.ShowRegions as ShowRegionsPage
+import Page.ShowSeats as ShowSeatsPage
 import Page.ShowUsers as ShowUsersPage
 import Ports
 import Sidebar as Sidebar
@@ -123,6 +124,17 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        Msg.ShowSeats seatMsg ->
+            case model.pages of
+                Page.ShowSeats submodel ->
+                    seatMsg
+                        |> ShowSeatsPage.update submodel
+                        |> Tuple.mapFirst (updateWithSeatsPage model)
+                        |> Tuple.mapSecond (Cmd.map Msg.ShowSeats)
+
+                _ ->
+                    ( model, Cmd.none )
+
         Msg.ShowRegionalAnalysis regionalMsg ->
             case model.pages of
                 Page.ShowRegionalAnalysis submodel ->
@@ -168,13 +180,9 @@ update msg model =
                     ( model, Cmd.none )
 
         Msg.AppInit loginUser ->
-            let
-                _ =
-                    Debug.log "loginUser" loginUser
-            in
             ( { model | user = loginUser, isLogin = False }, Cmd.none )
 
-        Msg.IncomingMsgError errMsg ->
+        Msg.IncomingMsgError _ ->
             ( model, Cmd.none )
 
 
@@ -216,6 +224,11 @@ updateWithParentConstituenciesPage model pageModel =
 updateWithApprovesPage : Model -> ShowApprovesPage.Model -> Model
 updateWithApprovesPage model pageModel =
     { model | pages = Page.ShowApproves pageModel, pageTitle = "Approve" }
+
+
+updateWithSeatsPage : Model -> ShowSeatsPage.Model -> Model
+updateWithSeatsPage model pageModel =
+    { model | pages = Page.ShowSeats pageModel, pageTitle = "Seats" }
 
 
 updateWithRegionalPage : Model -> ShowRegionalAnalysisPage.Model -> Model
@@ -311,6 +324,14 @@ updateWithSidebarView model viewModel =
                 , pages = Page.ShowApproves ShowApprovesPage.default
               }
             , Ports.sendToJs Ports.InitSidebarApprove
+            )
+
+        GeneralSidebar.Seats ->
+            ( { model
+                | sidebar = Sidebar.GeneralSidebar viewModel
+                , pages = Page.ShowSeats ShowSeatsPage.default
+              }
+            , Ports.sendToJs Ports.InitSidebarSeats
             )
 
         GeneralSidebar.RegionalSummary ->

@@ -16,6 +16,7 @@ import Page.ShowParties
 import Page.ShowPolls
 import Page.ShowRegionalAnalysis
 import Page.ShowRegions
+import Page.ShowSeats
 import Page.ShowUsers
 import Sidebar exposing (Sidebar(..))
 import View.GeneralSidebar
@@ -111,6 +112,11 @@ pageView { pages } =
             model
                 |> Page.ShowApproves.view
                 |> Html.map Msg.ShowApproves
+
+        Page.ShowSeats model ->
+            model
+                |> Page.ShowSeats.view
+                |> Html.map Msg.ShowSeats
 
         Page.ShowRegionalAnalysis model ->
             model

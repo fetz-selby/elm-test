@@ -15,6 +15,7 @@ type Msg
     | Polls
     | ParentConstituencies
     | Approve
+    | Seats
     | RegionalSummary
     | NationalSummary
 
@@ -43,12 +44,13 @@ view { level } =
         [ menu userLevel SuperAdmin "Regions" Regions
         , menu userLevel SuperAdmin "Users" Users
         , menu userLevel Admin "Agents" Agents
-        , menu userLevel Admin "Constituency" Constituencies
+        , menu userLevel User "Constituency" Constituencies
         , menu userLevel User "Candidates" Candidates
         , menu userLevel Admin "Parties" Parties
         , menu userLevel User "Polls" Polls
         , menu userLevel SuperAdmin "Parent Constituency" ParentConstituencies
         , menu userLevel User "Approve" Approve
+        , menu userLevel User "Seats" Seats
         , menu userLevel User "Regional Summary" RegionalSummary
         , menu userLevel Admin "National Summary" NationalSummary
         ]
@@ -83,6 +85,9 @@ update model msg =
 
         Approve ->
             ( { model | current = Approve }, Cmd.none )
+
+        Seats ->
+            ( { model | current = Seats }, Cmd.none )
 
         RegionalSummary ->
             ( { model | current = RegionalSummary }, Cmd.none )

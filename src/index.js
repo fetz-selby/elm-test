@@ -1,5 +1,7 @@
 import Elm from "./Main.elm";
 import { getAgents, addAgent, updateAgent } from "./api/agents";
+import { getSeats } from "./api/seats";
+
 import { getLogin } from "./api/login";
 import { getUsers, addUser, updateUser } from "./api/users";
 import {
@@ -58,6 +60,7 @@ import {
   normalizeNationalAnalysis,
   normalizeApprove,
   normalizeLoginUser,
+  normalizeSeats,
   PASS,
 } from "./api/helper";
 import io from "socket.io-client";
@@ -286,6 +289,16 @@ async function create() {
         app.ports.msgForElm.send({
           type: "ApprovesLoaded",
           payload: { approveData: { approves: normalizeApproves(approves) } },
+        });
+
+        break;
+      }
+
+      case "InitSeats": {
+        const seats = await getSeats({ service, year, regionId });
+        app.ports.msgForElm.send({
+          type: "SeatsLoaded",
+          payload: { seatData: { seats: normalizeSeats(seats) } },
         });
 
         break;

@@ -34,6 +34,7 @@ type OutgoingMsg
     | InitSidebarCandidate
     | InitSidebarConstituency
     | InitSidebarUser
+    | InitSidebarSeats
     | DeleteAgent String
     | DeleteRegion String
     | DeleteConstituency String
@@ -125,6 +126,9 @@ toPortData msg =
 
         InitSidebarApprove ->
             { action = "InitApprove", payload = Encode.null }
+
+        InitSidebarSeats ->
+            { action = "InitSeats", payload = Encode.null }
 
         InitSidebarRegionalSummary ->
             { action = "InitRegionalSummary", payload = Encode.null }

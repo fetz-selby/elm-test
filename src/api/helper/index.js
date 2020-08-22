@@ -276,6 +276,23 @@ export const normalizeLoginUser = (loginUser) => ({
       : "4917635710000",
 });
 
+export const normalizeSeat = (seats) => ({
+  ...seats,
+  id: seats && seats.id ? seats.id.toString() : "0",
+  votes: seats && seats.votes ? seats.votes.toString() : "0",
+  percentage: seats && seats.percentage ? seats.percentage.toString() : "0.0",
+  party:
+    seats && seats.party ? normalizeParty(seats.party) : normalizeParty({}),
+  constituency:
+    seats && seats.constituency
+      ? normalizeConstituency(seats.constituency)
+      : normalizeConstituency({}),
+  candidate:
+    seats && seats.candidate
+      ? normalizeCandidate(seats.candidate)
+      : normalizeCandidate({}),
+});
+
 export const normalizeApproves = (apporoves) =>
   apporoves && apporoves.length
     ? apporoves.map((approve) => normalizeApprove(approve))
@@ -345,4 +362,11 @@ export const normalizeAgents = (agents) =>
 export const normalizeUsers = (users) =>
   users && users.length
     ? users.map((user) => normalizeUser(user)).sort((a, b) => sort(a, b))
+    : [];
+
+export const normalizeSeats = (seats) =>
+  seats && seats.length
+    ? seats
+        .map((seat) => normalizeSeat(seat))
+        .sort((a, b) => sort(a.constituency, b.constituency))
     : [];

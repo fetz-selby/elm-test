@@ -341,7 +341,7 @@ renderDetails model =
                 False
                 IsDeclared
             , renderField "text"
-                "is declared"
+                "is auto-compute"
                 (if model.autoCompute then
                     "Yes"
 

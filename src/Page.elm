@@ -10,6 +10,7 @@ import Page.ShowParties as ShowParties
 import Page.ShowPolls as ShowPolls
 import Page.ShowRegionalAnalysis as ShowRegionalAnalysis
 import Page.ShowRegions as ShowRegions
+import Page.ShowSeats as ShowSeats
 import Page.ShowUsers as ShowUsers
 
 
@@ -22,6 +23,7 @@ type Page
     | ShowParties ShowParties.Model
     | ShowRegions ShowRegions.Model
     | ShowApproves ShowApproves.Model
+    | ShowSeats ShowSeats.Model
     | ShowRegionalAnalysis ShowRegionalAnalysis.Model
     | ShowNationalAnalysis ShowNationalAnalysis.Model
     | ShowUsers ShowUsers.Model
