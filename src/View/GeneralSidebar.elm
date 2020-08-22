@@ -1,4 +1,4 @@
-module View.GeneralSidebar exposing (Model, Msg(..), default, update, view)
+module View.GeneralSidebar exposing (Model, Msg(..), default, setLevel, update, view)
 
 import Html exposing (div, text)
 import Html.Attributes exposing (class)
@@ -19,27 +19,38 @@ type Msg
     | NationalSummary
 
 
+type Level
+    = User
+    | Admin
+    | SuperAdmin
+
+
 type alias Model =
     { current : Msg
     , title : String
+    , level : String
     }
 
 
 view : Model -> Html.Html Msg
-view model =
+view { level } =
+    let
+        userLevel =
+            convertToLevel level
+    in
     div
         [ class "row" ]
-        [ menu "Regions" Regions
-        , menu "Users" Users
-        , menu "Agents" Agents
-        , menu "Constituency" Constituencies
-        , menu "Candidates" Candidates
-        , menu "Parties" Parties
-        , menu "Polls" Polls
-        , menu "Parent Constituency" ParentConstituencies
-        , menu "Approve" Approve
-        , menu "Regional Summary" RegionalSummary
-        , menu "National Summary" NationalSummary
+        [ menu userLevel SuperAdmin "Regions" Regions
+        , menu userLevel SuperAdmin "Users" Users
+        , menu userLevel Admin "Agents" Agents
+        , menu userLevel Admin "Constituency" Constituencies
+        , menu userLevel User "Candidates" Candidates
+        , menu userLevel Admin "Parties" Parties
+        , menu userLevel User "Polls" Polls
+        , menu userLevel SuperAdmin "Parent Constituency" ParentConstituencies
+        , menu userLevel User "Approve" Approve
+        , menu userLevel User "Regional Summary" RegionalSummary
+        , menu userLevel Admin "National Summary" NationalSummary
         ]
 
 
@@ -80,14 +91,64 @@ update model msg =
             ( { model | current = NationalSummary }, Cmd.none )
 
 
-menu : String -> Msg -> Html.Html Msg
-menu label event =
+menu : Level -> Level -> String -> Msg -> Html.Html Msg
+menu level requiredLevel label event =
+    case level of
+        User ->
+            case requiredLevel of
+                User ->
+                    renderMenu label event
+
+                Admin ->
+                    div [] []
+
+                SuperAdmin ->
+                    div [] []
+
+        Admin ->
+            case requiredLevel of
+                User ->
+                    renderMenu label event
+
+                Admin ->
+                    renderMenu label event
+
+                SuperAdmin ->
+                    div [] []
+
+        SuperAdmin ->
+            renderMenu label event
+
+
+renderMenu : String -> Msg -> Html.Html Msg
+renderMenu label msg =
     div
-        [ class "col-md-12 sidebar-menu", onClick event ]
+        [ class "col-md-12 sidebar-menu", onClick msg ]
         [ text label
         ]
 
 
+convertToLevel : String -> Level
+convertToLevel level =
+    case level |> String.toUpper of
+        "U" ->
+            User
+
+        "A" ->
+            Admin
+
+        "S" ->
+            SuperAdmin
+
+        _ ->
+            User
+
+
 default : Model
 default =
-    { current = Regions, title = "" }
+    { current = Regions, title = "", level = "U" }
+
+
+setLevel : String -> Model -> Model
+setLevel level model =
+    { model | level = level }

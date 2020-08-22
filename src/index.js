@@ -309,8 +309,12 @@ async function create() {
       }
 
       case "InitRegionalSummary": {
-        const regionalAnalysis = await getRegionalAnalysis({ service, year });
-        const regions = await getRegions({ service });
+        const regionalAnalysis = await getRegionalAnalysis({
+          service,
+          year,
+          regionId,
+        });
+        const regions = [];
         const parties = await getParties({ service });
 
         app.ports.msgForElm.send({

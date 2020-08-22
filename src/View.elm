@@ -46,10 +46,10 @@ renderApp model =
 
 
 sidebarView : Model.Model -> Html.Html Msg
-sidebarView { sidebar } =
-    case sidebar of
+sidebarView mainModel =
+    case mainModel.sidebar of
         GeneralSidebar model ->
-            model
+            View.GeneralSidebar.setLevel mainModel.user.level model
                 |> View.GeneralSidebar.view
                 |> Html.map Msg.ShowSidebar
 

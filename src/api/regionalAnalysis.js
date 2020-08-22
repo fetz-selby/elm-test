@@ -6,7 +6,9 @@ const updateRegionalAnalysis = async ({ service, regionalAnalysis }) =>
     .service("regional_analysis")
     .update(regionalAnalysis.id, regionalAnalysis);
 
-const getRegionalAnalysis = async ({ service, year }) =>
-  await service.service("regional_analysis").find({ query: { year } });
+const getRegionalAnalysis = async ({ service, year, regionId }) =>
+  await service
+    .service("regional_analysis")
+    .find({ query: { year, regionId } });
 
 export { getRegionalAnalysis, updateRegionalAnalysis, addRegionalAnalysis };
