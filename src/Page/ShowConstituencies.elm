@@ -4,8 +4,8 @@ import Data.Constituency as Constituency
 import Data.ParentConstituency as ParentConstituency
 import Data.Party as Party
 import Html exposing (button, div, form, input, label, option, select, table, tbody, td, th, thead, tr)
-import Html.Attributes exposing (class, classList, disabled, placeholder, readonly, type_, value)
-import Html.Events exposing (onClick, onInput, onSubmit)
+import Html.Attributes exposing (checked, class, classList, disabled, placeholder, readonly, type_, value)
+import Html.Events exposing (onCheck, onClick, onInput, onSubmit)
 import Html.Events.Extra exposing (onChange)
 import Json.Decode as Decode
 import Ports
@@ -36,6 +36,9 @@ type Field
     | SeatWonId String
     | TotalVotes String
     | AutoCompute String
+    | AllSelected Bool
+    | IsDeclaredSelected Bool
+    | IsNotDeclaredSelected Bool
 
 
 type ShowDetailMode
@@ -51,6 +54,12 @@ type alias ConstituencyData =
     }
 
 
+type ViewFilter
+    = AllView
+    | DeclaredView
+    | NotDeclaredView
+
+
 type alias Model =
     { constituencies : List Constituency.Model
     , parentConstituencies : List ParentConstituency.Model
@@ -61,6 +70,7 @@ type alias Model =
     , selectedConstituency : Constituency.Model
     , showDetailMode : ShowDetailMode
     , isLoading : Bool
+    , filter : ViewFilter
     }
 
 
@@ -123,6 +133,15 @@ update model msg =
                 AutoCompute autoCompute ->
                     ( { model | selectedConstituency = Constituency.setAutoCompute autoCompute model.selectedConstituency }, Cmd.none )
 
+                AllSelected isAllSelected ->
+                    ( { model | filter = AllView }, Cmd.none )
+
+                IsDeclaredSelected isDeclaredSelected ->
+                    ( { model | filter = DeclaredView }, Cmd.none )
+
+                IsNotDeclaredSelected isNotDeclaredSelected ->
+                    ( { model | filter = NotDeclaredView }, Cmd.none )
+
         Save ->
             ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveConstituency model.selectedConstituency) ] )
 
@@ -153,13 +172,58 @@ view model =
     div
         []
         [ renderHeader
+        , case model.filter of
+            AllView ->
+                div [ class "row" ]
+                    [ renderFilter "All" AllSelected True
+                    , renderFilter "Declared" IsDeclaredSelected False
+                    , renderFilter "Not Declared" IsNotDeclaredSelected False
+                    ]
+
+            DeclaredView ->
+                div [ class "row" ]
+                    [ renderFilter "All" AllSelected False
+                    , renderFilter "Declared" IsDeclaredSelected True
+                    , renderFilter "Not Declared" IsNotDeclaredSelected False
+                    ]
+
+            NotDeclaredView ->
+                div [ class "row" ]
+                    [ renderFilter "All" AllSelected False
+                    , renderFilter "Declared" IsDeclaredSelected False
+                    , renderFilter "Not Declared" IsNotDeclaredSelected True
+                    ]
         , div [ class "row" ]
             [ div [ class "col-md-8" ]
-                [ if String.length model.searchWord > 0 then
-                    renderConstituencyList (Constituency.filter model.searchWord model.constituencies)
+                [ case model.filter of
+                    AllView ->
+                        if String.length model.searchWord > 0 then
+                            renderConstituencyList (Constituency.filter model.searchWord model.constituencies)
 
-                  else
-                    renderConstituencyList model.constituencies
+                        else
+                            renderConstituencyList model.constituencies
+
+                    DeclaredView ->
+                        let
+                            filteredConstituencies =
+                                Constituency.getDeclared model.constituencies
+                        in
+                        if String.length model.searchWord > 0 then
+                            renderConstituencyList (Constituency.filter model.searchWord filteredConstituencies)
+
+                        else
+                            renderConstituencyList filteredConstituencies
+
+                    NotDeclaredView ->
+                        let
+                            filteredConstituencies =
+                                Constituency.getNotDeclared model.constituencies
+                        in
+                        if String.length model.searchWord > 0 then
+                            renderConstituencyList (Constituency.filter model.searchWord filteredConstituencies)
+
+                        else
+                            renderConstituencyList filteredConstituencies
                 ]
             , div [ class "col-md-4" ]
                 [ case model.showDetailMode of
@@ -171,6 +235,32 @@ view model =
 
                     New ->
                         renderNewDetails model
+                ]
+            ]
+        ]
+
+
+
+-- if String.length model.searchWord > 0 then
+--             renderConstituencyList (Constituency.filter model.searchWord model.constituencies)
+--           else
+--             renderConstituencyList model.constituencies
+
+
+renderFilter : String -> (Bool -> Field) -> Bool -> Html.Html Msg
+renderFilter checkLabel isChecked checkedValue =
+    div [ class "form-group" ]
+        [ div [ class "col-md-12" ]
+            [ div [ class "checkbox" ]
+                [ label []
+                    [ input
+                        [ type_ "checkbox"
+                        , onCheck (Form << isChecked)
+                        , checked checkedValue
+                        ]
+                        []
+                    , label [ class "small-lnr-pad" ] [ Html.text checkLabel ]
+                    ]
                 ]
             ]
         ]
@@ -422,4 +512,5 @@ default =
     , selectedConstituency = Constituency.initConstituency
     , showDetailMode = View
     , isLoading = False
+    , filter = AllView
     }
