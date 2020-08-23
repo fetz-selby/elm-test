@@ -35,7 +35,7 @@ view model =
 
 renderApp : Model.Model -> Html.Html Msg
 renderApp model =
-    div [ class "row container" ]
+    div [ class "row" ]
         [ renderUserHeader model
         , div [ class "col-md-12" ]
             [ div [ class "row" ]
@@ -63,10 +63,10 @@ renderUserHeader { user } =
             , div [ class "col-md-4" ] []
             , div [ class "col-md-4 user-detail" ]
                 [ div [ class "row" ]
-                    [ div [ class "col-md-5" ]
+                    [ div [ class "col-md-7" ]
                         [ div [ class "user-name-initials" ] [ Html.text <| AppUser.getInitials user ]
                         ]
-                    , div [ class "col-md-7 user-detail-info" ]
+                    , div [ class "col-md-5 user-detail-info" ]
                         [ div [ class "region" ] [ Html.text user.region ]
                         , div [ class "year" ] [ Html.text user.year ]
                         , div [ class "name" ] [ Html.text user.name ]

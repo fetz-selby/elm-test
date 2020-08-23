@@ -130,7 +130,7 @@
       .login-container {
         align-items: center;
         height: 800px;
-        justify-content: center;
+        align-content: space-evenly;
       }
 
       .brand {
@@ -145,7 +145,8 @@
       }
 
       .user-header {
-        padding-bottom: 3rem;
+        padding-top: 1rem;
+        padding-bottom: 5rem;
       }
 
       .user-detail-info {
@@ -160,6 +161,13 @@
 
       .user-detail-info .year {
         letter-spacing: 0.1rem;
+      }
+
+      .user-detail-info .name {
+        font-style: italic;
+        font-weight: 200;
+        letter-spacing: 0.1rem;
+        font-size: 0.8rem;
       }
 
       .user-name-initials {
@@ -178,7 +186,7 @@
     </style>
   </head>
   <body>
-    <div class="container">
+    <div class="container-fluid">
       <div id="app"></div>
       <script src="index.js"></script>
       <script>

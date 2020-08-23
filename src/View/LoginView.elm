@@ -64,6 +64,8 @@ renderWhenLoaded : Login.Model -> Html.Html Msg
 renderWhenLoaded data =
     div [ class "row login-container" ]
         [ div [ class "col-md-12" ]
+            [ brandView ]
+        , div [ class "col-md-12" ]
             [ renderView data
             ]
         ]
@@ -78,6 +80,19 @@ renderView model =
                 [ renderField "text" "email" model.email "alpha@code-arbeitet.com" True Email
                 , renderField "password" "password" model.password "" True Password
                 , renderSubmitBtn False (Login.isValid model) "Login" "btn btn-danger" True
+                ]
+            ]
+        , div [ class "col-md-4" ] []
+        ]
+
+
+brandView : Html.Html msg
+brandView =
+    div [ class "row" ]
+        [ div [ class "col-md-4" ] []
+        , div [ class "col-md-4" ]
+            [ div [ class "brand" ]
+                [ Html.text "Apollo"
                 ]
             ]
         , div [ class "col-md-4" ] []
