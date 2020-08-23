@@ -1,4 +1,4 @@
-module Data.AppUser exposing (Model, decode, default)
+module Data.AppUser exposing (Model, decode, default, getInitials)
 
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
@@ -13,6 +13,15 @@ type alias Model =
     , level : String
     , year : String
     }
+
+
+getInitials : Model -> String
+getInitials model =
+    model.name
+        |> String.split " "
+        |> List.map (\n -> String.left 1 n)
+        |> String.concat
+        |> String.toUpper
 
 
 default : Model

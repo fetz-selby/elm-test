@@ -250,8 +250,7 @@ renderRegionalList regionalAnalysis =
 renderRegionAnalysisHeader : Html.Html Msg
 renderRegionAnalysisHeader =
     tr []
-        [ th [] [ Html.text "Region" ]
-        , th [] [ Html.text "Party" ]
+        [ th [] [ Html.text "Party" ]
         , th [] [ Html.text "Type" ]
         , th [] [ Html.text "Total Votes" ]
         ]
@@ -260,8 +259,7 @@ renderRegionAnalysisHeader =
 renderRegionalItem : RegionalAnalysis.Model -> Html.Html Msg
 renderRegionalItem regional =
     tr [ onClick (ShowDetail regional) ]
-        [ td [] [ Html.text regional.region.name ]
-        , td [] [ Html.text regional.party.name ]
+        [ td [] [ Html.text regional.party.name ]
         , td [] [ Html.text regional.candidateType ]
         , td [] [ Html.text regional.votes ]
         ]

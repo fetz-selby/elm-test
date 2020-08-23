@@ -62,15 +62,25 @@ update model msg =
 
 renderWhenLoaded : Login.Model -> Html.Html Msg
 renderWhenLoaded data =
-    renderView data
+    div [ class "row login-container" ]
+        [ div [ class "col-md-12" ]
+            [ renderView data
+            ]
+        ]
 
 
 renderView : Login.Model -> Html.Html Msg
 renderView model =
-    form [ onSubmit FetchCred ]
-        [ renderField "text" "email" model.email "alpha@code-arbeitet.com" True Email
-        , renderField "password" "password" model.password "" True Password
-        , renderSubmitBtn False (Login.isValid model) "Login" "btn btn-danger" True
+    div [ class "row" ]
+        [ div [ class "col-md-4" ] []
+        , div [ class "col-md-4" ]
+            [ form [ onSubmit FetchCred ]
+                [ renderField "text" "email" model.email "alpha@code-arbeitet.com" True Email
+                , renderField "password" "password" model.password "" True Password
+                , renderSubmitBtn False (Login.isValid model) "Login" "btn btn-danger" True
+                ]
+            ]
+        , div [ class "col-md-4" ] []
         ]
 
 

@@ -31,4 +31,4 @@ type Page
 
 default : Page
 default =
-    ShowRegions ShowRegions.default
+    ShowCandidates ShowCandidates.initShowCandidateModel

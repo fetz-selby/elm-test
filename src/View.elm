@@ -1,5 +1,6 @@
 module View exposing (view)
 
+import Data.AppUser as AppUser
 import Html exposing (div)
 import Html.Attributes exposing (class)
 import LandingApp exposing (LandingApp(..))
@@ -35,13 +36,43 @@ view model =
 renderApp : Model.Model -> Html.Html Msg
 renderApp model =
     div [ class "row container" ]
-        [ div [ class "col-md-2 col-lg-2 sidebar-container" ]
-            [ sidebarView model
+        [ renderUserHeader model
+        , div [ class "col-md-12" ]
+            [ div [ class "row" ]
+                [ div [ class "col-md-2 col-lg-2" ]
+                    [ sidebarView model
+                    ]
+                , div [ class "col-md-10 col-lg-10" ]
+                    [ div [ class "col-md-12 app-title" ]
+                        [ Html.text model.pageTitle ]
+                    , pageView model
+                    ]
+                ]
             ]
-        , div [ class "col-md-10 col-lg-10" ]
-            [ div [ class "col-md-12 app-title" ]
-                [ Html.text model.pageTitle ]
-            , pageView model
+        ]
+
+
+renderUserHeader : Model.Model -> Html.Html Msg
+renderUserHeader { user } =
+    div [ class "col-md-12" ]
+        [ div [ class "user-header row" ]
+            [ div [ class "col-md-4 year-style" ]
+                [ div [ class "brand" ] [ Html.text "Apollo" ]
+                , div [] [ Html.text "" ]
+                ]
+            , div [ class "col-md-4" ] []
+            , div [ class "col-md-4 user-detail" ]
+                [ div [ class "row" ]
+                    [ div [ class "col-md-5" ]
+                        [ div [ class "user-name-initials" ] [ Html.text <| AppUser.getInitials user ]
+                        ]
+                    , div [ class "col-md-7 user-detail-info" ]
+                        [ div [ class "region" ] [ Html.text user.region ]
+                        , div [ class "year" ] [ Html.text user.year ]
+                        , div [ class "name" ] [ Html.text user.name ]
+                        ]
+                    ]
+                ]
             ]
         ]
 
