@@ -7,8 +7,10 @@ module Data.Constituency exposing
     , default
     , encode
     , filter
+    , getDeclared
     , getFirstSelect
     , getId
+    , getNotDeclared
     , initConstituency
     , isIdExist
     , isValid
@@ -218,6 +220,16 @@ getFirstSelect =
     , seatWonId = Party.initParty
     , totalVotes = "0"
     }
+
+
+getDeclared : List Model -> List Model
+getDeclared list =
+    list |> List.filter (\n -> n.isDeclared == True)
+
+
+getNotDeclared : List Model -> List Model
+getNotDeclared list =
+    list |> List.filter (\n -> n.isDeclared == False)
 
 
 replace : Model -> List Model -> List Model
