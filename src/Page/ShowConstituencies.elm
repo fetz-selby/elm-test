@@ -171,7 +171,35 @@ view : Model -> Html.Html Msg
 view model =
     div
         []
-        [ renderHeader
+        [ case model.filter of
+            AllView ->
+                if String.length model.searchWord > 0 then
+                    renderHeader <| String.fromInt <| List.length <| Constituency.filter model.searchWord model.constituencies
+
+                else
+                    renderHeader <| String.fromInt <| List.length <| model.constituencies
+
+            DeclaredView ->
+                let
+                    filteredConstituencies =
+                        Constituency.getDeclared model.constituencies
+                in
+                if String.length model.searchWord > 0 then
+                    renderHeader <| String.fromInt <| List.length <| Constituency.filter model.searchWord filteredConstituencies
+
+                else
+                    renderHeader <| String.fromInt <| List.length <| filteredConstituencies
+
+            NotDeclaredView ->
+                let
+                    filteredConstituencies =
+                        Constituency.getNotDeclared model.constituencies
+                in
+                if String.length model.searchWord > 0 then
+                    renderHeader <| String.fromInt <| List.length <| Constituency.filter model.searchWord filteredConstituencies
+
+                else
+                    renderHeader <| String.fromInt <| List.length <| filteredConstituencies
         , case model.filter of
             AllView ->
                 div [ class "row" ]
@@ -327,12 +355,14 @@ getAutoComputeList =
     [ { id = "0", name = "Select" }, { id = "N", name = "No" }, { id = "Y", name = "Yes" } ]
 
 
-renderHeader : Html.Html Msg
-renderHeader =
+renderHeader : String -> Html.Html Msg
+renderHeader result =
     div [ class "row spacing" ]
-        [ div [ class "col-md-9" ]
+        [ div [ class "col-md-7" ]
             [ input [ class "search-input", placeholder "Type to search", onInput SearchList ] []
             ]
+        , div [ class "col-md-2 result" ]
+            [ Html.text result ]
         , div [ class "col-md-3" ]
             [ button [ class "btn btn-primary new-button", onClick AddConstituency ] [ Html.text "New" ]
             ]

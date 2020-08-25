@@ -75,7 +75,11 @@ view : Model -> Html.Html Msg
 view model =
     div
         []
-        [ renderHeader
+        [ if String.length model.searchWord > 0 then
+            renderHeader <| String.fromInt <| List.length <| Seat.filter model.searchWord model.seats
+
+          else
+            renderHeader <| String.fromInt <| List.length <| model.seats
         , div [ class "row" ]
             [ div [ class "col-md-8" ]
                 [ if String.length model.searchWord > 0 then
@@ -99,12 +103,16 @@ view model =
         ]
 
 
-renderHeader : Html.Html Msg
-renderHeader =
+renderHeader : String -> Html.Html Msg
+renderHeader result =
     div [ class "row spacing" ]
-        [ div [ class "col-md-9" ]
+        [ div [ class "col-md-7" ]
             [ input [ class "search-input", placeholder "Type to search", onInput SearchList ] []
             ]
+        , div [ class "col-md-2 result" ]
+            [ Html.text result ]
+        , div [ class "col-md-3" ]
+            []
         ]
 
 
