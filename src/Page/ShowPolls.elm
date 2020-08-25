@@ -64,7 +64,7 @@ initShowCandidateModel =
 update : Model -> Msg -> ( Model, Cmd Msg )
 update model msg =
     case msg of
-        FetchPolls pollId ->
+        FetchPolls _ ->
             ( model, Cmd.none )
 
         AddPoll ->

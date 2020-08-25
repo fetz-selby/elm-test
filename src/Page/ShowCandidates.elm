@@ -71,7 +71,7 @@ initShowCandidateModel =
 update : Model -> Msg -> ( Model, Cmd Msg )
 update model msg =
     case msg of
-        FetchCandidates constituencyId ->
+        FetchCandidates _ ->
             ( model, Cmd.none )
 
         AddCandidate ->

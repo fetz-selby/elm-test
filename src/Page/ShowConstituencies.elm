@@ -77,7 +77,7 @@ type alias Model =
 update : Model -> Msg -> ( Model, Cmd Msg )
 update model msg =
     case msg of
-        FetchConstituencies constituencyId ->
+        FetchConstituencies _ ->
             ( model, Cmd.none )
 
         AddConstituency ->
@@ -133,13 +133,13 @@ update model msg =
                 AutoCompute autoCompute ->
                     ( { model | selectedConstituency = Constituency.setAutoCompute autoCompute model.selectedConstituency }, Cmd.none )
 
-                AllSelected isAllSelected ->
+                AllSelected _ ->
                     ( { model | filter = AllView }, Cmd.none )
 
-                IsDeclaredSelected isDeclaredSelected ->
+                IsDeclaredSelected _ ->
                     ( { model | filter = DeclaredView }, Cmd.none )
 
-                IsNotDeclaredSelected isNotDeclaredSelected ->
+                IsNotDeclaredSelected _ ->
                     ( { model | filter = NotDeclaredView }, Cmd.none )
 
         Save ->

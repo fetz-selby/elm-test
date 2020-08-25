@@ -37,8 +37,7 @@ type ShowDetailMode
 
 
 type alias PartyData =
-    { parties : List Party.Model
-    }
+    { parties : List Party.Model }
 
 
 type alias Model =
@@ -86,7 +85,7 @@ view model =
 update : Model -> Msg -> ( Model, Cmd Msg )
 update model msg =
     case msg of
-        FetchParties year ->
+        FetchParties _ ->
             ( model, Cmd.none )
 
         AddParty ->

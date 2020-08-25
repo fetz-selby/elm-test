@@ -67,7 +67,7 @@ initShowCandidateModel =
 update : Model -> Msg -> ( Model, Cmd Msg )
 update model msg =
     case msg of
-        FetchAgents agentId ->
+        FetchAgents _ ->
             ( model, Cmd.none )
 
         AddAgent ->

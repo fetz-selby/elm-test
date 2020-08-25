@@ -92,7 +92,7 @@ view model =
 update : Model -> Msg -> ( Model, Cmd Msg )
 update model msg =
     case msg of
-        FetchNationalAnalysis year ->
+        FetchNationalAnalysis _ ->
             ( model, Cmd.none )
 
         AddNationalAnalysis ->

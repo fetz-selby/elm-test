@@ -66,7 +66,7 @@ initShowUserModel =
 update : Model -> Msg -> ( Model, Cmd Msg )
 update model msg =
     case msg of
-        FetchUsers userId ->
+        FetchUsers _ ->
             ( model, Cmd.none )
 
         AddUser ->

@@ -58,7 +58,7 @@ initShowParentConstituencyModel =
 update : Model -> Msg -> ( Model, Cmd Msg )
 update model msg =
     case msg of
-        FetchParentConstituencies parentConstituencyId ->
+        FetchParentConstituencies _ ->
             ( model, Cmd.none )
 
         AddParentConstituency ->

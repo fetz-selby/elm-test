@@ -97,7 +97,7 @@ view model =
 update : Model -> Msg -> ( Model, Cmd Msg )
 update model msg =
     case msg of
-        FetchRegionalAnalysis year ->
+        FetchRegionalAnalysis _ ->
             ( model, Cmd.none )
 
         AddRegionalAnalysis ->
@@ -187,23 +187,6 @@ renderHeader result =
             [ button [ class "btn btn-primary new-button", onClick AddRegionalAnalysis ] [ Html.text "New" ]
             ]
         ]
-
-
-renderRegions : String -> (String -> Field) -> List Region.Model -> Html.Html Msg
-renderRegions fieldLabel field regionList =
-    div [ class "form-group" ]
-        [ label [] [ Html.text fieldLabel ]
-        , select
-            [ class "form-control"
-            , onChange (Form << field)
-            ]
-            (List.map regionItem regionList)
-        ]
-
-
-regionItem : Region.Model -> Html.Html msg
-regionItem item =
-    option [ value item.id ] [ Html.text item.name ]
 
 
 renderParties : String -> (String -> Field) -> List Party.Model -> Html.Html Msg

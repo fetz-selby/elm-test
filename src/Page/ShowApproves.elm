@@ -101,7 +101,7 @@ update model msg =
         AddOne approve ->
             ( { model | approves = addToApproves approve model.approves }, Cmd.none )
 
-        Form field ->
+        Form _ ->
             ( model, Cmd.none )
 
         Reject ->
