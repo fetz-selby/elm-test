@@ -201,7 +201,7 @@ encode : Model -> Encode.Value
 encode poll =
     Encode.object
         [ ( "id", Encode.string poll.id )
-        , ( "external_id", Encode.string poll.externalId )
+        , ( "external_id", Encode.string <| String.trim poll.externalId )
         , ( "name", Encode.string poll.name )
         , ( "cons_id", Encode.string poll.constituency.id )
         , ( "rejected_votes", Encode.string poll.rejectedVotes )

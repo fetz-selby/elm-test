@@ -11,6 +11,7 @@ type alias Model =
     , msisdn : String
     , region : String
     , level : String
+    , isExternal : Bool
     , year : String
     }
 
@@ -32,6 +33,7 @@ default =
     , msisdn = "004917635710000"
     , region = "Deutschland"
     , level = "U"
+    , isExternal = False
     , year = "0000"
     }
 
@@ -45,6 +47,7 @@ decodeModel =
         |> JDP.required "msisdn" Decode.string
         |> JDP.required "region" Decode.string
         |> JDP.required "level" Decode.string
+        |> JDP.required "is_external_user" Decode.bool
         |> JDP.required "year" Decode.string
 
 

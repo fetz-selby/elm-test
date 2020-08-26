@@ -1,4 +1,4 @@
-module View.GeneralSidebar exposing (Model, Msg(..), default, setLevel, update, view)
+module View.GeneralSidebar exposing (Model, Msg(..), default, setIsExternal, setLevel, update, view)
 
 import Html exposing (div, text)
 import Html.Attributes exposing (class)
@@ -30,11 +30,12 @@ type alias Model =
     { current : Msg
     , title : String
     , level : String
+    , isExternal : Bool
     }
 
 
 view : Model -> Html.Html Msg
-view { level } =
+view { level, isExternal } =
     let
         userLevel =
             convertToLevel level
@@ -47,7 +48,11 @@ view { level } =
         , menu userLevel User "Constituency" Constituencies
         , menu userLevel User "Candidates" Candidates
         , menu userLevel Admin "Parties" Parties
-        , menu userLevel User "Polls" Polls
+        , if isExternal then
+            menu userLevel User "Polls" Polls
+
+          else
+            Html.text ""
         , menu userLevel SuperAdmin "Parent Constituency" ParentConstituencies
         , menu userLevel User "Approve" Approve
         , menu userLevel User "Seats" Seats
@@ -151,9 +156,14 @@ convertToLevel level =
 
 default : Model
 default =
-    { current = Regions, title = "", level = "U" }
+    { current = Regions, title = "", level = "U", isExternal = False }
 
 
 setLevel : String -> Model -> Model
 setLevel level model =
     { model | level = level }
+
+
+setIsExternal : Bool -> Model -> Model
+setIsExternal isExternal model =
+    { model | isExternal = isExternal }

@@ -82,6 +82,7 @@ sidebarView mainModel =
     case mainModel.sidebar of
         GeneralSidebar model ->
             View.GeneralSidebar.setLevel mainModel.user.level model
+                |> View.GeneralSidebar.setIsExternal mainModel.user.isExternal
                 |> View.GeneralSidebar.view
                 |> Html.map Msg.ShowSidebar
 
