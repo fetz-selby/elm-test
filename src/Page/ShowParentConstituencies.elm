@@ -26,6 +26,7 @@ type Msg
 
 type Field
     = Name String
+    | Id String
     | Region String
 
 
@@ -90,6 +91,9 @@ update model msg =
 
                 Region regionId ->
                     ( { model | selectedParentConstituency = ParentConstituency.setRegionId regionId model.selectedParentConstituency }, Cmd.none )
+
+                Id _ ->
+                    ( model, Cmd.none )
 
         Save ->
             ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveParentConstituency model.selectedParentConstituency) ] )
@@ -234,7 +238,8 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "text" "name" model.name "eg. Bantama" False Name
+            [ renderField "text" "id" model.id "eg. 123" False Id
+            , renderField "text" "name" model.name "eg. Bantama" False Name
             , renderField "text" "region" model.region.name "e.g Ashanti" False Region
             ]
         ]
@@ -243,7 +248,8 @@ renderDetails model =
 renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderField "text" "name" model.selectedParentConstituency.name "eg. Bantama" True Name
+        [ renderField "text" "id" model.selectedParentConstituency.id "eg. 123" False Id
+        , renderField "text" "name" model.selectedParentConstituency.name "eg. Bantama" True Name
         , renderField "text" "region" model.selectedParentConstituency.region.name "e.g Ashanti" False Region
         , renderSubmitBtn model.isLoading (ParentConstituency.isValid model.selectedParentConstituency) "Update" "btn btn-danger" True
         ]

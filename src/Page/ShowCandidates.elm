@@ -28,6 +28,7 @@ type Msg
 
 type Field
     = Name String
+    | Id String
     | Constituency String
     | Party String
     | CandidateType String
@@ -126,6 +127,9 @@ update model msg =
 
                 Constituency constituencyId ->
                     ( { model | selectedCandidate = Candidate.setConstituency constituencyId model.selectedCandidate }, Cmd.none )
+
+                Id _ ->
+                    ( model, Cmd.none )
 
         Save ->
             ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveCandidate model.selectedCandidate) ] )
@@ -330,7 +334,8 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "text" "name" model.name "eg. Smith" False Name
+            [ renderField "text" "id" model.id "eg. 123" False Id
+            , renderField "text" "name" model.name "eg. Smith" False Name
             , renderField "text" "constituency" model.constituency.name "e.g Bantama" False Constituency
             , renderField "text" "type" model.candidateType "e.g M/P" False CandidateType
             , renderField "number" "votes" model.votes "e.g 1002" False Votes
@@ -346,7 +351,8 @@ renderDetails model =
 renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderField "text" "name" model.selectedCandidate.name "eg. Smith" True Name
+        [ renderField "text" "id" model.selectedCandidate.id "eg. 123" False Id
+        , renderField "text" "name" model.selectedCandidate.name "eg. Smith" True Name
         , renderConstituencies "constituency" Constituency (Constituency.addIfNotExist Constituency.getFirstSelect model.constituencies)
         , renderParties "party" Party (Party.addIfNotExist Party.getFirstSelect model.parties)
         , renderGenericList "type" CandidateType getTypeList

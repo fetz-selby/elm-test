@@ -28,6 +28,7 @@ type Msg
 
 type Field
     = Constituency String
+    | Id String
     | CastedVotes String
     | IsDeclared String
     | ParentId String
@@ -141,6 +142,9 @@ update model msg =
 
                 IsNotDeclaredSelected _ ->
                     ( { model | filter = NotDeclaredView }, Cmd.none )
+
+                Id _ ->
+                    ( model, Cmd.none )
 
         Save ->
             ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveConstituency model.selectedConstituency) ] )
@@ -443,7 +447,8 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "text" "constituency" model.name "eg.Bekwai" False Constituency
+            [ renderField "text" "id" model.id "eg. 123" False Id
+            , renderField "text" "constituency" model.name "eg.Bekwai" False Constituency
             , renderField "text" "seat won by" model.seatWonId.name "eg.XXX" False SeatWonId
             , renderField "number" "casted votes" model.castedVotes "e.g 3423" False CastedVotes
             , renderField "number" "reg votes" model.regVotes "e.g 432" False RegVotes
@@ -478,7 +483,8 @@ renderDetails model =
 renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderField "text" "constituency" model.selectedConstituency.name "eg.Bekwai" True Constituency
+        [ renderField "text" "id" model.selectedConstituency.id "eg. 123" False Id
+        , renderField "text" "constituency" model.selectedConstituency.name "eg.Bekwai" True Constituency
         , renderParties "seat won by" SeatWonId (Party.addIfNotExist Party.getFirstSelect model.parties)
         , renderField "number" "casted votes" model.selectedConstituency.castedVotes "e.g 2342" True CastedVotes
         , renderField "number" "reg votes" model.selectedConstituency.regVotes "e.g 432" True RegVotes

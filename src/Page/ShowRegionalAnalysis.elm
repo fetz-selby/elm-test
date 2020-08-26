@@ -28,6 +28,7 @@ type Msg
 
 type Field
     = Region String
+    | Id String
     | Votes String
     | CandidateType String
     | Percentage String
@@ -149,6 +150,9 @@ update model msg =
 
                 Status status ->
                     ( { model | selectedRegionalAnalysis = RegionalAnalysis.setStatus status model.selectedRegionalAnalysis }, Cmd.none )
+
+                Id _ ->
+                    ( model, Cmd.none )
 
         Save ->
             ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveRegionSummary model.selectedRegionalAnalysis) ] )
@@ -301,7 +305,8 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "text" "region" model.region.name "eg.Ashanti" False Region
+            [ renderField "text" "id" model.id "eg. 123" False Id
+            , renderField "text" "region" model.region.name "eg.Ashanti" False Region
             , renderField "text" "type" model.candidateType "e.g M/P" False CandidateType
             , renderField "number" "votes" model.votes "e.g 1002" False Votes
             , renderField "text" "party" model.party.name "e.g XXX" False Party
@@ -316,7 +321,8 @@ renderDetails model =
 renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderParties "party" Party (Party.addIfNotExist Party.getFirstSelect model.parties)
+        [ renderField "text" "id" model.selectedRegionalAnalysis.id "eg. 123" False Id
+        , renderParties "party" Party (Party.addIfNotExist Party.getFirstSelect model.parties)
         , renderGenericList "type" CandidateType getTypeList
         , renderField "text" "votes" model.selectedRegionalAnalysis.votes "e.g 1002" True Votes
         , renderField "text" "percentage" model.selectedRegionalAnalysis.percentage "e.g 45.4" True Percentage

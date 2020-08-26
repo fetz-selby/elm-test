@@ -27,6 +27,7 @@ type Msg
 
 type Field
     = Party String
+    | Id String
     | Votes String
     | CandidateType String
     | Percentage String
@@ -137,6 +138,9 @@ update model msg =
 
                 Bar bar ->
                     ( { model | selectedNationalAnalysis = NationalAnalysis.setBar bar model.selectedNationalAnalysis }, Cmd.none )
+
+                Id _ ->
+                    ( model, Cmd.none )
 
         Save ->
             ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveNationalSummary model.selectedNationalAnalysis) ] )
@@ -290,7 +294,8 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "text" "party" model.party.name "eg.XXX" False Party
+            [ renderField "text" "id" model.id "eg. 123" False Id
+            , renderField "text" "party" model.party.name "eg.XXX" False Party
             , renderField "number" "votes" model.votes "e.g 23009" False Votes
             , renderField "text" "type" model.candidateType "e.g M/P" False CandidateType
             , renderField "number" "percentage" model.percentage "e.g 45.4" False Percentage
@@ -303,7 +308,8 @@ renderDetails model =
 renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderParties "party" Party (Party.addIfNotExist Party.getFirstSelect model.parties)
+        [ renderField "text" "id" model.selectedNationalAnalysis.id "eg. 123" False Id
+        , renderParties "party" Party (Party.addIfNotExist Party.getFirstSelect model.parties)
         , renderField "number" "votes" model.selectedNationalAnalysis.votes "e.g 23009" True Votes
         , renderGenericList "type" CandidateType getTypeList
         , renderField "number" "percentage" model.selectedNationalAnalysis.percentage "e.g 45.4" True Percentage

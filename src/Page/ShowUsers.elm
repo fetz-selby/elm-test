@@ -27,6 +27,7 @@ type Msg
 
 type Field
     = Name String
+    | Id String
     | Email String
     | Password String
     | Msisdn String
@@ -114,6 +115,9 @@ update model msg =
 
                 Region regionId ->
                     ( { model | selectedUser = User.setRegionId regionId model.selectedUser }, Cmd.none )
+
+                Id _ ->
+                    ( model, Cmd.none )
 
         Save ->
             ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveUser model.selectedUser) ] )
@@ -316,7 +320,8 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form []
-            [ renderField "text" "name" model.name "eg. Smith" False Name
+            [ renderField "text" "id" model.id "eg. 123" False Id
+            , renderField "text" "name" model.name "eg. Smith" False Name
             , renderField "email" "email" model.email "eg. election@code.arbeitet.com" False Email
             , renderField "number" "msisdn" model.msisdn "e.g +491763500232450" False Msisdn
             , renderField "text" "level" model.level "e.g 0000" False Level
@@ -329,7 +334,8 @@ renderDetails model =
 renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderField "text" "name" model.selectedUser.name "eg. Smith" True Name
+        [ renderField "text" "id" model.selectedUser.id "eg. 123" False Id
+        , renderField "text" "name" model.selectedUser.name "eg. Smith" True Name
         , renderField "email" "email" model.selectedUser.email "eg. election@code.arbeitet.com" True Email
         , renderPasswordField "password" model.selectedUser.password "eg. password" True Password
         , renderField "number" "msisdn" model.selectedUser.msisdn "e.g +491763500232450" True Msisdn

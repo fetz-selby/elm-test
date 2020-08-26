@@ -27,6 +27,7 @@ type Msg
 
 type Field
     = Name String
+    | Id String
     | Constituency String
     | TotalVoters String
     | RejectedVotes String
@@ -106,6 +107,9 @@ update model msg =
 
                 ValidVotes validVotes ->
                     ( { model | selectedPoll = Poll.setValidVotes validVotes model.selectedPoll }, Cmd.none )
+
+                Id _ ->
+                    ( model, Cmd.none )
 
         Save ->
             ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SavePoll model.selectedPoll) ] )
@@ -273,7 +277,8 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "text" "name" model.name "eg. XXX" False Name
+            [ renderField "text" "id" model.id "eg. 123" False Id
+            , renderField "text" "name" model.name "eg. XXX" False Name
             , renderField "text" "constituency" model.constituency.name "e.g Bantama" False Constituency
             , renderField "number" "rejected" model.rejectedVotes "e.g 12" False RejectedVotes
             , renderField "number" "valid" model.validVotes "e.g 1002" False ValidVotes
@@ -285,7 +290,8 @@ renderDetails model =
 renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderField "text" "name" model.selectedPoll.name "eg. XXX" True Name
+        [ renderField "text" "id" model.selectedPoll.id "eg. 123" False Id
+        , renderField "text" "name" model.selectedPoll.name "eg. XXX" True Name
         , renderConstituencies "constituency" Constituency (Constituency.addIfNotExist Constituency.getFirstSelect model.constituencies)
         , renderField "number" "rejected" model.selectedPoll.rejectedVotes "e.g 12" True RejectedVotes
         , renderField "number" "valid" model.selectedPoll.validVotes "e.g 1002" True ValidVotes

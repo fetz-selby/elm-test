@@ -68,6 +68,8 @@ renderWhenLoaded data =
         , div [ class "col-md-12" ]
             [ renderView data
             ]
+        , div [ class "col-md-12" ]
+            [ copyrightView ]
         ]
 
 
@@ -99,10 +101,17 @@ brandView =
         ]
 
 
-renderHeader : Html.Html Msg
-renderHeader =
-    div [ class "row spacing" ]
-        []
+copyrightView : Html.Html msg
+copyrightView =
+    div [ class "row" ]
+        [ div [ class "col-md-4" ] []
+        , div [ class "col-md-4" ]
+            [ div [ class "copyright" ]
+                [ Html.text "© 2020 Apollo. All Rights Reserved, Code Arbeitet"
+                ]
+            ]
+        , div [ class "col-md-4" ] []
+        ]
 
 
 renderField : String -> String -> String -> String -> Bool -> (String -> Field) -> Html.Html Msg

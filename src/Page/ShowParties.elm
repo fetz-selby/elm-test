@@ -25,6 +25,7 @@ type Msg
 
 type Field
     = Party String
+    | Id String
     | Color String
     | LogoPath String
     | OrderQueue String
@@ -119,6 +120,9 @@ update model msg =
 
                 OrderQueue orderQueue ->
                     ( { model | selectedParty = Party.setOrderQueue orderQueue model.selectedParty }, Cmd.none )
+
+                Id _ ->
+                    ( model, Cmd.none )
 
         Save ->
             ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveParty model.selectedParty) ] )
@@ -234,7 +238,8 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "text" "party" model.name "eg.XXX" False Party
+            [ renderField "text" "id" model.id "eg. 123" False Id
+            , renderField "text" "party" model.name "eg.XXX" False Party
             , renderField "text" "color" model.color "e.g #fefefe" False Color
             , renderField "text" "logo path" model.logoPath "e.g /path/to/avatar.jpg" False LogoPath
             , renderField "number" "order queue" model.orderQueue "e.g 12" False OrderQueue
@@ -245,7 +250,8 @@ renderDetails model =
 renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderField "text" "party" model.selectedParty.name "eg.XXX" True Party
+        [ renderField "text" "id" model.selectedParty.id "eg. 123" False Id
+        , renderField "text" "party" model.selectedParty.name "eg.XXX" True Party
         , renderField "text" "color" model.selectedParty.color "e.g #fefefe" True Color
         , renderField "text" "logo path" model.selectedParty.logoPath "e.g /path/to/avatar.jpg" True LogoPath
         , renderField "number" "order queue" model.selectedParty.orderQueue "e.g 12" True OrderQueue

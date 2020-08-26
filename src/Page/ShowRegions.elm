@@ -27,6 +27,7 @@ type Msg
 
 type Field
     = Name String
+    | Id String
     | Seats String
 
 
@@ -113,6 +114,9 @@ update model msg =
 
                 Seats seat ->
                     ( { model | selectedRegion = Region.modifySeat seat model.selectedRegion }, Cmd.none )
+
+                Id _ ->
+                    ( model, Cmd.none )
 
         Save ->
             ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveRegion model.selectedRegion) ] )
@@ -233,7 +237,8 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form []
-            [ renderField "text" "region" model.name "eg.Ashanti" False Name
+            [ renderField "text" "id" model.id "eg. 123" False Id
+            , renderField "text" "region" model.name "eg.Ashanti" False Name
             , renderField "number" "seat" model.seats "e.g 30" False Seats
             ]
         ]
@@ -242,7 +247,8 @@ renderDetails model =
 renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderField "text" "region" model.selectedRegion.name "eg.Ashanti" True Name
+        [ renderField "text" "id" model.selectedRegion.id "eg. 123" False Id
+        , renderField "text" "region" model.selectedRegion.name "eg.Ashanti" True Name
         , renderField "number" "seat" model.selectedRegion.seats "e.g 30" True Seats
         , renderSubmitBtn model.isLoading (Region.isValid model.selectedRegion) "Update" "btn btn-danger" True
         ]

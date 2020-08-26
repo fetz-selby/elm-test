@@ -28,6 +28,7 @@ type Msg
 
 type Field
     = Name String
+    | Id String
     | Constituency String
     | Poll String
     | Msisdn String
@@ -110,6 +111,9 @@ update model msg =
 
                 Pin pin ->
                     ( { model | selectedAgent = Agent.setPin pin model.selectedAgent }, Cmd.none )
+
+                Id _ ->
+                    ( model, Cmd.none )
 
         Save ->
             ( { model | isLoading = True }, Cmd.batch [ Ports.sendToJs (Ports.SaveAgent model.selectedAgent) ] )
@@ -292,7 +296,8 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Save ]
-            [ renderField "text" "name" model.name "eg. Smith" False Name
+            [ renderField "text" "id" model.id "eg. 123" False Id
+            , renderField "text" "name" model.name "eg. Smith" False Name
             , renderField "number" "msisdn" model.msisdn "e.g +491763500232450" False Msisdn
             , renderField "number" "pin" model.pin "e.g 0000" False Pin
             , renderField "text" "constituency" model.constituency.name "e.g P" False Constituency
@@ -304,7 +309,8 @@ renderDetails model =
 renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderField "text" "name" model.selectedAgent.name "eg. Smith" True Name
+        [ renderField "text" "id" model.selectedAgent.id "eg. 123" False Id
+        , renderField "text" "name" model.selectedAgent.name "eg. Smith" True Name
         , renderField "text" "msisdn" model.selectedAgent.msisdn "e.g +491763500232450" True Msisdn
         , renderField "number" "pin" model.selectedAgent.pin "e.g 0000" True Pin
         , renderConstituencies "constituency" Constituency (Constituency.addIfNotExist Constituency.getFirstSelect model.constituencies)

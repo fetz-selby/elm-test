@@ -24,6 +24,7 @@ type Msg
 
 type Field
     = Message String
+    | Id String
     | Constituency String
     | Poll String
     | Agent String
@@ -214,7 +215,8 @@ renderDetails model =
             [ div [ class "pull-right edit-style", onClick OnEdit ] [ Html.text "edit" ]
             ]
         , form [ onSubmit Reject ]
-            [ renderField "message" model.selectedApprove.message "eg.XXXX" False Message
+            [ renderField "id" model.selectedApprove.id "eg. 123" False Id
+            , renderField "message" model.selectedApprove.message "eg.XXXX" False Message
             , renderField "agent" model.selectedApprove.agent.name "eg.Smith" False Agent
             , renderField "constituency" model.selectedApprove.constituency.name "e.g Bekwai" False Constituency
             , renderField "poll station" model.selectedApprove.poll.name "e.g XXX" False Poll
@@ -229,7 +231,8 @@ renderDetails model =
 renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
-        [ renderField "message" model.selectedApprove.message "eg.XXXX" False Message
+        [ renderField "id" model.selectedApprove.id "eg. 123" False Id
+        , renderField "message" model.selectedApprove.message "eg.XXXX" False Message
         , renderField "agent" model.selectedApprove.agent.name "eg.Smith" False Agent
         , renderField "constituency" model.selectedApprove.constituency.name "e.g Bekwai" False Constituency
         , renderField "poll station" model.selectedApprove.poll.name "e.g XXX" False Poll

@@ -17,6 +17,7 @@ type Msg
 
 type Field
     = Name String
+    | Id String
     | Constituency String
     | Party String
     | Votes String
@@ -160,7 +161,8 @@ renderField inputType fieldLabel fieldValue fieldPlaceholder isEditable field =
 renderDetails : Seat.Model -> Html.Html Msg
 renderDetails model =
     form []
-        [ renderField "text" "name" model.candidate.name "Smith" False Name
+        [ renderField "text" "id" model.id "eg. 123" False Id
+        , renderField "text" "name" model.candidate.name "Smith" False Name
         , renderField "text" "constituency" model.constituency.name "e.g Bantama" False Constituency
         , renderField "text" "party" model.party.name "XXX" False Party
         , renderField "text" "votes" model.votes "e.g 1002" False Votes
