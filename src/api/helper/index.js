@@ -275,6 +275,10 @@ export const normalizeLoginUser = (loginUser) => ({
     loginUser && loginUser.msisdn
       ? loginUser.msisdn.toString()
       : "4917635710000",
+  is_external_user:
+    loginUser && loginUser.is_external_user
+      ? loginUser.is_external_user.toString().toUpperCase() === "Y"
+      : false,
 });
 
 export const normalizeSeat = (seats) => ({
