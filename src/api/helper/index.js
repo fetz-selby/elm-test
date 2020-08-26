@@ -34,6 +34,7 @@ export const normalizePoll = (poll) => ({
     poll && poll.constituency
       ? normalizeConstituency(poll.constituency)
       : normalizeConstituency({}),
+  external_id: poll && poll.external_id ? poll.external_id.toString() : "0",
 });
 
 export const normalizeRegion = (region) => ({
