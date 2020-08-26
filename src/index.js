@@ -68,9 +68,6 @@ import feathers from "@feathersjs/client";
 
 // init the elm app
 async function create() {
-  /* eslint-disable */
-  console.log("Loaded!");
-
   // init and show the app
   // let [regions, parentConstituencies] = [[], []];
   let setup = {
@@ -91,16 +88,13 @@ async function create() {
 
     service.configure(feathers.socketio(socket));
     service.configure(feathers.authentication());
-    console.log("action, ", action);
 
     switch (action) {
       case "FetchUser": {
-        console.log("credentials, ", payload);
         const { email, password } = payload;
         try {
           const user = await getLogin({ service, email, password });
           if (user.error) {
-            console.log("Error occurred");
             app.ports.msgForElm.send({
               type: "LoginError",
               payload: {},
@@ -112,7 +106,6 @@ async function create() {
               regionId: region_id,
               level,
             };
-            console.log("Login success");
             app.ports.msgForElm.send({
               type: "LoginLoaded",
               payload: { loginUser: normalizeLoginUser(user) },
@@ -346,45 +339,38 @@ async function create() {
 
       case "SaveUser": {
         const user = payload;
-        const addUserResp = await addUser({ service, user });
-        console.log("[AddUser], ", addUserResp);
+        await addUser({ service, user });
 
         break;
       }
 
       case "SaveAgent": {
         const agent = { ...payload, year, regionId };
-        const addAgentResp = await addAgent({ service, agent });
-        console.log("[AddAgent], ", addAgentResp);
+        await addAgent({ service, agent });
 
         break;
       }
 
       case "SaveCandidate": {
         const candidate = { ...payload, year, regionId };
-        const addCandidateResp = await addCandidate({ service, candidate });
-        // const addCandidateResp = await addCandidate({ service, candidate });
-        // console.log("[AddAgent], ", addAgentResp);
+        await addCandidate({ service, candidate });
 
         break;
       }
 
       case "SaveConstituency": {
         const constituency = { ...payload, year, regionId };
-        const addConstituencyResp = await addConstituency({
+        await addConstituency({
           service,
           constituency,
         });
-        // const addCandidateResp = await addCandidate({ service, candidate });
-        // console.log("[AddAgent], ", addAgentResp);
 
         break;
       }
 
       case "SaveNationalSummary": {
         const nationalAnalysis = { ...payload, year };
-        console.log("NationalAnalysis,", nationalAnalysis);
-        const addNationalAnalysisResp = await addNationalAnalysis({
+        await addNationalAnalysis({
           service,
           nationalAnalysis,
         });
@@ -394,54 +380,48 @@ async function create() {
 
       case "SaveRegionalSummary": {
         const regionalAnalysis = { ...payload, region_id: regionId, year };
-        console.log("RegionalAnalysis,", regionalAnalysis);
-        const addRegionalAnalysisResp = await addRegionalAnalysis({
+        await addRegionalAnalysis({
           service,
           regionalAnalysis,
         });
-        // console.log("[AddAgent], ", addAgentResp);
 
         break;
       }
 
       case "SaveParty": {
         const party = { ...payload };
-        const addPartyResp = await addParty({ service, party });
-        // const addCandidateResp = await addCandidate({ service, candidate });
-        // console.log("[AddAgent], ", addAgentResp);
+        await addParty({ service, party });
 
         break;
       }
 
       case "SaveRegion": {
         const region = { ...payload };
-        const addRegionResp = await addRegion({ service, region });
-        // const addCandidateResp = await addCandidate({ service, candidate });
-        // console.log("[AddAgent], ", addAgentResp);
+        await addRegion({ service, region });
 
         break;
       }
 
       case "SavePoll": {
         const poll = { ...payload, year, regionId };
-        const addPollResp = await addPoll({ service, poll });
+        await addPoll({ service, poll });
 
         break;
       }
 
       case "SaveParentConstituency": {
         const parentConstituency = { ...payload, region_id: regionId };
-
-        const addParentConstituencyResp = await addParentConstituency({
+        await addParentConstituency({
           service,
           parentConstituency,
         });
+
         break;
       }
 
       case "UpdateRegion": {
         const region = { ...payload };
-        const updateRegionResp = await updateRegion({ service, region });
+        await updateRegion({ service, region });
         break;
       }
 
@@ -452,112 +432,99 @@ async function create() {
           delete user.password;
         }
 
-        const updateUserResp = await updateUser({ service, user });
-        console.log("user, ", user);
+        await updateUser({ service, user });
         break;
       }
 
       case "UpdateAgent": {
         const agent = { ...payload, year, regionId };
-        const updateAgentResp = await updateAgent({ service, agent });
-        console.log("agent, ", agent);
+        await updateAgent({ service, agent });
 
         break;
       }
 
       case "UpdateConstituency": {
         const constituency = { ...payload, year, regionId };
-        const updateConstituencyResp = await updateConstituency({
+        await updateConstituency({
           service,
           constituency,
         });
-        console.log("constituency, ", constituency);
 
         break;
       }
 
       case "UpdateCandidate": {
         const candidate = { ...payload, year, regionId };
-        const updateCandidateResp = await updateCandidate({
+        await updateCandidate({
           service,
           candidate,
         });
-        console.log("candidate, ", candidate);
 
         break;
       }
 
       case "UpdateParty": {
         const party = { ...payload };
-        const updatePartyResp = await updateParty({ service, party });
-        console.log("party, ", party);
+        await updateParty({ service, party });
 
         break;
       }
 
       case "UpdatePoll": {
         const poll = { ...payload, year, regionId };
-        const updatePollResp = await updatePoll({ service, poll });
-        console.log("poll, ", poll);
+        await updatePoll({ service, poll });
 
         break;
       }
 
       case "UpdateParentConstituency": {
         const parentConstituency = { ...payload, region_id: regionId };
-        const updateParentConstituencyResp = await updateParentConstituency({
+        await updateParentConstituency({
           service,
           parentConstituency,
         });
-        console.log("parentConstituency, ", parentConstituency);
 
         break;
       }
 
       case "UpdateRegionalSummary": {
         const regionalAnalysis = { ...payload, region_id: regionId, year };
-        const updateRegionalAnalysisResp = await updateRegionalAnalysis({
+        await updateRegionalAnalysis({
           service,
           regionalAnalysis,
         });
-        console.log("regional, ", regionalAnalysis);
 
         break;
       }
 
       case "UpdateNationalSummary": {
         const nationalAnalysis = { ...payload, year };
-        const updateNationalAnalysisResp = await updateNationalAnalysis({
+        await updateNationalAnalysis({
           service,
           nationalAnalysis,
         });
-        console.log("national, ", nationalAnalysis);
 
         break;
       }
 
       case "UpdateApprove": {
         const approve = { ...payload, year, regionId };
-        const updateApproveResp = await updateApprove({
+        await updateApprove({
           service,
           approve,
         });
-        console.log("approve, ", approve);
 
         break;
       }
 
       case "DeleteRegion": {
-        console.log("Delete ID, ", payload);
-        const deleteResp = await deleteRegion({ service, id: payload });
-        console.log("resp, ", deleteResp);
+        await deleteRegion({ service, id: payload });
 
         break;
       }
 
       case "DeleteApprove": {
-        console.log("[Delete Id], ", payload);
-        const approveId = await removeApprove({ service, id: payload });
+        await removeApprove({ service, id: payload });
 
         break;
       }
@@ -567,17 +534,12 @@ async function create() {
     }
 
     // When a model is removed
-    service.service("agents").on("removed", (d, c) => {
-      console.log("agent removed");
-    });
-    service.service("regions").on("removed", (d, c) => {
-      console.log("region removed");
-    });
+    service.service("agents").on("removed", (d, c) => {});
+    service.service("regions").on("removed", (d, c) => {});
 
     service.service("constituencies").on("removed", (d, c) => {});
 
     service.service("approve_list").on("removed", (approve, c) => {
-      console.log("[in remove], ", approve);
       app.ports.msgForElm.send({
         type: "OneApproveUpdated",
         payload: normalizeApprove(approve),
