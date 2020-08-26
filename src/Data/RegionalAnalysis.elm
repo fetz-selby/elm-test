@@ -73,6 +73,7 @@ filter search list =
 isFound : String -> Model -> Bool
 isFound search model =
     String.contains search model.party.name
+        || String.contains search model.id
         || String.contains search model.region.name
         || String.contains search model.candidateType
         || String.contains search model.votes

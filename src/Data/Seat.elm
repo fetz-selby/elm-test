@@ -44,6 +44,7 @@ filter search list =
 isFound : String -> Model -> Bool
 isFound search model =
     String.contains search model.candidate.name
+        || String.contains search model.id
         || String.contains search model.votes
         || String.contains search model.constituency.name
         || String.contains search model.party.name

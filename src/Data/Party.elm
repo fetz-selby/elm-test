@@ -57,6 +57,7 @@ filter search list =
 isFound : String -> Model -> Bool
 isFound search model =
     String.contains search model.name
+        || String.contains search model.id
         || String.contains search model.color
         || String.contains search model.logoPath
         || String.contains search model.orderQueue

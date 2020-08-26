@@ -13,6 +13,7 @@ module Data.Poll exposing
     , isValid
     , replace
     , setConstituency
+    , setExternalId
     , setId
     , setName
     , setRejectedVotes
@@ -29,6 +30,7 @@ import Json.Encode as Encode
 
 type alias Model =
     { id : String
+    , externalId : String
     , name : String
     , year : String
     , rejectedVotes : String
@@ -41,6 +43,7 @@ type alias Model =
 initPoll : Model
 initPoll =
     { id = "0"
+    , externalId = "0"
     , name = ""
     , year = ""
     , rejectedVotes = ""
@@ -68,6 +71,8 @@ filter search list =
 isFound : String -> Model -> Bool
 isFound search model =
     String.contains search model.name
+        || String.contains search model.id
+        || String.contains search model.externalId
         || String.contains search model.totalVoters
         || String.contains search model.rejectedVotes
         || String.contains search model.validVotes
@@ -78,6 +83,7 @@ convertModelToLower : Model -> Model
 convertModelToLower model =
     { model
         | name = String.toLower model.name
+        , externalId = String.toLower model.externalId
         , constituency = Constituency.convertModelToLower model.constituency
     }
 
@@ -105,6 +111,11 @@ setValidVotes validVotes model =
 setTotalVotes : String -> Model -> Model
 setTotalVotes totalVoters model =
     { model | totalVoters = totalVoters }
+
+
+setExternalId : String -> Model -> Model
+setExternalId externalId model =
+    { model | externalId = externalId }
 
 
 setConstituency : String -> Model -> Model
@@ -167,6 +178,7 @@ switch replacer variable =
 getFirstSelect : Model
 getFirstSelect =
     { id = "0"
+    , externalId = "0"
     , name = "Select Poll"
     , year = ""
     , rejectedVotes = ""
@@ -189,6 +201,7 @@ encode : Model -> Encode.Value
 encode poll =
     Encode.object
         [ ( "id", Encode.string poll.id )
+        , ( "external_id", Encode.string poll.externalId )
         , ( "name", Encode.string poll.name )
         , ( "cons_id", Encode.string poll.constituency.id )
         , ( "rejected_votes", Encode.string poll.rejectedVotes )
@@ -201,6 +214,7 @@ decode : Decode.Decoder Model
 decode =
     Decode.succeed Model
         |> JDP.required "id" Decode.string
+        |> JDP.required "external_id" Decode.string
         |> JDP.required "name" Decode.string
         |> JDP.required "year" Decode.string
         |> JDP.required "rejected_votes" Decode.string

@@ -54,6 +54,7 @@ filter search list =
 isFound : String -> Model -> Bool
 isFound search model =
     String.contains search model.name
+        || String.contains search model.id
 
 
 convertModelToLower : Model -> Model

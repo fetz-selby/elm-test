@@ -28,6 +28,7 @@ type Msg
 type Field
     = Name String
     | Id String
+    | ExternalId String
     | Constituency String
     | TotalVoters String
     | RejectedVotes String
@@ -107,6 +108,9 @@ update model msg =
 
                 ValidVotes validVotes ->
                     ( { model | selectedPoll = Poll.setValidVotes validVotes model.selectedPoll }, Cmd.none )
+
+                ExternalId externalId ->
+                    ( { model | selectedPoll = Poll.setExternalId externalId model.selectedPoll }, Cmd.none )
 
                 Id _ ->
                     ( model, Cmd.none )
@@ -280,6 +284,7 @@ renderDetails model =
             ]
         , form [ onSubmit Save ]
             [ renderField "text" "id" model.id "eg. 123" False Id
+            , renderField "text" "external id" model.externalId "eg. 123" False ExternalId
             , renderField "text" "name" model.name "eg. XXX" False Name
             , renderField "text" "constituency" model.constituency.name "e.g Bantama" False Constituency
             , renderField "number" "rejected" model.rejectedVotes "e.g 12" False RejectedVotes
@@ -293,6 +298,7 @@ renderEditableDetails : Model -> Html.Html Msg
 renderEditableDetails model =
     form [ onSubmit Update ]
         [ renderField "text" "id" model.selectedPoll.id "eg. 123" False Id
+        , renderField "text" "external id" model.selectedPoll.externalId "eg. 123" True ExternalId
         , renderField "text" "name" model.selectedPoll.name "eg. XXX" True Name
         , renderConstituencies "constituency" Constituency (Constituency.addIfNotExist Constituency.getFirstSelect model.constituencies)
         , renderField "number" "rejected" model.selectedPoll.rejectedVotes "e.g 12" True RejectedVotes
@@ -305,7 +311,8 @@ renderEditableDetails model =
 renderNewDetails : Model -> Html.Html Msg
 renderNewDetails model =
     form [ onSubmit Save ]
-        [ renderField "text" "name" model.selectedPoll.name "eg. XXX" True Name
+        [ renderField "text" "external id" model.selectedPoll.externalId "eg. 123" True ExternalId
+        , renderField "text" "name" model.selectedPoll.name "eg. XXX" True Name
         , renderConstituencies "constituency" Constituency (Constituency.addIfNotExist Constituency.getFirstSelect model.constituencies)
         , renderField "number" "rejected" model.selectedPoll.rejectedVotes "e.g 12" True RejectedVotes
         , renderField "number" "valid" model.selectedPoll.validVotes "e.g 1002" True ValidVotes

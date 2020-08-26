@@ -82,6 +82,7 @@ filter search list =
 isFound : String -> Model -> Bool
 isFound search model =
     String.contains search model.candidateType
+        || String.contains search model.id
         || String.contains search model.msisdn
         || String.contains search model.message
         || String.contains search model.agent.name
