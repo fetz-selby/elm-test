@@ -139,7 +139,7 @@ renderHeader result =
             ]
         , div [ class "col-md-2 result" ]
             [ div [ class "row" ] [ Html.text result ]
-            , div [ class "row label" ] [ Html.text "count" ]
+            , div [ class "row label" ] [ Html.text "counts" ]
             ]
         , div [ class "col-md-3" ]
             []
