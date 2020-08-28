@@ -74,6 +74,7 @@ async function create() {
     regionId: "1",
     year: "2016",
     level: "U",
+    isExternal: false,
   };
 
   const node = document.getElementById("app");
@@ -83,7 +84,7 @@ async function create() {
     const socket = io(URL.BASE_URL + URL.PORT);
     // @feathersjs/client is exposed as the `feathers` global.
     const service = feathers();
-    const { regionId, year, level } = setup;
+    const { regionId, year, level, isExternal } = setup;
     const { ADMIN, USER } = ROLE;
 
     service.configure(feathers.socketio(socket));
@@ -100,15 +101,17 @@ async function create() {
               payload: {},
             });
           } else {
+            const loginUser = normalizeLoginUser(user);
             const { year, region_id, level } = user;
             setup = {
               year,
               regionId: region_id,
               level,
+              isExternal: loginUser.is_external_user,
             };
             app.ports.msgForElm.send({
               type: "LoginLoaded",
-              payload: { loginUser: normalizeLoginUser(user) },
+              payload: { loginUser },
             });
           }
         } catch (err) {
@@ -508,7 +511,7 @@ async function create() {
       }
 
       case "UpdateApprove": {
-        const approve = { ...payload, year, regionId };
+        const approve = { ...payload, year, regionId, isExternal };
         await updateApprove({
           service,
           approve,
