@@ -34,7 +34,6 @@ import {
   addRegionalAnalysis,
   updateRegionalAnalysis,
 } from "./api/regionalAnalysis";
-import { ROLE, URL } from "./constants";
 import {
   flatenConstituenciesWithRegionIdIncluded,
   normalizeConstituencies,
@@ -80,12 +79,13 @@ async function create() {
   const node = document.getElementById("app");
   const app = Elm.Elm.Main.init({ node, flags: "" + Date.now() });
 
+  const host = `${process.env.SERVER_HOST}:${process.env.PORT}`;
+
   const handlePortMsg = async ({ action, payload }) => {
-    const socket = io(URL.BASE_URL + URL.PORT);
+    const socket = io(host);
     // @feathersjs/client is exposed as the `feathers` global.
     const service = feathers();
     const { regionId, year, level, isExternal } = setup;
-    const { ADMIN, USER } = ROLE;
 
     service.configure(feathers.socketio(socket));
     service.configure(feathers.authentication());
