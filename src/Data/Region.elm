@@ -14,8 +14,8 @@ module Data.Region exposing
     , modifyName
     , modifySeat
     , replace
+    , setGateway
     , setId
-    , setName
     , setSeats
     )
 
@@ -29,12 +29,13 @@ type alias Model =
     { id : String
     , name : String
     , seats : String
+    , gateway : String
     }
 
 
 initRegion : Model
 initRegion =
-    { id = "0", name = "", seats = "0" }
+    { id = "0", name = "", seats = "0", gateway = "000000000000" }
 
 
 isIdExist : Model -> List Model -> Bool
@@ -57,6 +58,7 @@ isFound search model =
     String.contains search model.name
         || String.contains search model.id
         || String.contains search model.seats
+        || String.contains search model.gateway
 
 
 convertModelToLower : Model -> Model
@@ -79,19 +81,21 @@ setId id model =
     { model | id = id }
 
 
-setName : String -> Model -> Model
-setName name model =
-    { model | name = name }
-
-
 setSeats : String -> Model -> Model
 setSeats seats model =
     { model | seats = seats }
 
 
+setGateway : String -> Model -> Model
+setGateway gateway model =
+    { model | gateway = gateway }
+
+
 isValid : Model -> Bool
 isValid model =
-    hasValidName model.name && hasValidSeats model.seats
+    hasValidName model.name
+        && hasValidSeats model.seats
+        && hasValidGateway model.gateway
 
 
 hasValidName : String -> Bool
@@ -107,6 +111,19 @@ hasValidSeats seats =
 
         Nothing ->
             False
+
+
+hasValidGateway : String -> Bool
+hasValidGateway msisdn =
+    (msisdn
+        |> String.length
+        |> (<) 9
+    )
+        && (msisdn
+                |> String.length
+                |> (>=) 15
+           )
+        && (msisdn |> String.all Char.isDigit)
 
 
 getId : Model -> Int
@@ -135,7 +152,7 @@ switch replacer variable =
 
 getFirstSelect : Model
 getFirstSelect =
-    { id = "0", name = "Select Region", seats = "0" }
+    { id = "0", name = "Select Region", seats = "0", gateway = "0000000000000" }
 
 
 addIfNotExist : Model -> List Model -> List Model
@@ -153,6 +170,7 @@ encode region =
         [ ( "id", Encode.string region.id )
         , ( "name", Encode.string region.name )
         , ( "seats", Encode.string region.seats )
+        , ( "gateway", Encode.string region.gateway )
         ]
 
 
@@ -162,6 +180,7 @@ decode =
         |> JDP.required "id" Decode.string
         |> JDP.required "name" Decode.string
         |> JDP.required "seats" Decode.string
+        |> JDP.required "gateway" Decode.string
 
 
 decodeList : Decode.Decoder (List Model)

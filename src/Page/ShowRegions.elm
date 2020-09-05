@@ -29,6 +29,7 @@ type Field
     = Name String
     | Id String
     | Seats String
+    | Gateway String
 
 
 type ShowDetailMode
@@ -115,6 +116,9 @@ update model msg =
                 Seats seat ->
                     ( { model | selectedRegion = Region.modifySeat seat model.selectedRegion }, Cmd.none )
 
+                Gateway gateway ->
+                    ( { model | selectedRegion = Region.setGateway gateway model.selectedRegion }, Cmd.none )
+
                 Id _ ->
                     ( model, Cmd.none )
 
@@ -181,6 +185,7 @@ renderRegionHeader =
     tr []
         [ th [] [ Html.text "Region" ]
         , th [] [ Html.text "Seats" ]
+        , th [] [ Html.text "Gateway" ]
         ]
 
 
@@ -189,6 +194,7 @@ renderRegionItem region =
     tr [ onClick (ShowDetail region) ]
         [ td [] [ Html.text region.name ]
         , td [] [ Html.text region.seats ]
+        , td [] [ Html.text region.gateway ]
         ]
 
 
@@ -242,6 +248,7 @@ renderDetails model =
             [ renderField "text" "id" model.id "eg. 123" False Id
             , renderField "text" "region" model.name "eg.Ashanti" False Name
             , renderField "number" "seat" model.seats "e.g 30" False Seats
+            , renderField "number" "gateway" model.gateway "e.g 30" False Gateway
             ]
         ]
 
@@ -252,6 +259,7 @@ renderEditableDetails model =
         [ renderField "text" "id" model.selectedRegion.id "eg. 123" False Id
         , renderField "text" "region" model.selectedRegion.name "eg.Ashanti" True Name
         , renderField "number" "seat" model.selectedRegion.seats "e.g 30" True Seats
+        , renderField "number" "gateway" model.selectedRegion.gateway "e.g 30" True Gateway
         , renderSubmitBtn model.isLoading (Region.isValid model.selectedRegion) "Update" "btn btn-danger" True
         ]
 
@@ -261,6 +269,7 @@ renderNewDetails model =
     form [ onSubmit Save ]
         [ renderField "text" "region" model.selectedRegion.name "eg.Ashanti" True Name
         , renderField "number" "seat" model.selectedRegion.seats "e.g 30" True Seats
+        , renderField "number" "gateway" model.selectedRegion.gateway "e.g 30" True Gateway
         , renderSubmitBtn model.isLoading (Region.isValid model.selectedRegion) "Save" "btn btn-danger" True
         ]
 

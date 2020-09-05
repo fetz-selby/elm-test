@@ -42,6 +42,8 @@ export const normalizeRegion = (region) => ({
   id: region && region.id ? region.id.toString() : "0",
   name: region && region.name ? region.name : "Unknown",
   seats: region && region.seats ? region.seats.toString() : "0",
+  gateway:
+    region && region.gateway ? region.gateway.toString() : "0000000000000",
 });
 
 export const normalizeParty = (party) => ({
