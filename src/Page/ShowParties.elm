@@ -178,8 +178,9 @@ renderPartyHeader : Html.Html Msg
 renderPartyHeader =
     tr []
         [ th [] [ Html.text "Party" ]
-        , th [] [ Html.text "Type" ]
-        , th [] [ Html.text "Votes" ]
+        , th [] [ Html.text "Color" ]
+        , th [] [ Html.text "Path" ]
+        , th [] [ Html.text "Queue" ]
         ]
 
 
