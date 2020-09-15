@@ -70,8 +70,8 @@ async function create() {
   // init and show the app
   // let [regions, parentConstituencies] = [[], []];
   let setup = {
-    regionId: "1",
-    year: "2016",
+    regionId: "",
+    year: "",
     level: "U",
     isExternal: false,
   };
@@ -85,7 +85,6 @@ async function create() {
     const socket = io(host);
     // @feathersjs/client is exposed as the `feathers` global.
     const service = feathers();
-    const { regionId, year, level, isExternal } = setup;
 
     service.configure(feathers.socketio(socket));
     service.configure(feathers.authentication());
@@ -103,12 +102,12 @@ async function create() {
           } else {
             const loginUser = normalizeLoginUser(user);
             const { year, region_id, level } = user;
-            setup = {
-              year,
-              regionId: region_id,
-              level,
-              isExternal: loginUser.is_external_user,
-            };
+
+            setup.year = year;
+            setup.regionId = region_id;
+            setup.level = level;
+            setup.isExternal = loginUser.is_external_user;
+
             app.ports.msgForElm.send({
               type: "LoginLoaded",
               payload: { loginUser },
@@ -125,13 +124,21 @@ async function create() {
       }
 
       case "InitAgents": {
-        const agents = await getAgents({ service, year, regionId });
+        const agents = await getAgents({
+          service,
+          year: setup.year,
+          regionId: setup.regionId,
+        });
         const constituencies = await getConstituencies({
           service,
-          year,
-          regionId,
+          year: setup.year,
+          regionId: setup.regionId,
         });
-        const polls = await getPolls({ service, year, regionId });
+        const polls = await getPolls({
+          service,
+          year: setup.year,
+          regionId: setup.regionId,
+        });
 
         app.ports.msgForElm.send({
           type: "AgentsLoaded",
@@ -161,13 +168,13 @@ async function create() {
       case "InitConstituencies": {
         const constituencies = await getConstituencies({
           service,
-          year,
-          regionId,
+          year: setup.year,
+          regionId: setup.regionId,
         });
 
         const parentConstituencies = await getParentConstituencies({
           service,
-          regionId,
+          regionId: setup.regionId,
         });
         const parties = await getParties({ service });
 
@@ -188,11 +195,15 @@ async function create() {
       }
 
       case "InitCandidates": {
-        const candidates = await getCandidates({ service, year, regionId });
+        const candidates = await getCandidates({
+          service,
+          year: setup.year,
+          regionId: setup.regionId,
+        });
         const constituencies = await getConstituencies({
           service,
-          year,
-          regionId,
+          year: setup.year,
+          regionId: setup.regionId,
         });
         const parties = await getParties({ service });
 
@@ -241,10 +252,14 @@ async function create() {
       case "InitPolls": {
         const constituencies = await getConstituencies({
           service,
-          year,
-          regionId,
+          year: setup.year,
+          regionId: setup.regionId,
         });
-        const polls = await getPolls({ service, year, regionId });
+        const polls = await getPolls({
+          service,
+          year: setup.year,
+          regionId: setup.regionId,
+        });
 
         app.ports.msgForElm.send({
           type: "PollsLoaded",
@@ -263,7 +278,7 @@ async function create() {
         const regions = await getRegions({ service });
         const parentConstituencies = await getParentConstituencies({
           service,
-          regionId,
+          regionId: setup.regionId,
         });
 
         app.ports.msgForElm.send({
@@ -281,7 +296,11 @@ async function create() {
       }
 
       case "InitApprove": {
-        const approves = await getApproves({ service, year, regionId });
+        const approves = await getApproves({
+          service,
+          year: setup.year,
+          regionId: setup.regionId,
+        });
         app.ports.msgForElm.send({
           type: "ApprovesLoaded",
           payload: { approveData: { approves: normalizeApproves(approves) } },
@@ -291,7 +310,11 @@ async function create() {
       }
 
       case "InitSeats": {
-        const seats = await getSeats({ service, year, regionId });
+        const seats = await getSeats({
+          service,
+          year: setup.year,
+          regionId: setup.regionId,
+        });
         app.ports.msgForElm.send({
           type: "SeatsLoaded",
           payload: { seatData: { seats: normalizeSeats(seats) } },
@@ -301,7 +324,10 @@ async function create() {
       }
 
       case "InitNationalSummary": {
-        const nationalAnalysis = await getNationalAnalysis({ service, year });
+        const nationalAnalysis = await getNationalAnalysis({
+          service,
+          year: setup.year,
+        });
         const parties = await getParties({ service });
 
         app.ports.msgForElm.send({
@@ -320,8 +346,8 @@ async function create() {
       case "InitRegionalSummary": {
         const regionalAnalysis = await getRegionalAnalysis({
           service,
-          year,
-          regionId,
+          year: setup.year,
+          regionId: setup.regionId,
         });
         const regions = [];
         const parties = await getParties({ service });
@@ -348,21 +374,33 @@ async function create() {
       }
 
       case "SaveAgent": {
-        const agent = { ...payload, year, regionId };
+        const agent = {
+          ...payload,
+          year: setup.year,
+          regionId: setup.regionId,
+        };
         await addAgent({ service, agent });
 
         break;
       }
 
       case "SaveCandidate": {
-        const candidate = { ...payload, year, regionId };
+        const candidate = {
+          ...payload,
+          year: setup.year,
+          regionId: setup.regionId,
+        };
         await addCandidate({ service, candidate });
 
         break;
       }
 
       case "SaveConstituency": {
-        const constituency = { ...payload, year, regionId };
+        const constituency = {
+          ...payload,
+          year: setup.year,
+          regionId: setup.regionId,
+        };
         await addConstituency({
           service,
           constituency,
@@ -372,7 +410,7 @@ async function create() {
       }
 
       case "SaveNationalSummary": {
-        const nationalAnalysis = { ...payload, year };
+        const nationalAnalysis = { ...payload, year: setup.year };
         await addNationalAnalysis({
           service,
           nationalAnalysis,
@@ -382,7 +420,11 @@ async function create() {
       }
 
       case "SaveRegionalSummary": {
-        const regionalAnalysis = { ...payload, region_id: regionId, year };
+        const regionalAnalysis = {
+          ...payload,
+          region_id: setup.regionId,
+          year: setup.year,
+        };
         await addRegionalAnalysis({
           service,
           regionalAnalysis,
@@ -406,14 +448,14 @@ async function create() {
       }
 
       case "SavePoll": {
-        const poll = { ...payload, year, regionId };
+        const poll = { ...payload, year: setup.year, regionId: setup.regionId };
         await addPoll({ service, poll });
 
         break;
       }
 
       case "SaveParentConstituency": {
-        const parentConstituency = { ...payload, region_id: regionId };
+        const parentConstituency = { ...payload, region_id: setup.regionId };
         await addParentConstituency({
           service,
           parentConstituency,
@@ -440,14 +482,22 @@ async function create() {
       }
 
       case "UpdateAgent": {
-        const agent = { ...payload, year, regionId };
+        const agent = {
+          ...payload,
+          year: setup.year,
+          regionId: setup.regionId,
+        };
         await updateAgent({ service, agent });
 
         break;
       }
 
       case "UpdateConstituency": {
-        const constituency = { ...payload, year, regionId };
+        const constituency = {
+          ...payload,
+          year: setup.year,
+          regionId: setup.regionId,
+        };
         await updateConstituency({
           service,
           constituency,
@@ -457,7 +507,11 @@ async function create() {
       }
 
       case "UpdateCandidate": {
-        const candidate = { ...payload, year, regionId };
+        const candidate = {
+          ...payload,
+          year: setup.year,
+          regionId: setup.regionId,
+        };
         await updateCandidate({
           service,
           candidate,
@@ -474,14 +528,14 @@ async function create() {
       }
 
       case "UpdatePoll": {
-        const poll = { ...payload, year, regionId };
+        const poll = { ...payload, year: setup.year, regionId: setup.regionId };
         await updatePoll({ service, poll });
 
         break;
       }
 
       case "UpdateParentConstituency": {
-        const parentConstituency = { ...payload, region_id: regionId };
+        const parentConstituency = { ...payload, region_id: setup.regionId };
         await updateParentConstituency({
           service,
           parentConstituency,
@@ -491,7 +545,11 @@ async function create() {
       }
 
       case "UpdateRegionalSummary": {
-        const regionalAnalysis = { ...payload, region_id: regionId, year };
+        const regionalAnalysis = {
+          ...payload,
+          region_id: setup.regionId,
+          year: setup.year,
+        };
         await updateRegionalAnalysis({
           service,
           regionalAnalysis,
@@ -501,7 +559,7 @@ async function create() {
       }
 
       case "UpdateNationalSummary": {
-        const nationalAnalysis = { ...payload, year };
+        const nationalAnalysis = { ...payload, year: setup.year };
         await updateNationalAnalysis({
           service,
           nationalAnalysis,
@@ -511,7 +569,12 @@ async function create() {
       }
 
       case "UpdateApprove": {
-        const approve = { ...payload, year, regionId, isExternal };
+        const approve = {
+          ...payload,
+          year: setup.year,
+          regionId: setup.regionId,
+          isExternal: setup.isExternal,
+        };
         await updateApprove({
           service,
           approve,
@@ -562,7 +625,7 @@ async function create() {
     // When a model is created
 
     service.service("agents").on("created", (agent, c) => {
-      if (agent.regionId === regionId) {
+      if (agent.regionId === setup.regionId) {
         app.ports.msgForElm.send({
           type: "OneAgentAdded",
           payload: normalizeAgent(agent),
@@ -585,7 +648,7 @@ async function create() {
     });
 
     service.service("constituencies").on("created", (constituency, c) => {
-      if (constituency.regionId === regionId) {
+      if (constituency.regionId === setup.regionId) {
         app.ports.msgForElm.send({
           type: "OneConstituencyAdd",
           payload: normalizeConstituency(constituency),
@@ -596,7 +659,7 @@ async function create() {
     service.service("approve_list").on("created", (d, c) => {});
 
     service.service("candidates").on("created", (candidate, c) => {
-      if (candidate.regionId === regionId) {
+      if (candidate.regionId === setup.regionId) {
         app.ports.msgForElm.send({
           type: "OneCandidateAdded",
           payload: normalizeCandidate(candidate),
@@ -616,7 +679,7 @@ async function create() {
     service
       .service("parent_constituencies")
       .on("created", (parentConstituency, c) => {
-        if (parentConstituency.regionId === regionId) {
+        if (parentConstituency.regionId === setup.regionId) {
           app.ports.msgForElm.send({
             type: "OneParentConstituencyAdd",
             payload: normalizeParentConstituency(parentConstituency),
@@ -632,7 +695,7 @@ async function create() {
     });
 
     service.service("polls").on("created", (poll, c) => {
-      if (poll.regionId === regionId) {
+      if (poll.regionId === setup.regionId) {
         app.ports.msgForElm.send({
           type: "OnePollAdded",
           payload: normalizePoll(poll),
@@ -643,7 +706,7 @@ async function create() {
     service
       .service("regional_analysis")
       .on("created", (regionalAnalysis, c) => {
-        if (regionalAnalysis.regionId === regionId) {
+        if (regionalAnalysis.regionId === setup.regionId) {
           app.ports.msgForElm.send({
             type: "OneRegionalAnalysisAdded",
             payload: normalizeRegionalAnalysis(regionalAnalysis),
@@ -653,7 +716,7 @@ async function create() {
 
     // When a model is updated
     service.service("agents").on("updated", (agent, c) => {
-      if (agent.regionId === regionId) {
+      if (agent.regionId === setup.regionId) {
         app.ports.msgForElm.send({
           type: "OneAgentUpdated",
           payload: normalizeAgent(agent),
@@ -676,7 +739,7 @@ async function create() {
     });
 
     service.service("constituencies").on("updated", (constituency, c) => {
-      if (constituency.regionId === regionId) {
+      if (constituency.regionId === setup.regionId) {
         app.ports.msgForElm.send({
           type: "OneConstituencyUpdated",
           payload: normalizeConstituency(constituency),
@@ -685,7 +748,7 @@ async function create() {
     });
 
     service.service("approve_list").on("updated", (approve, c) => {
-      if (approve.regionId === regionId) {
+      if (approve.regionId === setup.regionId) {
         app.ports.msgForElm.send({
           type: "OneApproveUpdated",
           payload: normalizeApprove(approve),
@@ -694,7 +757,7 @@ async function create() {
     });
 
     service.service("candidates").on("updated", (candidate, c) => {
-      if (candidate.regionId === regionId) {
+      if (candidate.regionId === setup.regionId) {
         app.ports.msgForElm.send({
           type: "OneCandidateUpdated",
           payload: normalizeCandidate(candidate),
@@ -703,7 +766,7 @@ async function create() {
     });
 
     service.service("polls").on("updated", (poll, c) => {
-      if (poll.regionId === regionId) {
+      if (poll.regionId === setup.regionId) {
         app.ports.msgForElm.send({
           type: "OnePollUpdated",
           payload: normalizePoll(poll),
@@ -721,7 +784,7 @@ async function create() {
     service
       .service("parent_constituencies")
       .on("updated", (parentConstituency, c) => {
-        if (parentConstituency.regionId === regionId) {
+        if (parentConstituency.regionId === setup.regionId) {
           app.ports.msgForElm.send({
             type: "OneParentConstituencyUpdated",
             payload: normalizeParentConstituency(parentConstituency),
