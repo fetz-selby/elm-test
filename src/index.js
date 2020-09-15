@@ -625,7 +625,7 @@ async function create() {
     // When a model is created
 
     service.service("agents").on("created", (agent, c) => {
-      if (agent.regionId === setup.regionId) {
+      if (agent.regionId === setup.regionId && agent.year === setup.year) {
         app.ports.msgForElm.send({
           type: "OneAgentAdded",
           payload: normalizeAgent(agent),
@@ -648,7 +648,10 @@ async function create() {
     });
 
     service.service("constituencies").on("created", (constituency, c) => {
-      if (constituency.regionId === setup.regionId) {
+      if (
+        constituency.regionId === setup.regionId &&
+        constituency.year === setup.year
+      ) {
         app.ports.msgForElm.send({
           type: "OneConstituencyAdd",
           payload: normalizeConstituency(constituency),
@@ -659,7 +662,10 @@ async function create() {
     service.service("approve_list").on("created", (d, c) => {});
 
     service.service("candidates").on("created", (candidate, c) => {
-      if (candidate.regionId === setup.regionId) {
+      if (
+        candidate.regionId === setup.regionId &&
+        candidate.year === setup.year
+      ) {
         app.ports.msgForElm.send({
           type: "OneCandidateAdded",
           payload: normalizeCandidate(candidate),
@@ -695,7 +701,7 @@ async function create() {
     });
 
     service.service("polls").on("created", (poll, c) => {
-      if (poll.regionId === setup.regionId) {
+      if (poll.regionId === setup.regionId && poll.year === setup.year) {
         app.ports.msgForElm.send({
           type: "OnePollAdded",
           payload: normalizePoll(poll),
@@ -706,7 +712,10 @@ async function create() {
     service
       .service("regional_analysis")
       .on("created", (regionalAnalysis, c) => {
-        if (regionalAnalysis.regionId === setup.regionId) {
+        if (
+          regionalAnalysis.regionId === setup.regionId &&
+          regionalAnalysis.year === setup.year
+        ) {
           app.ports.msgForElm.send({
             type: "OneRegionalAnalysisAdded",
             payload: normalizeRegionalAnalysis(regionalAnalysis),
@@ -716,7 +725,7 @@ async function create() {
 
     // When a model is updated
     service.service("agents").on("updated", (agent, c) => {
-      if (agent.regionId === setup.regionId) {
+      if (agent.regionId === setup.regionId && agent.year === setup.year) {
         app.ports.msgForElm.send({
           type: "OneAgentUpdated",
           payload: normalizeAgent(agent),
@@ -739,7 +748,10 @@ async function create() {
     });
 
     service.service("constituencies").on("updated", (constituency, c) => {
-      if (constituency.regionId === setup.regionId) {
+      if (
+        constituency.regionId === setup.regionId &&
+        constituency.year === setup.year
+      ) {
         app.ports.msgForElm.send({
           type: "OneConstituencyUpdated",
           payload: normalizeConstituency(constituency),
@@ -748,7 +760,7 @@ async function create() {
     });
 
     service.service("approve_list").on("updated", (approve, c) => {
-      if (approve.regionId === setup.regionId) {
+      if (approve.regionId === setup.regionId && approve.year === setup.year) {
         app.ports.msgForElm.send({
           type: "OneApproveUpdated",
           payload: normalizeApprove(approve),
@@ -757,7 +769,10 @@ async function create() {
     });
 
     service.service("candidates").on("updated", (candidate, c) => {
-      if (candidate.regionId === setup.regionId) {
+      if (
+        candidate.regionId === setup.regionId &&
+        candidate.year === setup.year
+      ) {
         app.ports.msgForElm.send({
           type: "OneCandidateUpdated",
           payload: normalizeCandidate(candidate),
@@ -766,7 +781,7 @@ async function create() {
     });
 
     service.service("polls").on("updated", (poll, c) => {
-      if (poll.regionId === setup.regionId) {
+      if (poll.regionId === setup.regionId && poll.year === setup.year) {
         app.ports.msgForElm.send({
           type: "OnePollUpdated",
           payload: normalizePoll(poll),
