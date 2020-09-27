@@ -260,7 +260,11 @@ showDetailState mode model =
 
 addToApproves : Approve.Model -> List Approve.Model -> List Approve.Model
 addToApproves approve list =
-    approve :: list
+    if Approve.isIdExist approve list then
+        list
+
+    else
+        approve :: list
 
 
 decode : Decode.Decoder ApproveData

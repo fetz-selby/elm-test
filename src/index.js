@@ -659,8 +659,6 @@ async function create() {
       }
     });
 
-    service.service("approve_list").on("created", (d, c) => {});
-
     service.service("candidates").on("created", (candidate, c) => {
       if (
         candidate.regionId === setup.regionId &&
@@ -722,6 +720,15 @@ async function create() {
           });
         }
       });
+
+    service.service("approve_list").on("created", (approve, c) => {
+      if (approve.regionId === setup.regionId && approve.year === setup.year) {
+        app.ports.msgForElm.send({
+          type: "OneApproveAdded",
+          payload: normalizeApprove(approve),
+        });
+      }
+    });
 
     // When a model is updated
     service.service("agents").on("updated", (agent, c) => {
