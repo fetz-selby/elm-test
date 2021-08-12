@@ -8,7 +8,6 @@ module Data.Login exposing
     , modifyPassword
     )
 
-import Email
 import Json.Encode as Encode
 
 
@@ -45,12 +44,7 @@ isValid model =
 
 hasValidEmail : String -> Bool
 hasValidEmail email =
-    case email |> Email.fromString of
-        Just _ ->
-            True
-
-        Nothing ->
-            False
+    True
 
 
 hasValidPassword : String -> Bool

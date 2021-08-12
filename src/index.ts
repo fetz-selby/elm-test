@@ -1,4 +1,5 @@
-import Elm from "./Main.elm";
+// @ts-ignore: elm entry point
+import { Elm } from "./Main.elm";
 import { getAgents, addAgent, updateAgent } from "./api/agents";
 import { getSeats } from "./api/seats";
 
@@ -77,7 +78,7 @@ async function create() {
   };
 
   const node = document.getElementById("app");
-  const app = Elm.Elm.Main.init({ node, flags: "" + Date.now() });
+  const app = Elm.Main.init({ node, flags: "" + Date.now() });
 
   const host = `${process.env.SERVER_HOST}:${process.env.PORT}`;
 

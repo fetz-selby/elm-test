@@ -26,9 +26,7 @@ type alias Model =
 
 
 
--- main : Program () Model Msg
-
-
+main : Program String Model Msg
 main =
     Browser.element
         { init = init

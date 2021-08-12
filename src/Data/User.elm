@@ -22,7 +22,6 @@ module Data.User exposing
 
 import Array
 import Data.Region as Region
-import Email
 import Json.Decode as Decode
 import Json.Decode.Pipeline as JDP
 import Json.Encode as Encode
@@ -144,12 +143,7 @@ hasValidName name =
 
 hasValidEmail : String -> Bool
 hasValidEmail email =
-    case email |> Email.fromString of
-        Just _ ->
-            True
-
-        Nothing ->
-            False
+    True
 
 
 hasValidMsisdn : String -> Bool
