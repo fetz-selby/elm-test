@@ -24,7 +24,7 @@ const elmLoaderOptions = isDevMode
     ];
 
 module.exports = {
-  entry: path.resolve(__dirname, '../', '../',  "src/index.ts"),
+  entry: path.resolve(__dirname, '../', '../',  "src/index.js"),
   output: {
     filename: "index.js",
     path: path.resolve(__dirname, "dist"),
@@ -32,26 +32,26 @@ module.exports = {
   plugins: [new Dotenv()],
   module: {
     rules: [
-      {
-        test: /\.elm$/,
-        exclude: [/elm-stuff/, /node_modules/],
-        use: {
-          loader: "elm-webpack-loader",
-          options: {
-            files: [path.resolve(__dirname, '../', '../',  "src/Main.elm")],
-          },
-        },
-      },
+      // {
+      //   test: /\.elm$/,
+      //   exclude: [/elm-stuff/, /node_modules/],
+      //   use: {
+      //     loader: "elm-webpack-loader",
+      //     options: {
+      //       files: [path.resolve(__dirname, '../', '../',  "src/Main.elm")],
+      //     },
+      //   },
+      // },
       // {
       //   test: /\.(t|j)sx?$/,
       //   exclude: /node_modules/,
       //   use: withCacheLoader,
       // },
-      // {
-      //   test: /\.elm$/,
-      //   exclude: [/elm-stuff/, /node_modules/],
-      //   use: elmLoaderOptions,
-      // },
+      {
+        test: /\.elm$/,
+        exclude: [/elm-stuff/, /node_modules/],
+        use: elmLoaderOptions,
+      },
       {
         test: /\.(html)$/,
         exclude: [/node_modules/],
